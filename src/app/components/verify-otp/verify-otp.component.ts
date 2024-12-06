@@ -2,8 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { Route, Router } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import { AlertController, LoadingController, MenuController, ModalController, NavController, NavParams, ToastController } from '@ionic/angular';
+import {
+  AlertController,
+  LoadingController,
+  MenuController,
+  ModalController,
+  NavController,
+  NavParams,
+  ToastController,
+} from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { RestService } from 'src/providers/rest.service';
@@ -16,13 +25,12 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
   styleUrls: ['./verify-otp.component.scss'],
 })
 export class VerifyOtpComponent {
-
   productCode: any;
   entitypic: any;
   promoterpic: any;
   submitData: any;
   checkOTP: boolean = false;
-  smsbody: { "SMS": { "Request": { "Mobile": any; "OTP": any; }; }; };
+  smsbody: { SMS: { Request: { Mobile: any; OTP: any } } };
   guitems: any;
   cuitems: any;
   guarantors: any;
@@ -33,7 +41,7 @@ export class VerifyOtpComponent {
   pdt_master = [];
   OTPNUM: any;
   enteredOTP: any;
-  otpValue = "I AGREE";
+  otpValue = 'I AGREE';
   otpCount = 0;
   verifiedMobNum: any = false;
   beforeverify: boolean = false;
@@ -85,7 +93,7 @@ export class VerifyOtpComponent {
   docs_master: any = [];
   coapp: any;
 
-  janaRefId: string = "";
+  janaRefId: string = '';
 
   OTP: any = {
     first: '',
@@ -93,23 +101,34 @@ export class VerifyOtpComponent {
     third: '',
     forth: '',
     fifth: '',
-    sixth: ''
-  };    
+    sixth: '',
+  };
 
-  constructor(public navCtrl: NavController, public router: Router, public navParams: NavParams, public sqliteProvider: SqliteService, 
-    public globalData: DataPassingProviderService, public network: Network, public http: HTTP, public loadCtrl: LoadingController, public alertCtrl: AlertController, 
-    public toastCtrl: ToastController, public master: RestService, 
-    // public base64: Base64, 
-    public sqlSupport: SquliteSupportProviderService, 
-    private globFunc: GlobalService, public modalCtrl: ModalController) {
+  constructor(
+    public navCtrl: NavController,
+    public router: Router,
+    public navParams: NavParams,
+    public sqliteProvider: SqliteService,
+    public globalData: DataPassingProviderService,
+    public network: Network,
+    public http: HTTP,
+    public loadCtrl: LoadingController,
+    public alertCtrl: AlertController,
+    public toastCtrl: ToastController,
+    public master: RestService,
+    // public base64: Base64,
+    public sqlSupport: SquliteSupportProviderService,
+    private globFunc: GlobalService,
+    public modalCtrl: ModalController,
+    public alertService: CustomAlertControlService
+  ) {
     this.urlType = environment.apiURL;
-    this.otpUrl = this.globalData.urlEndPoint + "Smsotp";
+    this.otpUrl = this.globalData.urlEndPoint + 'Smsotp';
     this.urlCheck = this.globalData.urlEndPointStat;
-    this.cibilCheckUrl = this.globalData.urlEndPoint + "Cibil";
+    this.cibilCheckUrl = this.globalData.urlEndPoint + 'Cibil';
     this.green = false;
     this.amber = false;
     this.red = false;
-
 
     if (this.navParams.get('applicant')) {
       this.userInfo = this.navParams.get('applicant');
@@ -132,8 +151,6 @@ export class VerifyOtpComponent {
       this.id = this.coapp.id;
     }
     this.username = this.globFunc.basicDec(localStorage.getItem('username'));
-
-
   }
   ionViewWillEnter() {
     this.getProductValue();
@@ -141,131 +158,151 @@ export class VerifyOtpComponent {
     // this.getCibilCheckStatus();
   }
 
-
   loadAllApplicantDetails() {
-    this.sqliteProvider.getSubmitDataDetailsCibil(this.refId).then(data => {
-      this.items = [];
-      this.items = data;
-      this.productCode = this.getJanaProductCode(this.items[0].janaLoan);
+    this.sqliteProvider
+      .getSubmitDataDetailsCibil(this.refId)
+      .then((data) => {
+        this.items = [];
+        this.items = data;
+        this.productCode = this.getJanaProductCode(this.items[0].janaLoan);
 
-      let custType = this.globalData.getCustomerType();
-      let entityStat;
-      if (custType == '1') {
-        entityStat = 'N';
-        this.sqliteProvider.getDocumentsByIndividualPrdCode(this.items[0].janaLoan, entityStat).then(data => {
-          this.docs_master = data;
-          // this.GetCbilDocs();
-        });
-      } else {
-        entityStat = 'Y';
-        this.sqliteProvider.getDocumentsByPrdCode(this.items[0].janaLoan).then(data => {
-          this.docs_master = data;
-          // this.GetCbilDocs();
-        });
-      }
-      // this.sqliteProvider.getDocumentsByPrdCode(this.items[0].janaLoan, entityStat).then(data => {
-      //   this.docs_master = data;
-      //   this.GetCbilDocs();
-      // });
+        let custType = this.globalData.getCustomerType();
+        let entityStat;
+        if (custType == '1') {
+          entityStat = 'N';
+          this.sqliteProvider
+            .getDocumentsByIndividualPrdCode(this.items[0].janaLoan, entityStat)
+            .then((data) => {
+              this.docs_master = data;
+              // this.GetCbilDocs();
+            });
+        } else {
+          entityStat = 'Y';
+          this.sqliteProvider
+            .getDocumentsByPrdCode(this.items[0].janaLoan)
+            .then((data) => {
+              this.docs_master = data;
+              // this.GetCbilDocs();
+            });
+        }
+        // this.sqliteProvider.getDocumentsByPrdCode(this.items[0].janaLoan, entityStat).then(data => {
+        //   this.docs_master = data;
+        //   this.GetCbilDocs();
+        // });
 
-      
-      // this.base64.encodeFile(this.items[0].profPic).then((base64File: string) => {
-      //   this.promoterpic = base64File.replace(/\n/g, '');
-      // }, (err) => {
-      //   console.log(err);
-      // });
+        // this.base64.encodeFile(this.items[0].profPic).then((base64File: string) => {
+        //   this.promoterpic = base64File.replace(/\n/g, '');
+        // }, (err) => {
+        //   console.log(err);
+        // });
 
-      // console.log("items: " + JSON.stringify(this.items));
-    }).catch(e => {
-      console.log("er" + e);
-      this.items = [];
-    });
+        // console.log("items: " + JSON.stringify(this.items));
+      })
+      .catch((e) => {
+        console.log('er' + e);
+        this.items = [];
+      });
   }
 
   getProductValue() {
-    this.sqliteProvider.getAllProductList().then(data => {
+    this.sqliteProvider.getAllProductList().then((data) => {
       this.pdt_master = data;
-    })
+    });
   }
 
   getJanaProductCode(value: string) {
     let selectedLoanName = this.pdt_master.find((f) => {
       return f.prdCode === value;
-    })
+    });
     return selectedLoanName.prdSchemeCode;
   }
 
-
-
   async sendSms() {
-    if (this.network.type == 'none' || this.network.type == "unknown") {
-      this.globalData.showAlert("Alert!", "Please Check your Data Connection!");
+    if (this.network.type == 'none' || this.network.type == 'unknown') {
+      this.alertService.showAlert(
+        'Alert!',
+        'Please Check your Data Connection!'
+      );
     } else {
       this.otpCount++;
       this.checkOTP = true;
       if (this.otpCount > 3) {
-        this.globalData.showAlert("Alert!", "Exceed the limit!");
+        this.alertService.showAlert('Alert!', 'Exceed the limit!');
       } else {
         let loading = await this.loadCtrl.create({
-         message : 'Sending OTP...'
+          message: 'Sending OTP...',
         });
         loading.present();
         this.OTPNUM = Math.floor(Math.random() * 900000) + 100000;
         console.log(this.OTPNUM);
-        if (this.cbusertype == "A") {
+        if (this.cbusertype == 'A') {
           this.smsbody = {
-            "SMS": {
-              "Request": {
-                "Mobile": this.globFunc.basicDec(this.items[0].mobNum),
-                "OTP": "Your One Time Password for your loan application is " + this.OTPNUM + ". Please do not share OTP with anyone - Jana Bank."
-              }
-            }
-          }
-        } else if (this.cbusertype == "G") {
+            SMS: {
+              Request: {
+                Mobile: this.globFunc.basicDec(this.items[0].mobNum),
+                OTP:
+                  'Your One Time Password for your loan application is ' +
+                  this.OTPNUM +
+                  '. Please do not share OTP with anyone - Jana Bank.',
+              },
+            },
+          };
+        } else if (this.cbusertype == 'G') {
           this.smsbody = {
-            "SMS": {
-              "Request": {
-                "Mobile": this.globFunc.basicDec(this.guarantors.mobNum),
-                "OTP": "Your One Time Password for your loan application is " + this.OTPNUM + ". Please do not share OTP with anyone - Jana Bank."
-              }
-            }
-          }
+            SMS: {
+              Request: {
+                Mobile: this.globFunc.basicDec(this.guarantors.mobNum),
+                OTP:
+                  'Your One Time Password for your loan application is ' +
+                  this.OTPNUM +
+                  '. Please do not share OTP with anyone - Jana Bank.',
+              },
+            },
+          };
+        } else if (this.cbusertype == 'C') {
+          this.smsbody = {
+            SMS: {
+              Request: {
+                Mobile: this.globFunc.basicDec(this.coapp.mobNum),
+                OTP:
+                  'Your One Time Password for your loan application is ' +
+                  this.OTPNUM +
+                  '. Please do not share OTP with anyone - Jana Bank.',
+              },
+            },
+          };
         }
-        else if (this.cbusertype == "C") {
-          this.smsbody = {
-            "SMS": {
-              "Request": {
-                "Mobile": this.globFunc.basicDec(this.coapp.mobNum),
-                "OTP": "Your One Time Password for your loan application is " + this.OTPNUM + ". Please do not share OTP with anyone - Jana Bank."
-              }
-            }
-          }
-        }
-        this.master.restApiCallAngular('Smsotp', this.smsbody).then((data) => {
-          loading.dismiss();
-          this.beforeverify = true;
-          if (this.urlType) {
-            this.otpResult = (<any>data).SMS.Response;
-            // this.verifiedMobNum = false;
-            this.otpValue = "RESEND OTP"
-          } else {
-            if ((<any>data).SMS.Response.statusCode === 'Success') {
+        this.master.restApiCallAngular('Smsotp', this.smsbody).then(
+          (data) => {
+            loading.dismiss();
+            this.beforeverify = true;
+            if (this.urlType) {
               this.otpResult = (<any>data).SMS.Response;
               // this.verifiedMobNum = false;
-              this.otpValue = "RESEND OTP"
-              this.message = "OTP Sent to Entered Mobile number Success!";
-              this.presentToast();
+              this.otpValue = 'RESEND OTP';
             } else {
-              // this.verifiedMobNum = false;
-              this.otpResult = undefined;
-              this.globalData.showAlert("Alert!", "Something went wrong! OTP not sent!");
+              if ((<any>data).SMS.Response.statusCode === 'Success') {
+                this.otpResult = (<any>data).SMS.Response;
+                // this.verifiedMobNum = false;
+                this.otpValue = 'RESEND OTP';
+                this.message = 'OTP Sent to Entered Mobile number Success!';
+                this.presentToast();
+              } else {
+                // this.verifiedMobNum = false;
+                this.otpResult = undefined;
+                this.alertService.showAlert(
+                  'Alert!',
+                  'Something went wrong! OTP not sent!'
+                );
+              }
             }
+          },
+          (err) => {
+            loading.dismiss();
+            this.otpValue = 'RESEND OTP';
+            this.alertService.showAlert('Alert!', 'No Response from Server!');
           }
-        }, (err) => {
-          loading.dismiss();
-          this.otpValue = "RESEND OTP"
-          this.globalData.showAlert("Alert!", "No Response from Server!");
-        });
+        );
       }
     }
   }
@@ -274,37 +311,35 @@ export class VerifyOtpComponent {
     // let receivedOTP = Object.values(val).join('');
     let value: any = parseInt(val);
     // if(+receivedOTP.length<6){
-    //   this.globalData.showAlert("Alert", "Please enter full OTP number!");
+    //   this.alertService.showAlert("Alert", "Please enter full OTP number!");
     // }else{
-      if (this.OTPNUM === value) {
-        this.verifiedMobNum = true;
-        this.message = "Mobile Number verified Successfully!";
-        this.presentToast();
-        this.modalCtrl.dismiss('true');  
-      } else if (this.OTPNUM != value) {
-        this.verifiedMobNum = false;
-        this.enteredOTP = '';
-        this.message = "Please enter valid OTP!";
-        this.presentToast();
-      } else if (value === "" || value === undefined || value === null) {
-        this.verifiedMobNum = false;
-        this.message = "Please enter OTP!";
-        this.presentToast();
-      }
+    if (this.OTPNUM === value) {
+      this.verifiedMobNum = true;
+      this.message = 'Mobile Number verified Successfully!';
+      this.presentToast();
+      this.modalCtrl.dismiss('true');
+    } else if (this.OTPNUM != value) {
+      this.verifiedMobNum = false;
+      this.enteredOTP = '';
+      this.message = 'Please enter valid OTP!';
+      this.presentToast();
+    } else if (value === '' || value === undefined || value === null) {
+      this.verifiedMobNum = false;
+      this.message = 'Please enter OTP!';
+      this.presentToast();
+    }
     // }
   }
 
   otpController(event, next, prev, index) {
     if (index == 6) {
-      console.log("submit")
+      console.log('submit');
     }
     if (event.target.value.length < 1 && prev) {
-      prev.setFocus()
-    }
-    else if (next && event.target.value.length > 0) {
+      prev.setFocus();
+    } else if (next && event.target.value.length > 0) {
       next.setFocus();
-    }
-    else {
+    } else {
       return 0;
     }
   }
@@ -313,11 +348,8 @@ export class VerifyOtpComponent {
     let toast = await this.toastCtrl.create({
       message: this.message,
       duration: 1000,
-      position: "top"
+      position: 'top',
     });
     toast.present();
   }
-
-
 }
-

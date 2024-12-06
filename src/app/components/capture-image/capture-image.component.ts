@@ -19,14 +19,17 @@ export class CaptureImageComponent implements OnInit {
   currentSlide: number = 0;
   convertedCurrentSlide: number = 0;
   capturedImage = [];
-  readedImageFromPhoneDirectory = []
+  readedImageFromPhoneDirectory = [];
   uploadingDoc = [];
-  convertedImg= [];
+  convertedImg = [];
   size: number;
-  saved  = true;
+  saved = true;
 
-  constructor(private globFunc: GlobalService, public modalController: ModalController,
-    private master: RestService) { }
+  constructor(
+    private globFunc: GlobalService,
+    public modalController: ModalController,
+    private master: RestService
+  ) {}
 
   async onSlideChanged(event) {
     this.currentSlide = await this.sliderReference.getActiveIndex();
@@ -38,17 +41,17 @@ export class CaptureImageComponent implements OnInit {
     this.sliderReference.slideTo(this.currentSlide);
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   clickCamera() {
-    this.globFunc.takeImage('document').then(data => {
+    this.globFunc.takeImage('document').then((data) => {
       console.log(`Captured data ${data}`);
       this.capturedImage.push(data);
       // this.saveImageInFolder(data,this.capturedImage.length)
-    })
+    });
   }
 
-  async saveImageInFolder(url,length,filepath?) {
+  async saveImageInFolder(url, length, filepath?) {
     try {
       const imageData = url;
       const filePath = filepath ? filepath : `/Doc${length}.jpg`;
@@ -57,36 +60,33 @@ export class CaptureImageComponent implements OnInit {
         data: imageData,
         directory: Directory.External, // Use Directory.Data for the private folder you created
       });
-      alert(filePath)
-      this.readImageFile(filePath)
+      alert(filePath);
+      this.readImageFile(filePath);
       console.log('Image saved to folder:', filePath);
     } catch (error) {
-      alert(error)
+      alert(error);
       console.error('Error saving image:', error);
     }
-
   }
 
-  async readImageFile(path){
-    try{
-      const filePath = path 
+  async readImageFile(path) {
+    try {
+      const filePath = path;
       const image = await Filesystem.readFile({
         path: filePath,
-        directory: Directory.External
+        directory: Directory.External,
       });
       alert(image);
-      this.readedImageFromPhoneDirectory.push(image.data)
-      console.log('read image',image);
-    } catch (err){
-      alert(err)
-      console.log(err);    
+      this.readedImageFromPhoneDirectory.push(image.data);
+      console.log('read image', image);
+    } catch (err) {
+      alert(err);
+      console.log(err);
     }
- 
-    
   }
 
   deleteDoc() {
-    this.capturedImage.splice(this.currentSlide, 1)
+    this.capturedImage.splice(this.currentSlide, 1);
   }
 
   // uploadImg() {
@@ -115,18 +115,17 @@ export class CaptureImageComponent implements OnInit {
   //     this.master.restApiCallAngular('LoginDocument', docs_upload).then(data => {
   //       if (data) {
   //         this.globFunc.globalLodingDismiss();
-  //         this.globFunc.showAlert('Alert', data.ErrorDesc)
+  //         this.alertService.showAlert('Alert', data.ErrorDesc)
   //       }
   //     })
   //   } else {
-  //     this.globFunc.showAlert('Alert', 'Please Capture Image...')
+  //     this.alertService.showAlert('Alert', 'Please Capture Image...')
   //   }
   // }
 
   closeModal() {
     this.modalController.dismiss();
   }
-
 
   async convertToWebP() {
     try {
@@ -144,24 +143,23 @@ export class CaptureImageComponent implements OnInit {
   async convertToWebPBase64() {
     try {
       console.log(WebPConvertor);
-      this.globFunc.globalLodingPresent('Please Wait...')
-      if(WebPConvertor){
-        for(let i = 0; i < this.capturedImage.length; i++){
+      this.globFunc.globalLodingPresent('Please Wait...');
+      if (WebPConvertor) {
+        for (let i = 0; i < this.capturedImage.length; i++) {
           const result = await WebPConvertor['convertToWebP']({
-            path:
-              `/storage/emulated/0/Android/data/com.jfs.vlwebp/files/${this.capturedImage[i].Name}`
+            path: `/storage/emulated/0/Android/data/com.jfs.vlwebp/files/${this.capturedImage[i].Name}`,
           });
-          if(result.data){
+          if (result.data) {
             // alert(`WebpConversion.convertToWebP => ${result.value}`);
             let path = result.data;
-            let size = result.data.length / 1000
-            let chargesFormatValue = size.toFixed(2).toString().split(".");
-            if (chargesFormatValue[1] <= "49") {
+            let size = result.data.length / 1000;
+            let chargesFormatValue = size.toFixed(2).toString().split('.');
+            if (chargesFormatValue[1] <= '49') {
               size = Math.floor(size);
             } else {
               size = Math.ceil(size);
             }
-            this.convertedImg.push({ path : path , size : size})
+            this.convertedImg.push({ path: path, size: size });
           }
         }
         this.globFunc.globalLodingDismiss();
@@ -172,10 +170,7 @@ export class CaptureImageComponent implements OnInit {
     }
   }
 
-  
-
-  save(){
+  save() {
     this.saved = false;
   }
-
 }

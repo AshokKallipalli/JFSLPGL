@@ -1,9 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import {
-  AlertController,
-  LoadingController,
-  ToastController,
-} from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 // import { GlobalfunctionsProvider } from "../globalfunctions/globalfunctions";
 // import { File } from '@ionic-native/file';
 import { Device } from '@awesome-cordova-plugins/device/ngx';
@@ -45,7 +41,6 @@ export class DataPassingProviderService {
   _jana: any;
   _URN: any;
   _pdt: any;
-  alertCtrl = new AlertController();
 
   eventValue = new Subject();
 
@@ -56,7 +51,6 @@ export class DataPassingProviderService {
   nomineeValue: BehaviorSubject<string> = new BehaviorSubject<string>('');
   loginUser: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   constructor(
-    // public alertCtrl: AlertController,
     // public global: GlobalService,
     public loadingCtrl: LoadingController,
     public device: Device,
@@ -160,53 +154,6 @@ export class DataPassingProviderService {
   //   getSaveStatus() {
   //     return this._SubmitStatus;
   //   }
-
-  async showAlert(tittle, subtitle, value?) {
-    return new Promise(async (resolve, reject) => {
-      let alert = await this.alertCtrl.create({
-        header: tittle,
-        subHeader: subtitle,
-        buttons: [
-          {
-            text: 'Ok',
-            role: 'ok',
-            handler: () => {
-              resolve('yes');
-            },
-          },
-        ],
-      });
-      alert.present();
-    });
-  }
-
-  async proccedOk(title, subtitle): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      let alert = await this.alertCtrl.create({
-        header: title,
-        subHeader: subtitle,
-        backdropDismiss: false,
-        cssClass: 'alertBox',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            handler: () => {
-              resolve('no');
-            },
-          },
-          {
-            text: 'Ok',
-            role: 'ok',
-            handler: () => {
-              resolve('yes');
-            },
-          },
-        ],
-      });
-      await alert.present();
-    });
-  }
 
   async presentToastMiddle(value) {
     const toast = await this.toastCtrl.create({
@@ -372,33 +319,6 @@ export class DataPassingProviderService {
     return this._guaFlag;
   }
 
-  confirmationAlert(title, message, page?): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      let alert = await this.alertCtrl.create({
-        header: title,
-        message,
-        buttons: [
-          {
-            text: 'No',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: () => {
-              resolve('No');
-            },
-          },
-          {
-            text: 'Yes',
-            role: 'ok',
-            handler: () => {
-              resolve('Yes');
-            },
-          },
-        ],
-      });
-      alert.present();
-    });
-  }
-
   // Method to update the value
   updateNomineeValue(value: string) {
     this.nomineeValue.next(value);
@@ -412,19 +332,19 @@ export class DataPassingProviderService {
     return this.device.version;
   }
 
-  getYearList(){
+  getYearList() {
     return [
-      "2024",
-      "2023",
-      "2022",
-      "2021",
-      "2020",
-      "2019",
-      "2018",
-      "2017",
-      "2016",
-      "2015",
-    ]
+      '2024',
+      '2023',
+      '2022',
+      '2021',
+      '2020',
+      '2019',
+      '2018',
+      '2017',
+      '2016',
+      '2015',
+    ];
   }
 
   /**
@@ -453,7 +373,7 @@ export class DataPassingProviderService {
           webpResult = { path: pathData, size: size };
           this.globalLodingDismiss();
           return webpResult;
-        }else{
+        } else {
           this.globalLodingDismiss();
         }
       }
@@ -473,28 +393,28 @@ export class DataPassingProviderService {
     return true;
   }
 
-    /** 
-* @method formatDateString
-* @description Function helps to change the Date into string.
-* @author HariHaraSuddhan S
-*/
+  /**
+   * @method formatDateString
+   * @description Function helps to change the Date into string.
+   * @author HariHaraSuddhan S
+   */
 
-formatDateString(dateString: string): string {
-  const dateParts: string[] = dateString.split('-');
-  const day: string = dateParts[0].padStart(2, '0');
-  const monthString: string = dateParts[1];
-  const year: string = dateParts[2];
-  const month: number = new Date(`${monthString} 01, ${year}`).getMonth() + 1;
-  const formattedMonth: string = month.toString().padStart(2, '0');
-  return `${year}-${formattedMonth}-${day}`;
-}
+  formatDateString(dateString: string): string {
+    const dateParts: string[] = dateString.split('-');
+    const day: string = dateParts[0].padStart(2, '0');
+    const monthString: string = dateParts[1];
+    const year: string = dateParts[2];
+    const month: number = new Date(`${monthString} 01, ${year}`).getMonth() + 1;
+    const formattedMonth: string = month.toString().padStart(2, '0');
+    return `${year}-${formattedMonth}-${day}`;
+  }
 
-/** 
-* @method convertToString
-* @description Function helps to array of values into string.
-* @author HariHaraSuddhan S
-*/
-convertToString(value: [string]) {
-  return Array.isArray(value) ? value.toString() : value;
-}
+  /**
+   * @method convertToString
+   * @description Function helps to array of values into string.
+   * @author HariHaraSuddhan S
+   */
+  convertToString(value: [string]) {
+    return Array.isArray(value) ? value.toString() : value;
+  }
 }

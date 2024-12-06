@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 
@@ -8,8 +14,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
   templateUrl: './show-image.page.html',
   styleUrls: ['./show-image.page.scss'],
 })
-export class ShowImagePage  {
-
+export class ShowImagePage {
   deregisterFunction: Function;
   applicant: any = [];
   picSize: any = [];
@@ -18,14 +23,17 @@ export class ShowImagePage  {
   id: any;
   cibilStat: any;
 
-  constructor(public navCtrl: NavController, 
-    public navParams: NavParams, 
-    // public viewCtrl: ViewController, 
-    public platform: Platform, 
-    // public ionicApp: IonicApp, 
-    public globalData: DataPassingProviderService, 
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    // public viewCtrl: ViewController,
+    public platform: Platform,
+    // public ionicApp: IonicApp,
+    public globalData: DataPassingProviderService,
     public sqliteProvider: SqliteService,
-    public modalCtrl: ModalController) {
+    public modalCtrl: ModalController,
+    public alertService: CustomAlertControlService
+  ) {
     this.getCibilCheckStatus();
     this.applicant = navParams.get('pic');
     this.picSize = navParams.get('size');
@@ -35,7 +43,6 @@ export class ShowImagePage  {
       this.showImage = false;
     }
   }
-
 
   /* closeModal() {
     this.viewCtrl.dismiss();
@@ -63,7 +70,10 @@ export class ShowImagePage  {
 
   updateimage() {
     if (this.cibilStat == '1') {
-      this.globalData.showAlert("Alert!", "Cannot update the profile image after cibil check!");
+      this.alertService.showAlert(
+        'Alert!',
+        'Cannot update the profile image after cibil check!'
+      );
     } else {
       this.modalCtrl.dismiss('updateProfileIMAGE');
     }
@@ -72,9 +82,8 @@ export class ShowImagePage  {
   getCibilCheckStatus() {
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
-    this.sqliteProvider.getSubmitDetails(this.refId, this.id).then(data => {
+    this.sqliteProvider.getSubmitDetails(this.refId, this.id).then((data) => {
       this.cibilStat = data[0].cibilCheckStat;
-    })
+    });
   }
-
 }

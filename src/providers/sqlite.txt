@@ -304,7 +304,7 @@ export class SqliteService {
       let data = [refId, id, userType, value.janaEmployee, value.applicType, value.busiDesc, value.sourChannel, value.sourIdName, value.sourIdName1, value.leadId, value.typeCase, value.balTrans, value.branchName, value.branchState, value.loginBranch, value.applDate, value.roName, value.roCode];
       return this.database.executeSql("INSERT INTO ORIG_SOURCING_DETAILS(refId, id, userType, janaEmployee, applicType, busiDesc, sourChannel, sourIdName, sourIdName1, leadId, typeCase, balTrans, branchName, branchState, loginBranch, applDate, roName, roCode) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data).then((data) => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Sourcing Details Added Successfully");
+        this.alertService.showAlert("Alert!", "Sourcing Details Added Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -315,7 +315,7 @@ export class SqliteService {
       let data = [refId, id, value.janaEmployee, value.applicType, value.busiDesc, value.sourChannel, value.sourIdName, value.sourIdName1, value.leadId, value.typeCase, value.balTrans, value.branchName, value.branchState, value.loginBranch, value.applDate, value.roName, value.roCode, sourceid];
       return this.database.executeSql("UPDATE ORIG_SOURCING_DETAILS SET refId=?, id=?, janaEmployee=?, applicType=?, busiDesc=?, sourChannel=?, sourIdName=?, sourIdName1=?, leadId=?, typeCase=?, balTrans=?, branchName=?, branchState=?, loginBranch=?, applDate=?, roName=?, roCode=? WHERE sourceid=?", data).then(data => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Sourcing Details Updated Successfully");
+        this.alertService.showAlert("Alert!", "Sourcing Details Updated Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -353,7 +353,7 @@ export class SqliteService {
       return this.database.executeSql("INSERT INTO PSL_BUSINESS(refId,id,psl, loanPurpose, agriProofType, landHolding, farmerType, actType, agriPurpose, udyamCNo, udyamRegNo, udyamClass, majorAct, udyamInvest, udyamTurnOver, servUnit) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data).then((data) => {
         this.addAuditTrail(moment(this.dateTime).format("YYYY-MM-DD HH:mm:ss"), "addPSLDetails", "Insert Sucess", JSON.stringify(data));
         this.globalData.globalLodingDismiss();
-        // this.globalData.showAlert("Alert!", "PSL_BUSINESS Details Added Successfully");
+        // this.alertService.showAlert("Alert!", "PSL_BUSINESS Details Added Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -365,7 +365,7 @@ export class SqliteService {
       return this.database.executeSql("UPDATE PSL_BUSINESS SET refId=?, id=?, psl=?, loanPurpose=?, agriProofType=?, landHolding=?, farmerType=?, actType=?, agriPurpose=?, udyamCNo=?, udyamRegNo=?, udyamClass=?, majorAct=?, udyamInvest=?, udyamTurnOver=?, servUnit=? WHERE pslId=?", data).then(data => {
         this.addAuditTrail(moment(this.dateTime).format("YYYY-MM-DD HH:mm:ss"), "addPSLDetails", "Insert Sucess", JSON.stringify(data));
         this.globalData.globalLodingDismiss();
-        // this.globalData.showAlert("Alert!", "PSL_BUSINESS Details Updated Successfully");
+        // this.alertService.showAlert("Alert!", "PSL_BUSINESS Details Updated Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -621,7 +621,7 @@ export class SqliteService {
     if (docId) {
       data.push(docId);
       return this.database.executeSql("UPDATE ORIG_OTHERDOCUMENT_DETAILS SET refId=?, id=?, docType=?, docDescription=?, otherDocImg=? WHERE docId=?", data).then(data => {
-        this.globalData.showAlert("Alert!", "Other Document Details Updated Successfully");
+        this.alertService.showAlert("Alert!", "Other Document Details Updated Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -631,7 +631,7 @@ export class SqliteService {
     }
     else {
       return this.database.executeSql("INSERT INTO ORIG_OTHERDOCUMENT_DETAILS (refId, id, docType, docDescription, otherDocImg) VALUES (?,?,?,?,?)", data).then((data) => {
-        this.globalData.showAlert("Alert!", "Other Document Details Added Successfully");
+        this.alertService.showAlert("Alert!", "Other Document Details Added Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -654,7 +654,7 @@ export class SqliteService {
   deleteOtherDocs(ids) {
     return this.database.executeSql("DELETE FROM ORIG_OTHERDOCUMENT_DETAILS WHERE refId=? AND id=? AND docId=?", ids),
       this.database.executeSql("DELETE FROM ORIG_OTHERDOCUMENT_IMGS_DETAILS WHERE refId=? AND id=? AND docId=?", ids).then(data => {
-        this.globalData.showAlert("Alert!", "Data Deleted Successfully");
+        this.alertService.showAlert("Alert!", "Data Deleted Successfully");
         return data;
       }, err => {
         console.log('Error: ', err);
@@ -664,7 +664,7 @@ export class SqliteService {
   }
   addOtherDocsImages(imgSet) {
     return this.database.executeSql("INSERT INTO ORIG_OTHERDOCUMENT_IMGS_DETAILS (refId,id,docId,docsImgs) VALUES (?,?,?,?)", imgSet).then(data => {
-      this.globalData.showAlert("Alert!", "Image Added Successfully");
+      this.alertService.showAlert("Alert!", "Image Added Successfully");
       return data;
     }, err => {
       console.log(err)
@@ -682,7 +682,7 @@ export class SqliteService {
   }
   removeOtherDocsImg(id) {
     return this.database.executeSql("DELETE FROM ORIG_OTHERDOCUMENT_IMGS_DETAILS WHERE docImgId=?", [id]).then(data => {
-      this.globalData.showAlert("Alert!", "Image Deleted Successfully");
+      this.alertService.showAlert("Alert!", "Image Deleted Successfully");
       return data;
     }, err => {
       console.log('Error: ', err);
@@ -695,7 +695,7 @@ export class SqliteService {
       let data = [refId, id, value.ownType, value.owner, value.owner1, value.address1, value.address2, value.states, value.cities, value.district, value.pincode, value.country, value.landmark, value.property, adtlId];
       return this.database.executeSql("UPDATE ORIG_ADDITIONAL_DETAILS SET refId=?, id=?, ownType=?, owner=?, owner1=?, address1=?, address2=?, states=?, cities=?, district=?, pincode=?, country=?, landmark=?, property=? WHERE adtlId=?", data).then(data => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Property Details Updated Successfully");
+        this.alertService.showAlert("Alert!", "Property Details Updated Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -706,7 +706,7 @@ export class SqliteService {
       let data = [refId, id, value.ownType, value.owner, value.owner1, value.address1, value.address2, value.states, value.cities, value.district, value.pincode, value.country, value.landmark, value.property];
       return this.database.executeSql("INSERT INTO ORIG_ADDITIONAL_DETAILS (refId, id, ownType, owner, owner1, address1, address2, states, cities, district, pincode, country, landmark, property) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data).then((data) => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Property Details Added Successfully");
+        this.alertService.showAlert("Alert!", "Property Details Added Successfully");
         return data;
       }, err => {
         console.log("err: " + JSON.stringify(err));
@@ -2037,7 +2037,7 @@ export class SqliteService {
       let data = [refId, id, value.enterName, value.constitution, value.cin, value.regNo, value.gst, value.doi, value.busiVintage, value.ownership, value.industry, value.enterprise, profPic, entiProfPic, applicantUniqueId, eapplType, custType, leadStatus];
       return this.database.executeSql("INSERT INTO ORIG_ENTITY_DETAILS(refId, id, enterName, constitution, cin, regNo, gst, doi, busiVintage, ownership, industry, enterprise, profPic, entiProfPic, applicantUniqueId, eapplType, custType, leadStatus) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data).then((data) => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Entity Details Added Successfully");
+        this.alertService.showAlert("Alert!", "Entity Details Added Successfully");
         return data;
       }, err => {
         console.log("err: " + err);
@@ -2048,7 +2048,7 @@ export class SqliteService {
       let data = [refId, id, value.enterName, value.constitution, value.cin, value.regNo, value.gst, value.doi, value.busiVintage, value.ownership, value.industry, value.enterprise, profPic, leadStatus, entiProfPic, entId];
       return this.database.executeSql("UPDATE ORIG_ENTITY_DETAILS SET refId=?, id=?, enterName=?, constitution=?, cin=?, regNo=?, gst=?, doi=?, busiVintage=?, ownership=?, industry=?, enterprise=?, profPic=?, leadStatus=?, entiProfPic=? WHERE entId=?", data).then(data => {
         this.globalData.globalLodingDismiss();
-        this.globalData.showAlert("Alert!", "Entity Details Updated Successfully");
+        this.alertService.showAlert("Alert!", "Entity Details Updated Successfully");
         return data;
       }, err => {
         console.log("err: " + err);
@@ -2437,7 +2437,7 @@ export class SqliteService {
     return this.database.executeSql("DELETE FROM PDD_DOCUMENT_DETAILS WHERE refId=? AND id=? AND docType=?", ids),
       this.database.executeSql("DELETE FROM PDD_DOCUMENT_IMAGES WHERE refId=? AND id=? AND docType=?", ids).then(data => {
         this.addAuditTrail(moment(this.dateTime).format("YYYY-MM-DD HH:mm:ss"), "PDD_DOCUMENT_DETAILS PDD_DOCUMENT_IMAGES", "Delete Success", JSON.stringify(data));
-        this.globalData.showAlert("Alert!", "PDD_Document Deleted Successfully");
+        this.alertService.showAlert("Alert!", "PDD_Document Deleted Successfully");
         return data;
       }, err => {
         this.addAuditTrail(moment(this.dateTime).format("YYYY-MM-DD HH:mm:ss"), "deletePddSavedDetailsFromDb", "Delete Failure", JSON.stringify(err));

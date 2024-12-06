@@ -4,6 +4,7 @@ import { AlertController, NavParams } from '@ionic/angular';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 
 @Component({
   selector: 'app-lead',
@@ -32,21 +33,26 @@ export class LeadComponent {
   @Output() saveStatus = new EventEmitter();
   naveParamsValue: any;
   constructor(
-    public navCtrl: Router, public navParams: NavParams,
+    public navCtrl: Router,
+    public navParams: NavParams,
     public sqliteProvider: SqliteService,
-    public globalData: DataPassingProviderService, private activateRoute: ActivatedRoute,
-    public alertCtrl: AlertController, public master: RestService) {
+    public globalData: DataPassingProviderService,
+    private activateRoute: ActivatedRoute,
+    public alertCtrl: AlertController,
+    public master: RestService,
+    public alertService: CustomAlertControlService
+  ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
       this.childConstructor(this.naveParamsValue);
-    })
+    });
   }
 
   private childConstructor(value) {
     this.getproducts();
-    this.sqliteProvider.getOrganisation().then(data => {
+    this.sqliteProvider.getOrganisation().then((data) => {
       this.org_master = data;
-    })
+    });
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
     this.getCibilCheckedDetails();
@@ -92,27 +98,31 @@ export class LeadComponent {
         //     {
         //       text: 'Yes',
         //       handler: () => {
-        //         this.checkPosidex(); 
+        //         this.checkPosidex();
         //       }
         //     }
         //   ]
         // });
         // alert.present();
-        this.navCtrl.navigate(['/ExistingPage'], { queryParams: { _leadStatus: this.leadStatus }, skipLocationChange: true, replaceUrl: true })
+        this.navCtrl.navigate(['/ExistingPage'], {
+          queryParams: { _leadStatus: this.leadStatus },
+          skipLocationChange: true,
+          replaceUrl: true,
+        });
       }
     } else {
-      this.globalData.showAlert("Alert!", "Please Save KYC Details.");
+      this.alertService.showAlert('Alert!', 'Please Save KYC Details.');
     }
   }
 
   checkPosidex() {
     let body = {
-      "propNo": "102710000000619",
-      "CustId": "1462102"
-    }
-    this.master.restApiCallAngular("fetchcustposidex", body).then(data => {
+      propNo: '102710000000619',
+      CustId: '1462102',
+    };
+    this.master.restApiCallAngular('fetchcustposidex', body).then((data) => {
       console.log(data);
-    })
+    });
   }
 
   showSaveTick() {
@@ -120,63 +130,79 @@ export class LeadComponent {
     let custType = this.globalData.getCustomerType();
     if (custType == 1) {
       docs = {
-        "DocPrdCode": localStorage.getItem('product'),
-        "EntityDocFlag": "N"
-      }
+        DocPrdCode: localStorage.getItem('product'),
+        EntityDocFlag: 'N',
+      };
     } else {
       docs = {
-        "DocPrdCode": localStorage.getItem('product'),
-        "EntityDocFlag": ""
-      }
+        DocPrdCode: localStorage.getItem('product'),
+        EntityDocFlag: '',
+      };
     }
-    this.sqliteProvider.getMandDocumentsByPrdCode(docs).then(data => {
-      this.mandCount = data.length;
-    }).then(() => {
-      this.sqliteProvider.getPromoterProofDetails(this.refId, this.id).then(data1 => {
-        if (this.mandCount >= data1.length) {
-          this.saveStatus.emit('leadTick');
-        }
+    this.sqliteProvider
+      .getMandDocumentsByPrdCode(docs)
+      .then((data) => {
+        this.mandCount = data.length;
       })
-    })
+      .then(() => {
+        this.sqliteProvider
+          .getPromoterProofDetails(this.refId, this.id)
+          .then((data1) => {
+            if (this.mandCount >= data1.length) {
+              this.saveStatus.emit('leadTick');
+            }
+          });
+      });
   }
 
   LeadDetails() {
     this.refId = this.globalData.getrefId();
-    this.sqliteProvider.getleadDetails(this.refId).then(data => {
-      if (data.length != 0) {
-        this.leadData = data[0];
-        this.leadno = this.leadData.appUniqueId;
-        this.cdate = this.convertdate(this.leadData.createdDate);
-        this.firstname = this.leadData.firstname || this.leadData.enterName;
-        this.janaCenterName = this.getBranch(localStorage.getItem("janaCenter"));
-        this.janaLoanName = this.getLoanName(this.leadData.janaLoan);
-        this.leadStatus = this.leadData.leadStatus;
-        if (this.leadno && this.cdate && this.firstname && this.janaCenterName && this.janaLoanName) {
-          this.showTick = false;
+    this.sqliteProvider
+      .getleadDetails(this.refId)
+      .then((data) => {
+        if (data.length != 0) {
+          this.leadData = data[0];
+          this.leadno = this.leadData.appUniqueId;
+          this.cdate = this.convertdate(this.leadData.createdDate);
+          this.firstname = this.leadData.firstname || this.leadData.enterName;
+          this.janaCenterName = this.getBranch(
+            localStorage.getItem('janaCenter')
+          );
+          this.janaLoanName = this.getLoanName(this.leadData.janaLoan);
+          this.leadStatus = this.leadData.leadStatus;
+          if (
+            this.leadno &&
+            this.cdate &&
+            this.firstname &&
+            this.janaCenterName &&
+            this.janaLoanName
+          ) {
+            this.showTick = false;
+          }
+          this.showLead = true;
+          this.globalData.globalLodingDismiss();
+        } else {
+          this.showLead = false;
+          this.globalData.globalLodingDismiss();
         }
-        this.showLead = true;
-        this.globalData.globalLodingDismiss();
-      } else {
-        this.showLead = false;
-        this.globalData.globalLodingDismiss();
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   convertdate(str: string) {
     var date = new Date(str),
-      mnth = ("0" + (date.getMonth() + 1)).slice(-2),
-      day = ("0" + date.getDate()).slice(-2);
-    return [day, mnth, date.getFullYear()].join("-");
+      mnth = ('0' + (date.getMonth() + 1)).slice(-2),
+      day = ('0' + date.getDate()).slice(-2);
+    return [day, mnth, date.getFullYear()].join('-');
     //alert([day, mnth, date.getFullYear()].join("-"));
   }
 
   getCibilCheckedDetails() {
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
-    this.sqliteProvider.getSubmitDetails(this.refId, this.id).then(data => {
+    this.sqliteProvider.getSubmitDetails(this.refId, this.id).then((data) => {
       if (data.length > 0) {
         if (data[0].cibilCheckStat == '1') {
           this.submitDisable = true;
@@ -184,29 +210,27 @@ export class LeadComponent {
           this.submitDisable = false;
         }
       }
-    })
+    });
   }
 
   getproducts() {
     // let productType = localStorage.getItem('loan');
-    this.sqliteProvider.getAllProductValues().then(data => {
+    this.sqliteProvider.getAllProductValues().then((data) => {
       this.pdt_master = data;
-    })
+    });
   }
 
   getLoanName(janaLoan) {
     let prdType = this.pdt_master.find((f) => {
       return f.prdCode === janaLoan;
-    })
+    });
     return prdType.prdDesc;
   }
 
   getBranch(branch) {
     let branches = this.org_master.find((f) => {
       return f.OrgBranchCode === branch;
-    })
+    });
     return branches.OrgName;
   }
-
 }
-

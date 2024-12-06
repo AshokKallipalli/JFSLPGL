@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, IonItemSliding, NavController, NavParams } from '@ionic/angular';
+import {
+  AlertController,
+  IonItemSliding,
+  NavController,
+  NavParams,
+} from '@ionic/angular';
 import { tr } from 'date-fns/locale';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -12,7 +18,6 @@ import { SqliteService } from 'src/providers/sqlite.service';
   styleUrls: ['./view-details.page.scss'],
 })
 export class ViewDetailsPage {
-
   applType: any = 'coapp';
   userInfo: any;
   gurantors: any = [];
@@ -22,15 +27,21 @@ export class ViewDetailsPage {
   coapplicants: any = [];
   naveParamsValue: any;
 
-  constructor(public navCtrl: NavController,
-    public navParams: NavParams, public sqliteProvider: SqliteService,
-    public globalData: DataPassingProviderService, public alertCtrl: AlertController,
-    public globFunc: GlobalService, public router: Router,
-    public activatedRoute: ActivatedRoute) {
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    public sqliteProvider: SqliteService,
+    public globalData: DataPassingProviderService,
+    public alertCtrl: AlertController,
+    public globFunc: GlobalService,
+    public router: Router,
+    public activatedRoute: ActivatedRoute,
+    public alertService: CustomAlertControlService
+  ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
       this.childConstructor(this.naveParamsValue);
-    })
+    });
   }
 
   private childConstructor(value) {
@@ -46,8 +57,6 @@ export class ViewDetailsPage {
     this.noCoappData = true;
   }
 
-
-
   ionViewDidEnter() {
     this.globFunc.statusbarValuesForPages();
   }
@@ -59,33 +68,39 @@ export class ViewDetailsPage {
   }
 
   loadguDetails() {
-    this.sqliteProvider.getguappDetails(this.userInfo.refId, 'G').then(data => {
-      this.gurantors;
-      this.gurantors = data;
-      if (this.gurantors.length > 0) {
-        this.nouserdata = true;
-      } else {
-        this.nouserdata = false;
-      }
-    }).catch(Error => {
-      console.log(Error);
-      this.gurantors = [];
-    });
+    this.sqliteProvider
+      .getguappDetails(this.userInfo.refId, 'G')
+      .then((data) => {
+        this.gurantors;
+        this.gurantors = data;
+        if (this.gurantors.length > 0) {
+          this.nouserdata = true;
+        } else {
+          this.nouserdata = false;
+        }
+      })
+      .catch((Error) => {
+        console.log(Error);
+        this.gurantors = [];
+      });
   }
 
   loadCoappDetails() {
-    this.sqliteProvider.getguappDetails(this.userInfo.refId, 'C').then(data => {
-      this.coapplicants = [];
-      this.coapplicants = data;
-      if (this.coapplicants.length > 0) {
-        this.noCoappData = true;
-      } else {
-        this.noCoappData = false;
-      }
-    }).catch(Error => {
-      console.log(Error);
-      this.coapplicants = [];
-    });
+    this.sqliteProvider
+      .getguappDetails(this.userInfo.refId, 'C')
+      .then((data) => {
+        this.coapplicants = [];
+        this.coapplicants = data;
+        if (this.coapplicants.length > 0) {
+          this.noCoappData = true;
+        } else {
+          this.noCoappData = false;
+        }
+      })
+      .catch((Error) => {
+        console.log(Error);
+        this.coapplicants = [];
+      });
   }
 
   someThing(coApplSwipe: IonItemSliding) {
@@ -93,7 +108,11 @@ export class ViewDetailsPage {
   }
 
   gurantordetails(gurantor) {
-    this.router.navigate(['/NewapplicationPage'], { queryParams: { getGuaValue: JSON.stringify(gurantor), usertype: "G" },skipLocationChange: true, replaceUrl: true })
+    this.router.navigate(['/NewapplicationPage'], {
+      queryParams: { getGuaValue: JSON.stringify(gurantor), usertype: 'G' },
+      skipLocationChange: true,
+      replaceUrl: true,
+    });
   }
 
   addCoappDetails() {
@@ -103,21 +122,36 @@ export class ViewDetailsPage {
     let years = days * 365;
     let d = new Date();
     let timeStamp = d.getTime();
-    this.userType = "C";
+    this.userType = 'C';
     this.globalData.setborrowerType(this.userType);
     this.globalData.setrefId(this.userInfo.refId);
     this.globalData.setId(timeStamp);
     this.globalData.setCustomerType('1');
-    this.sqliteProvider.getguappDetails(this.userInfo.refId, 'C').then(data => {
-      let cglength = data.length;
-      if (cglength <= 10) {   // cglength < 4 --to add more gurantor 
-        this.router.navigate(['/ChoosecustomerPage'], { queryParams: { userType: JSON.stringify(this.userType), GrefId: JSON.stringify(this.globalData.getrefId()), GId: JSON.stringify((this.globalData.getId())) }, skipLocationChange: true, replaceUrl: true })
-      } else {
-        this.globalData.showAlert("Alert!", "Gurantor Maximum Limit reached!");
-      }
-    }).catch(error => {
-      console.log("addcoappDetails: " + error);
-    })
+    this.sqliteProvider
+      .getguappDetails(this.userInfo.refId, 'C')
+      .then((data) => {
+        let cglength = data.length;
+        if (cglength <= 10) {
+          // cglength < 4 --to add more gurantor
+          this.router.navigate(['/ChoosecustomerPage'], {
+            queryParams: {
+              userType: JSON.stringify(this.userType),
+              GrefId: JSON.stringify(this.globalData.getrefId()),
+              GId: JSON.stringify(this.globalData.getId()),
+            },
+            skipLocationChange: true,
+            replaceUrl: true,
+          });
+        } else {
+          this.alertService.showAlert(
+            'Alert!',
+            'Gurantor Maximum Limit reached!'
+          );
+        }
+      })
+      .catch((error) => {
+        console.log('addcoappDetails: ' + error);
+      });
   }
 
   addguarantorDetails() {
@@ -127,21 +161,36 @@ export class ViewDetailsPage {
     let years = days * 365;
     let d = new Date();
     let timeStamp = d.getTime();
-    this.userType = "G";
+    this.userType = 'G';
     this.globalData.setborrowerType(this.userType);
     this.globalData.setrefId(this.userInfo.refId);
     this.globalData.setId(timeStamp);
     this.globalData.setCustomerType('1');
-    this.sqliteProvider.getguappDetails(this.userInfo.refId, 'G').then(data => {
-      let cglength = data.length;
-      if (cglength <= 10) {   // cglength < 4 --to add more gurantor 
-        this.router.navigate(['/ChoosecustomerPage'], { queryParams: { userType: JSON.stringify(this.userType), GrefId: JSON.stringify(this.globalData.getrefId()), GId: JSON.stringify((this.globalData.getId())) }, skipLocationChange: true, replaceUrl: true })
-      } else {
-        this.globalData.showAlert("Alert!", "Gurantor Maximum Limit reached!");
-      }
-    }).catch(error => {
-      console.log("addguarantorDetails: " + error);
-    })
+    this.sqliteProvider
+      .getguappDetails(this.userInfo.refId, 'G')
+      .then((data) => {
+        let cglength = data.length;
+        if (cglength <= 10) {
+          // cglength < 4 --to add more gurantor
+          this.router.navigate(['/ChoosecustomerPage'], {
+            queryParams: {
+              userType: JSON.stringify(this.userType),
+              GrefId: JSON.stringify(this.globalData.getrefId()),
+              GId: JSON.stringify(this.globalData.getId()),
+            },
+            skipLocationChange: true,
+            replaceUrl: true,
+          });
+        } else {
+          this.alertService.showAlert(
+            'Alert!',
+            'Gurantor Maximum Limit reached!'
+          );
+        }
+      })
+      .catch((error) => {
+        console.log('addguarantorDetails: ' + error);
+      });
   }
 
   passGuaDetails(gurantor) {
@@ -153,7 +202,11 @@ export class ViewDetailsPage {
     this.globalData.setProfileImage(gurantor.profPic);
     this.globalData.setCustomerType(gurantor.customerType);
     localStorage.setItem('leadId', gurantor.coAppGuaId);
-    this.router.navigate(['/NewapplicationPage'], { queryParams: { appRefValue: JSON.stringify(gurantor), usergtype: "G" }, skipLocationChange: true, replaceUrl: true })
+    this.router.navigate(['/NewapplicationPage'], {
+      queryParams: { appRefValue: JSON.stringify(gurantor), usergtype: 'G' },
+      skipLocationChange: true,
+      replaceUrl: true,
+    });
   }
 
   passCoappDetails(coapp) {
@@ -165,72 +218,94 @@ export class ViewDetailsPage {
     this.globalData.setProfileImage(coapp.profPic);
     this.globalData.setCustomerType(coapp.customerType);
     localStorage.setItem('leadId', coapp.coAppGuaId);
-    this.router.navigate(['/NewapplicationPage'], { queryParams: { appRefValue: JSON.stringify(coapp), usergtype: "C" }, skipLocationChange: true, replaceUrl: true })
+    this.router.navigate(['/NewapplicationPage'], {
+      queryParams: { appRefValue: JSON.stringify(coapp), usergtype: 'C' },
+      skipLocationChange: true,
+      replaceUrl: true,
+    });
   }
 
   removeGuaUser(gurantor) {
-    this.sqliteProvider.getSubmitDetails(gurantor.refId, gurantor.id).then(async data => {
-      if (data[0].cibilCheckStat === '1') {
-        this.globalData.showAlert("Alert!", "Deletion not allowed once CIBIL had been checked!")
-      } else {
-        let alertq = await this.alertCtrl.create({
-          header: "Delete?",
-          subHeader: "Do you want to delete?",
-          buttons: [{
-            text: 'NO',
-            role: 'cancel',
-            handler: () => {
-              console.log("cancelled");
-              this.loadguDetails();
-            }
-          },
-          {
-            text: 'yes',
-            handler: () => {
-              this.sqliteProvider.removeGuaDetails(gurantor.refId, gurantor.id).then(data => {
-                this.loadguDetails();
-              }).catch(err => {
-                console.log(err);
-              });
-            }
-          }]
-        })
-        alertq.present();
-      }
-    })
+    this.sqliteProvider
+      .getSubmitDetails(gurantor.refId, gurantor.id)
+      .then(async (data) => {
+        if (data[0].cibilCheckStat === '1') {
+          this.alertService.showAlert(
+            'Alert!',
+            'Deletion not allowed once CIBIL had been checked!'
+          );
+        } else {
+          let alertq = await this.alertCtrl.create({
+            header: 'Delete?',
+            subHeader: 'Do you want to delete?',
+            buttons: [
+              {
+                text: 'NO',
+                role: 'cancel',
+                handler: () => {
+                  console.log('cancelled');
+                  this.loadguDetails();
+                },
+              },
+              {
+                text: 'yes',
+                handler: () => {
+                  this.sqliteProvider
+                    .removeGuaDetails(gurantor.refId, gurantor.id)
+                    .then((data) => {
+                      this.loadguDetails();
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                },
+              },
+            ],
+          });
+          alertq.present();
+        }
+      });
   }
 
   removeCoappUser(gurantor) {
-    this.sqliteProvider.getSubmitDetails(gurantor.refId, gurantor.id).then(async data => {
-      if (data[0].cibilCheckStat === '1') {
-        this.globalData.showAlert("Alert!", "Deletion not allowed once CIBIL had been checked!")
-      } else {
-        let alertq = await this.alertCtrl.create({
-          header: "Delete?",
-          subHeader: "Do you want to delete?",
-          buttons: [{
-            text: 'NO',
-            role: 'cancel',
-            handler: () => {
-              console.log("cancelled");
-              this.loadCoappDetails();
-            }
-          },
-          {
-            text: 'yes',
-            handler: () => {
-              this.sqliteProvider.removeGuaDetails(gurantor.refId, gurantor.id).then(data => {
-                this.loadCoappDetails();
-              }).catch(err => {
-                console.log(err);
-              });
-            }
-          }]
-        })
-        alertq.present();
-      }
-    })
+    this.sqliteProvider
+      .getSubmitDetails(gurantor.refId, gurantor.id)
+      .then(async (data) => {
+        if (data[0].cibilCheckStat === '1') {
+          this.alertService.showAlert(
+            'Alert!',
+            'Deletion not allowed once CIBIL had been checked!'
+          );
+        } else {
+          let alertq = await this.alertCtrl.create({
+            header: 'Delete?',
+            subHeader: 'Do you want to delete?',
+            buttons: [
+              {
+                text: 'NO',
+                role: 'cancel',
+                handler: () => {
+                  console.log('cancelled');
+                  this.loadCoappDetails();
+                },
+              },
+              {
+                text: 'yes',
+                handler: () => {
+                  this.sqliteProvider
+                    .removeGuaDetails(gurantor.refId, gurantor.id)
+                    .then((data) => {
+                      this.loadCoappDetails();
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                },
+              },
+            ],
+          });
+          alertq.present();
+        }
+      });
   }
-
-
 }

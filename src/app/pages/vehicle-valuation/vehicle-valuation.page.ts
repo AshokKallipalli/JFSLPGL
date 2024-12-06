@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, NavController, NavParams } from '@ionic/angular';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 
@@ -10,33 +11,32 @@ import { SqliteService } from 'src/providers/sqlite.service';
   templateUrl: './vehicle-valuation.page.html',
   styleUrls: ['./vehicle-valuation.page.scss'],
 })
-export class VehicleValuationPage  {
-
+export class VehicleValuationPage {
   vehicleValuationDetails: FormGroup;
   videoFile: any;
   proofImglen: any = 0;
   proofImgs = [];
   refId: any;
   id: any;
-  vId: any
+  vId: any;
 
-  constructor(public navCtrl: NavController, 
-    // public media: MediaCapture, 
-    public sqliteProvider: SqliteService, 
-    public alertCtrl: AlertController, 
+  constructor(
+    public navCtrl: NavController,
+    // public media: MediaCapture,
+    public sqliteProvider: SqliteService,
+    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public formBuilder: FormBuilder,
-    public navParams: NavParams, 
-    public router: Router
-    // public globalData: DataPassingProvider
-    ) {
+    public navParams: NavParams,
+    public router: Router,
+    public alertService: CustomAlertControlService // public globalData: DataPassingProvider
+  ) {
     this.formDetails();
     this.getVehicleValutionFormValues();
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
     this.refId = 1;
     this.id = 1;
-
   }
 
   formDetails() {
@@ -48,8 +48,7 @@ export class VehicleValuationPage  {
       obvValue: ['', Validators.required],
       valuationAmount: ['', Validators.required],
       sanctionAmount: ['', Validators.required],
-
-    })
+    });
   }
 
   ionViewDidLoad() {
@@ -57,64 +56,94 @@ export class VehicleValuationPage  {
   }
 
   homePage() {
-    this.router.navigate(['/JsfhomePage'],{skipLocationChange: true, replaceUrl: true})
+    this.router.navigate(['/JsfhomePage'], {
+      skipLocationChange: true,
+      replaceUrl: true,
+    });
   }
 
   getVehicleValutionFormValues() {
     if (!!this.refId) {
       try {
         const exceptCol = ['refId', 'id', 'vId', 'obvCheck', 'inspectionVideo'];
-        this.sqliteProvider.getVehicleValuationDetails(this.refId, this.id).then(data => {
-          console.log(data);
-          this.vId = data[0].field;
-          this.videoFile = data[0].inspectionVideo;
-          let dataKeys = Object.keys(data[0]);
-          for (let i = 0; i <= dataKeys.length - 1; i++) {
-            if (exceptCol.indexOf(dataKeys[i]) == -1) {
-              this.vehicleValuationDetails.controls[dataKeys[i]].setValue(data[0][dataKeys[i]]);
+        this.sqliteProvider
+          .getVehicleValuationDetails(this.refId, this.id)
+          .then((data) => {
+            console.log(data);
+            this.vId = data[0].field;
+            this.videoFile = data[0].inspectionVideo;
+            let dataKeys = Object.keys(data[0]);
+            for (let i = 0; i <= dataKeys.length - 1; i++) {
+              if (exceptCol.indexOf(dataKeys[i]) == -1) {
+                this.vehicleValuationDetails.controls[dataKeys[i]].setValue(
+                  data[0][dataKeys[i]]
+                );
+              }
             }
-          }
-        })
+          });
       } catch (error) {
         console.log(error);
       }
     }
   }
 
-
   vehicleValuationSave(formValue) {
     console.log(formValue);
-    this.globalData.globalLodingPresent("Please wait...");
+    this.globalData.globalLodingPresent('Please wait...');
     console.log(formValue);
-    if (this.videoFile === "" || this.videoFile === undefined || this.videoFile === null) {
-      this.globalData.showAlert("Alert!", "Please Add Inspection Video");
+    if (
+      this.videoFile === '' ||
+      this.videoFile === undefined ||
+      this.videoFile === null
+    ) {
+      this.alertService.showAlert('Alert!', 'Please Add Inspection Video');
       this.globalData.globalLodingDismiss();
     } else {
-      let obvValue = "98";
-      this.sqliteProvider.insertVehicleValuationDetails(this.refId, this.id, formValue, this.vId, obvValue, this.videoFile).then(data => {
-        console.log(data);
-        if (this.vId === "" || this.vId === undefined || this.vId === null) {
-          this.vId = data.insertId;
+      let obvValue = '98';
+      this.sqliteProvider
+        .insertVehicleValuationDetails(
+          this.refId,
+          this.id,
+          formValue,
+          this.vId,
+          obvValue,
+          this.videoFile
+        )
+        .then((data) => {
+          console.log(data);
+          if (this.vId === '' || this.vId === undefined || this.vId === null) {
+            this.vId = data.insertId;
+            this.globalData.globalLodingDismiss();
+            this.alertService.showAlert(
+              'Alert',
+              'Vehicle Valuation Values Added Successfully.'
+            );
+          } else {
+            this.globalData.globalLodingDismiss();
+            this.alertService.showAlert(
+              'Alert',
+              'Vehicle Valuation Values Updated Successfully.'
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
           this.globalData.globalLodingDismiss();
-          this.globalData.showAlert("Alert", "Vehicle Valuation Values Added Successfully.");
-        } else {
-          this.globalData.globalLodingDismiss();
-          this.globalData.showAlert("Alert", "Vehicle Valuation Values Updated Successfully.");
-        }
-      }).catch(err => {
-        console.log(err)
-        this.globalData.globalLodingDismiss();
-      })
+        });
     }
   }
 
   obvCheck() {
-    console.log("fj");
-    this.globalData.showAlert("Alert", 'OBV Check.', 'OBV Value = 98');
+    console.log('fj');
+    this.alertService.showAlert('Alert', 'OBV Check.', 'OBV Value = 98');
   }
 
   captureVideo() {
-    if (this.videoFile === "" || this.videoFile === undefined || this.videoFile === null) {
+    if (
+      this.videoFile === '' ||
+      this.videoFile === undefined ||
+      this.videoFile === null
+    ) {
       // this.media.captureVideo({ duration: 10 }).then(data => {
       //   console.log(data);
       //   this.videoFile = data[0].fullPath;
@@ -126,17 +155,18 @@ export class VehicleValuationPage  {
 
   async showAlert() {
     let alert = await this.alertCtrl.create({
-      header: "INSPECTION VIDEO",
-      cssClass: "videoAlert",
+      header: 'INSPECTION VIDEO',
+      cssClass: 'videoAlert',
       message: `<video class="videoLayout" controls preload="metadata" width=240 height=350><source src=${this.videoFile}#t=0.5 type='video/mp4'></video> `,
-      buttons: [{
-        text: 'OK',
-        handler: () => {
-          console.log("working");
-        }
-      }]
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            console.log('working');
+          },
+        },
+      ],
     });
     alert.present();
   }
-
 }

@@ -1,8 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
 import { SignAnnexImgsPage } from 'src/app/pages/sign-annex-imgs/sign-annex-imgs.page';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -15,7 +21,7 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
 })
 export class ServicedetailsComponent implements OnInit {
   selectOptions = {
-    cssClass: 'remove-ok'
+    cssClass: 'remove-ok',
   };
   submitDisable: boolean = false;
   signImgs = [];
@@ -32,22 +38,24 @@ export class ServicedetailsComponent implements OnInit {
   OperationInstruction: any = [];
 
   customPopoverOptions = {
-    cssClass: 'custom-popover'
+    cssClass: 'custom-popover',
   };
 
-  constructor(public navCtrl: NavController,
+  constructor(
+    public navCtrl: NavController,
     public navParams: NavParams,
     public formBuilder: FormBuilder,
     public globalData: DataPassingProviderService,
     public sqlsupport: SquliteSupportProviderService,
     public modalCtrl: ModalController,
-    // public events: Events, 
+    // public events: Events,
     public platform: Platform,
-    // public viewCtrl: ViewController, 
+    // public viewCtrl: ViewController,
     public sqliteProvider: SqliteService,
     public globalFun: GlobalService,
     // public app: App,
-    public router: Router
+    public router: Router,
+    public alertService: CustomAlertControlService
   ) {
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
@@ -63,9 +71,9 @@ export class ServicedetailsComponent implements OnInit {
     });
     this.getApplicantName();
     this.getServDetails();
-    if (localStorage.getItem("submit") == "true") {
+    if (localStorage.getItem('submit') == 'true') {
       this.submitDisable = true;
-      localStorage.setItem("submit", "true");
+      localStorage.setItem('submit', 'true');
     } else {
       this.submitDisable = false;
     }
@@ -84,7 +92,9 @@ export class ServicedetailsComponent implements OnInit {
   ngOnInit() {
     // let root = this.viewCtrl.instance.navCtrl._app._appRoot;
     document.addEventListener('click', function (event) {
-      let btn = <HTMLLIElement>document.querySelector('.remove-ok .alert-button-group');
+      let btn = <HTMLLIElement>(
+        document.querySelector('.remove-ok .alert-button-group')
+      );
       let target = <HTMLElement>event.target;
       // if (btn && target.className == 'alert-radio-label' || target.className == 'alert-radio-inner' || target.className == 'alert-radio-icon') {
       //   let view = root._overlayPortal._views[0];
@@ -101,48 +111,68 @@ export class ServicedetailsComponent implements OnInit {
   }
 
   proceedNextPage() {
-    this.globalData.proccedOk("Alert", "Proceed to vehicle details").then(data => {
-      if (data == "yes") {
-        this.globalData.setborrowerType(this.userType);
-        this.globalData.setrefId(this.refId);
-        this.globalData.setId(this.id);
-        // this.navCtrl.pop();
-        // this.app.getRootNav().pop();
-        this.router.navigate(['/AssetTabsPage'],{skipLocationChange: true, replaceUrl: true});
-      }
-    });
+    this.alertService
+      .proccedOk('Alert', 'Proceed to vehicle details')
+      .then((data) => {
+        if (data == 'yes') {
+          this.globalData.setborrowerType(this.userType);
+          this.globalData.setrefId(this.refId);
+          this.globalData.setId(this.id);
+          // this.navCtrl.pop();
+          // this.app.getRootNav().pop();
+          this.router.navigate(['/AssetTabsPage'], {
+            skipLocationChange: true,
+            replaceUrl: true,
+          });
+        }
+      });
   }
 
   servDetailsSave(value) {
     if (this.signImgs.length > 0 && this.annexImgs.length > 0) {
-      this.sqlsupport.InsertServiceDetails(this.refId, this.id, this.userType, value, this.serId).then(data => {
-        if (this.serId == "" || this.serId == undefined || this.serId == null) {
-          this.serId = data.insertId;
-          this.uploadSignImg();
-          this.uploadAnnexureImg();
-          this.globalData.showAlert("Alert!", "Service Details Added Successfully").then(data => {
-            this.proceedNextPage();
-          });
-        } else {
-          this.updateSignImg(this.serId);
-          this.updateAnnexureImg(this.serId);
-          this.globalData.showAlert("Alert!", "Service Details Updated Successfully").then(data => {
-            this.proceedNextPage();
-          });
-        }
-
-      })
+      this.sqlsupport
+        .InsertServiceDetails(
+          this.refId,
+          this.id,
+          this.userType,
+          value,
+          this.serId
+        )
+        .then((data) => {
+          if (
+            this.serId == '' ||
+            this.serId == undefined ||
+            this.serId == null
+          ) {
+            this.serId = data.insertId;
+            this.uploadSignImg();
+            this.uploadAnnexureImg();
+            this.alertService
+              .showAlert('Alert!', 'Service Details Added Successfully')
+              .then((data) => {
+                this.proceedNextPage();
+              });
+          } else {
+            this.updateSignImg(this.serId);
+            this.updateAnnexureImg(this.serId);
+            this.alertService
+              .showAlert('Alert!', 'Service Details Updated Successfully')
+              .then((data) => {
+                this.proceedNextPage();
+              });
+          }
+        });
     } else {
       if (this.signImgs.length == 0) {
-        this.globalData.showAlert("Alert!", "Please add Signature Images.");
+        this.alertService.showAlert('Alert!', 'Please add Signature Images.');
       } else {
-        this.globalData.showAlert("Alert!", "Please add Annexure Images.");
+        this.alertService.showAlert('Alert!', 'Please add Annexure Images.');
       }
     }
   }
 
   getServDetails() {
-    this.sqlsupport.getServDetails(this.refId, this.id).then(data => {
+    this.sqlsupport.getServDetails(this.refId, this.id).then((data) => {
       if (data.length > 0) {
         this.servDetails.get('acType').setValue(data[0].acType);
         this.servDetails.get('modeofoper').setValue(data[0].modeofoper);
@@ -154,115 +184,148 @@ export class ServicedetailsComponent implements OnInit {
         this.getSignImgs();
         this.getAnnexureImgs();
       }
-    })
+    });
   }
 
   getApplicantName() {
-    this.sqlsupport.getPrimaryApplicantName(this.refId, this.id).then(data => {
-      if (data.length > 0) {
-        this.servDetails.get('authSign').setValue(data[0].firstname + " " + data[0].lastname);
-      }
-    })
+    this.sqlsupport
+      .getPrimaryApplicantName(this.refId, this.id)
+      .then((data) => {
+        if (data.length > 0) {
+          this.servDetails
+            .get('authSign')
+            .setValue(data[0].firstname + ' ' + data[0].lastname);
+        }
+      });
   }
 
   async showpicmaodal(value) {
-    if (value == "annexure") {
+    if (value == 'annexure') {
       if (this.annexImglen < 5) {
         let modal = await this.modalCtrl.create({
           component: SignAnnexImgsPage,
-          componentProps: { proofpics: this.annexImgs, submitstatus: this.submitDisable }
+          componentProps: {
+            proofpics: this.annexImgs,
+            submitstatus: this.submitDisable,
+          },
         });
         modal.onDidDismiss().then((data: any) => {
           this.annexImgs = [];
           this.annexImgs = data.data;
           this.annexImglen = data.data.length;
-        })
+        });
         modal.present();
       } else {
-        this.globalData.showAlert("Alert!", "Maximum 4 Images only allowed");
+        this.alertService.showAlert('Alert!', 'Maximum 4 Images only allowed');
       }
-    } else if (value == "signature") {
+    } else if (value == 'signature') {
       if (this.signImglen < 2) {
         let emodal = await this.modalCtrl.create({
           component: SignAnnexImgsPage,
-          componentProps: { eproofpics: this.signImgs, submitstatus: this.submitDisable }
+          componentProps: {
+            eproofpics: this.signImgs,
+            submitstatus: this.submitDisable,
+          },
         });
         emodal.onDidDismiss().then((data: any) => {
           this.signImgs = [];
           this.signImgs = data.data;
           this.signImglen = data.data.length;
-        })
+        });
         emodal.present();
       } else {
-        this.globalData.showAlert("Alert!", "Maximum 1 Image only allowed");
+        this.alertService.showAlert('Alert!', 'Maximum 1 Image only allowed');
       }
     }
   }
 
   uploadSignImg() {
     for (let i = 0; i < this.signImgs.length; i++) {
-      this.sqlsupport.addSignImages(this.refId, this.id, this.signImgs[i].imgpath, this.serId).then(data => {
-        // console.log("promoter image insert" + data);
-      }).catch(Error => {
-        console.log("Failed!" + Error);
-        this.globalData.showAlert("Alert!", "Failed!");
-      })
+      this.sqlsupport
+        .addSignImages(
+          this.refId,
+          this.id,
+          this.signImgs[i].imgpath,
+          this.serId
+        )
+        .then((data) => {
+          // console.log("promoter image insert" + data);
+        })
+        .catch((Error) => {
+          console.log('Failed!' + Error);
+          this.alertService.showAlert('Alert!', 'Failed!');
+        });
       //alert(i);
     }
   }
 
   updateSignImg(serId) {
     //alert(serId);
-    this.sqlsupport.removeSignImages(serId).then(data => {
-      for (let i = 0; i < this.signImgs.length; i++) {
-        this.sqlsupport.addSignImages(this.refId, this.id, this.signImgs[i].imgpath, serId).then(data => {
-          // console.log("promoter image insert" + data);
-        }).catch(Error => {
-          console.log("Failed!" + Error);
-          this.globalData.showAlert("Alert!", "Failed!");
-        })
-        //alert(i);
-      }
-    }).catch(Error => {
-      console.log("Failed!" + Error);
-      this.globalData.showAlert("Alert!", "Failed!");
-    })
+    this.sqlsupport
+      .removeSignImages(serId)
+      .then((data) => {
+        for (let i = 0; i < this.signImgs.length; i++) {
+          this.sqlsupport
+            .addSignImages(this.refId, this.id, this.signImgs[i].imgpath, serId)
+            .then((data) => {
+              // console.log("promoter image insert" + data);
+            })
+            .catch((Error) => {
+              console.log('Failed!' + Error);
+              this.alertService.showAlert('Alert!', 'Failed!');
+            });
+          //alert(i);
+        }
+      })
+      .catch((Error) => {
+        console.log('Failed!' + Error);
+        this.alertService.showAlert('Alert!', 'Failed!');
+      });
   }
 
   uploadAnnexureImg() {
     for (let i = 0; i < this.annexImgs.length; i++) {
-      this.sqlsupport.addAnnexure(this.refId, this.id, this.annexImgs[i].imgpath, this.serId).then(data => {
-        // console.log("promoter image insert" + data);
-      }).catch(Error => {
-        console.log("Failed!" + Error);
-        this.globalData.showAlert("Alert!", "Failed!");
-      })
+      this.sqlsupport
+        .addAnnexure(this.refId, this.id, this.annexImgs[i].imgpath, this.serId)
+        .then((data) => {
+          // console.log("promoter image insert" + data);
+        })
+        .catch((Error) => {
+          console.log('Failed!' + Error);
+          this.alertService.showAlert('Alert!', 'Failed!');
+        });
       //alert(i);
     }
   }
 
   updateAnnexureImg(serId) {
     //alert(serId);
-    this.sqlsupport.removeAnnexure(serId).then(data => {
-      // console.log("promoter image delete" + data);
-      //alert(serId);
-      for (let i = 0; i < this.annexImgs.length; i++) {
-        this.sqlsupport.addAnnexure(this.refId, this.id, this.annexImgs[i].imgpath, serId).then(data => {
-          // console.log("promoter image insert" + data);
-        }).catch(Error => {
-          console.log("Failed!" + Error);
-          this.globalData.showAlert("Alert!", "Failed!");
-        })
-        //alert(i);
-      }
-    }).catch(Error => {
-      console.log("Failed!" + Error);
-      this.globalData.showAlert("Alert!", "Failed!");
-    })
+    this.sqlsupport
+      .removeAnnexure(serId)
+      .then((data) => {
+        // console.log("promoter image delete" + data);
+        //alert(serId);
+        for (let i = 0; i < this.annexImgs.length; i++) {
+          this.sqlsupport
+            .addAnnexure(this.refId, this.id, this.annexImgs[i].imgpath, serId)
+            .then((data) => {
+              // console.log("promoter image insert" + data);
+            })
+            .catch((Error) => {
+              console.log('Failed!' + Error);
+              this.alertService.showAlert('Alert!', 'Failed!');
+            });
+          //alert(i);
+        }
+      })
+      .catch((Error) => {
+        console.log('Failed!' + Error);
+        this.alertService.showAlert('Alert!', 'Failed!');
+      });
   }
 
   getSignImgs() {
-    this.sqlsupport.getSignImages(this.serId).then(data => {
+    this.sqlsupport.getSignImages(this.serId).then((data) => {
       if (data.length > 0) {
         this.signImglen = data.length;
         this.signImgs = data;
@@ -270,11 +333,11 @@ export class ServicedetailsComponent implements OnInit {
         this.signImglen = 0;
         this.signImgs = [];
       }
-    })
+    });
   }
 
   getAnnexureImgs() {
-    this.sqlsupport.getAnnexure(this.serId).then(data => {
+    this.sqlsupport.getAnnexure(this.serId).then((data) => {
       if (data.length > 0) {
         this.annexImglen = data.length;
         this.annexImgs = data;
@@ -282,25 +345,28 @@ export class ServicedetailsComponent implements OnInit {
         this.annexImglen = 0;
         this.annexImgs = [];
       }
-    })
+    });
   }
 
   getModeofOperation() {
-    this.sqliteProvider.getMasterDataUsingType('ModeofOperation').then(data => {
-      this.modeOperation = data;
-    })
+    this.sqliteProvider
+      .getMasterDataUsingType('ModeofOperation')
+      .then((data) => {
+        this.modeOperation = data;
+      });
   }
 
   getOperationInstruction() {
-    this.sqliteProvider.getMasterDataUsingType('OperationInstruction').then(data => {
-      this.OperationInstruction = data;
-    })
+    this.sqliteProvider
+      .getMasterDataUsingType('OperationInstruction')
+      .then((data) => {
+        this.OperationInstruction = data;
+      });
   }
 
   getaccountType() {
-    this.sqliteProvider.getMasterDataUsingType('AccountType').then(data => {
+    this.sqliteProvider.getMasterDataUsingType('AccountType').then((data) => {
       this.accountType = data;
-    })
+    });
   }
-
 }

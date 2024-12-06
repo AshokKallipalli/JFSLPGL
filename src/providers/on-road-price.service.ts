@@ -1,11 +1,18 @@
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHeaders,
+  HttpRequest,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 // import { AccessTokenRequest, ORPAuthRequestNew, ORPAuthRequestUsed } from 'src/utility/AppConstants';
 import { GlobalService } from './global.service';
 import { SqliteService } from './sqlite.service';
 import { environment } from 'src/environments/environment';
+import { CustomAlertControlService } from './custom-alert-control.service';
 
 // import { Network } from '@awesome-cordova-plugins/network/ngx';
 // import { HttpClient } from '@angular/common/http';
@@ -24,18 +31,23 @@ export class OnRoadPriceService {
   category: string;
   uatLive: boolean;
   accessTokenRequest: AccessTokenRequest;
-  constructor(public http: HttpClient, public global: GlobalService, public httpAngular: HttpClient,
-    public network: Network, public sqliteService: SqliteService
+  constructor(
+    public http: HttpClient,
+    public global: GlobalService,
+    public httpAngular: HttpClient,
+    public alertService: CustomAlertControlService,
+    public network: Network,
+    public sqliteService: SqliteService
   ) {
     this.apiUrl = ORPApiStrings.url;
-    this.uatLive = environment.uatlive
+    this.uatLive = environment.uatlive;
     this.getUserCredentials();
   }
 
-  /** 
+  /**
    * @method getUserCredentials
-    * @description Function will return the login Credentials for the API based on the Env...
-    * @author HariHaraSuddhan S
+   * @description Function will return the login Credentials for the API based on the Env...
+   * @author HariHaraSuddhan S
    */
   async getUserCredentials(refresh?: boolean) {
     let userCredentials = UserCredentials;
@@ -44,18 +56,18 @@ export class OnRoadPriceService {
         grant_type: 'password',
         client_id: userCredentials.clientIdPre,
         client_secret: userCredentials.clientSecretPre,
-        refresh_token: localStorage.getItem('refresh_token')
-      }
+        refresh_token: localStorage.getItem('refresh_token'),
+      };
     } else {
-      // For Pre-Prod or UAT this request... 
+      // For Pre-Prod or UAT this request...
       if (this.uatLive) {
         this.accessTokenRequest = {
           grant_type: 'password',
           client_id: userCredentials.clientIdPre,
           client_secret: userCredentials.clientSecretPre,
           username: userCredentials.usernamePre,
-          password: userCredentials.passwordPre
-        }
+          password: userCredentials.passwordPre,
+        };
       } else {
         // For Production this request...
         this.accessTokenRequest = {
@@ -63,16 +75,16 @@ export class OnRoadPriceService {
           client_id: userCredentials.clientIdProd,
           client_secret: userCredentials.clientSecretProd,
           username: userCredentials.usernameProd,
-          password: userCredentials.passwordProd
-        }
+          password: userCredentials.passwordProd,
+        };
       }
     }
   }
 
-  /** 
+  /**
    * @method getAccessTokenCall
-    * @description Function helps to generate accessToken from Droom API to get Bike details from the API.
-    * @author HariHaraSuddhan S
+   * @description Function helps to generate accessToken from Droom API to get Bike details from the API.
+   * @author HariHaraSuddhan S
    */
   async getAccessTokenCall() {
     try {
@@ -80,30 +92,33 @@ export class OnRoadPriceService {
         this.global.globalLodingPresent('Please Wait...');
         let link = `${this.apiUrl}v1/oauth/token`;
         let body = this.accessTokenRequest;
-        await this.http.post(link, body).subscribe((response: any) => {
-          if (response.access_token) {
-            localStorage.setItem('access_token', response.access_token);
-            localStorage.setItem('refresh_token', response.refresh_token);
-            this.global.globalLodingDismiss();
+        await this.http.post(link, body).subscribe(
+          (response: any) => {
+            if (response.access_token) {
+              localStorage.setItem('access_token', response.access_token);
+              localStorage.setItem('refresh_token', response.refresh_token);
+              this.global.globalLodingDismiss();
+              resolve(true);
+            } else {
+              resolve(false);
+              this.alertService.showAlert('Alert', response.message);
+            }
+          },
+          (err) => {
+            console.log(err, 'ORP getAccessTokenCall');
             resolve(true);
-          } else {
-            resolve(false);
-            this.global.showAlert('Alert', response.message);
           }
-        }, err => {
-          console.log(err, 'ORP getAccessTokenCall');
-          resolve(true);
-        })
-      })
+        );
+      });
     } catch (error) {
       console.log(`getDroomAccessToken ${error}`);
     }
   }
 
-  /** 
+  /**
    * @method getRefreshTokenCall
-    * @description Function helps to generate accessToken with help of Refresh Token.
-    * @author HariHaraSuddhan S
+   * @description Function helps to generate accessToken with help of Refresh Token.
+   * @author HariHaraSuddhan S
    */
   // async getRefreshTokenCall(method?, data?, v?) {
   //   try {
@@ -132,56 +147,72 @@ export class OnRoadPriceService {
   //   }
   // }
 
-  /** 
- * @method onRoadPriceApiCall
-  * @description Function helps to get Bike details from the Droom API based on the request response will retrun here.
-  * @author HariHaraSuddhan S
- */
+  /**
+   * @method onRoadPriceApiCall
+   * @description Function helps to get Bike details from the Droom API based on the request response will retrun here.
+   * @author HariHaraSuddhan S
+   */
   async onRoadPriceApiCall(method: ORPApiStrings, data: any, v?: string) {
     let headers;
-    let endPoint = `${this.apiUrl}${method}`
-    if (this.network.type == 'none' || this.network.type == "unknown") {
-      this.global.showAlert("Alert", "Enable Internet connection!.");
+    let endPoint = `${this.apiUrl}${method}`;
+    if (this.network.type == 'none' || this.network.type == 'unknown') {
+      this.alertService.showAlert('Alert', 'Enable Internet connection!.');
       this.global.globalLodingDismiss();
     } else {
       return new Promise((resolve, reject) => {
         let headers = {
-          headers: new HttpHeaders({ Authorization: `Bearer ${localStorage.getItem("access_token")}` })
-        }
-        let curDateTime = moment(this.dateTime).format("YYYY-MM-DD HH:mm:ss");
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          }),
+        };
+        let curDateTime = moment(this.dateTime).format('YYYY-MM-DD HH:mm:ss');
         console.log(endPoint);
-        this.http.post(endPoint, data, headers).subscribe(async (response: any) => {
-          // if (response.message.includes("authorization header is mandatory and must be correct")) {
-          //   await this.getRefreshTokenCall(method, data, v);
-          // } else {
-            console.log(response, "response");
-            this.sqliteService.addAuditTrail(curDateTime, endPoint, method + " Response", JSON.stringify(response));
+        this.http.post(endPoint, data, headers).subscribe(
+          async (response: any) => {
+            // if (response.message.includes("authorization header is mandatory and must be correct")) {
+            //   await this.getRefreshTokenCall(method, data, v);
+            // } else {
+            console.log(response, 'response');
+            this.sqliteService.addAuditTrail(
+              curDateTime,
+              endPoint,
+              method + ' Response',
+              JSON.stringify(response)
+            );
             resolve(response);
-          // }
-        }, async (err: HttpErrorResponse) => {
-          if (err.status === 401) {
-            this.handle401Error(method, data, v);
-          } else {
-            // await this.getRefreshTokenCall(method, data, v);
+            // }
+          },
+          async (err: HttpErrorResponse) => {
+            if (err.status === 401) {
+              this.handle401Error(method, data, v);
+            } else {
+              // await this.getRefreshTokenCall(method, data, v);
+            }
           }
-        })
-      })
+        );
+      });
     }
   }
 
   async handle401Error(method: ORPApiStrings, data: any, v?: string) {
-    localStorage.setItem('access_token', localStorage.getItem("refresh_token"));
+    localStorage.setItem('access_token', localStorage.getItem('refresh_token'));
     this.onRoadPriceApiCall(method, data, v);
   }
 
-  /** 
-* @method frameRequestORPNew
-* @description Function helps to frame the request based on user selection and it will retrun 
-* the request to onRoadPriceApiCall().
-* @author HariHaraSuddhan S
-*/
+  /**
+   * @method frameRequestORPNew
+   * @description Function helps to frame the request based on user selection and it will retrun
+   * the request to onRoadPriceApiCall().
+   * @author HariHaraSuddhan S
+   */
 
-  async frameRequestORPNew(type: string, value: string, year?: string, brandName?: string, city?: string) {
+  async frameRequestORPNew(
+    type: string,
+    value: string,
+    year?: string,
+    brandName?: string,
+    city?: string
+  ) {
     let request: ORPAuthRequestNew;
     let response;
     let endPoint = ORPApiStrings.endPointCatalog;
@@ -189,17 +220,17 @@ export class OnRoadPriceService {
       if (value) {
         switch (type) {
           case ORPApiStrings.category:
-            this.category = value
-            request = {
-              category: this.category
-            }
-            break;
-          case ORPApiStrings.model:
-            this.make = value
+            this.category = value;
             request = {
               category: this.category,
-              make: this.make
-            }
+            };
+            break;
+          case ORPApiStrings.model:
+            this.make = value;
+            request = {
+              category: this.category,
+              make: this.make,
+            };
             break;
           case ORPApiStrings.variant:
             this.model = value;
@@ -208,20 +239,20 @@ export class OnRoadPriceService {
               make: this.make || brandName,
               model: this.model,
               year: year,
-            }
+            };
             break;
           case ORPApiStrings.ORP:
-            this.varient = value
+            this.varient = value;
             request = {
               category: this.category,
               make: this.make,
               model: this.model,
               trim: this.varient,
               year: year,
-              city: city
-            }
+              city: city,
+            };
             // endPoint = 'v2/onroad-price'
-            endPoint = ORPApiStrings.endPointORP
+            endPoint = ORPApiStrings.endPointORP;
             break;
           default:
             break;
@@ -230,20 +261,22 @@ export class OnRoadPriceService {
         if (response.code == 'success') {
           resolve(response.data);
         } else {
-          this.global.showAlert('Alert', `${response.code} ${response.message}`)
+          this.alertService.showAlert(
+            'Alert',
+            `${response.code} ${response.message}`
+          );
         }
       }
-    }).catch(err => {
+    }).catch((err) => {
       console.log(err);
-    })
-
+    });
   }
 
-  /** 
-* @method getRCDetails
-* @description Function helps to fetch the RC Details from user input.
-* @author HariHaraSuddhan S
-*/
+  /**
+   * @method getRCDetails
+   * @description Function helps to fetch the RC Details from user input.
+   * @author HariHaraSuddhan S
+   */
 
   async getRCDetails(value) {
     let request: RCNumberRequest;
@@ -252,24 +285,27 @@ export class OnRoadPriceService {
     let response;
     try {
       request = {
-        rc_number: value
-      }
+        rc_number: value,
+      };
       response = await this.onRoadPriceApiCall(endPoint, request);
       if (response.code == 'success') {
         return response.data;
       } else {
-        this.global.showAlert('Alert', `${response.code} ${response.message}`)
+        this.alertService.showAlert(
+          'Alert',
+          `${response.code} ${response.message}`
+        );
       }
     } catch (error) {
       console.log(error, 'frameRequestORPUsed');
     }
   }
 
-  /** 
-* @method getRCDetails
-* @description Function helps to get the used vehicle price range from the API based on the user input details.
-* @author HariHaraSuddhan S
-*/
+  /**
+   * @method getRCDetails
+   * @description Function helps to get the used vehicle price range from the API based on the user input details.
+   * @author HariHaraSuddhan S
+   */
 
   async frameRequestORPUsed(value) {
     let request: ORPAuthRequestUsed;
@@ -286,13 +322,16 @@ export class OnRoadPriceService {
         trim: value.trim,
         city: value.city,
         kms_driven: value.kms_driven,
-        noOfOwners: value.noOfOwners
-      }
+        noOfOwners: value.noOfOwners,
+      };
       response = await this.onRoadPriceApiCall(endPoint, request);
       if (response.code == 'success') {
         return response.data;
       } else {
-        this.global.showAlert('Alert', `${response.code} ${response.message}`)
+        this.alertService.showAlert(
+          'Alert',
+          `${response.code} ${response.message}`
+        );
       }
     } catch (error) {
       console.log(error, 'frameRequestORPUsed');
@@ -300,15 +339,13 @@ export class OnRoadPriceService {
   }
 }
 
-
-
 export interface AccessTokenRequest {
   grant_type: string;
   client_id: string;
   client_secret: string;
   username?: string;
   password?: string;
-  refresh_token?: string
+  refresh_token?: string;
 }
 
 export interface ORPAuthRequestUsed {
@@ -324,7 +361,7 @@ export interface ORPAuthRequestUsed {
 }
 
 export interface RCNumberRequest {
-  rc_number: string
+  rc_number: string;
 }
 
 export interface ORPAuthRequestNew {
@@ -345,7 +382,7 @@ export enum ORPApiStrings {
   category = 'category',
   model = 'model',
   variant = 'variant',
-  ORP = 'ORP'
+  ORP = 'ORP',
 }
 
 export enum UserCredentials {
@@ -358,53 +395,6 @@ export enum UserCredentials {
   clientSecretProd = '42471dc9c8dbc5ac179d9051fc9ae35c990c0ae3197615f92861d63ebf8dcf7a',
   clientIdProd = '9486338',
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // OLD Lines of Code..................................................................
 // import { Network } from '@awesome-cordova-plugins/network/ngx';
@@ -438,7 +428,7 @@ export enum UserCredentials {
 //     public network: Network, public sqliteService: SqliteService
 //   ) {
 //     this.apiUrl = AppConstants.ORPApiStrings.url;
-//     // If Pre-Prod or UAT Enable this request... 
+//     // If Pre-Prod or UAT Enable this request...
 //     this.accessTokenRequest = {
 //       grant_type: 'password',
 //       client_id: '9486339',
@@ -614,4 +604,3 @@ export enum UserCredentials {
 //     }
 //   }
 // }
-

@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
+import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -12,10 +18,9 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
   styleUrls: ['./nominee-after-ps.page.scss'],
 })
 export class NomineeAfterPsPage implements OnInit {
-
   today: any = new Date();
   mindate: any;
-  leadId: any = "";
+  leadId: any = '';
   fetchRelate: boolean = false;
   submitDisable: boolean = false;
   relation: boolean = false;
@@ -25,48 +30,51 @@ export class NomineeAfterPsPage implements OnInit {
   nominee_cities: any[];
   refId: any;
   id: any;
-  usertype: any
+  usertype: any;
   guardian: boolean = false;
   nomiDetails: FormGroup;
   todayDate: any = new Date();
   nomId: any;
   selectOptions = {
-    cssClass: 'remove-ok'
+    cssClass: 'remove-ok',
   };
   master_states: any;
   master_cities: any;
   rel_master = [
-    { ReligionId: "1", ReligionName: "type 1" },
-    { ReligionId: "2", ReligionName: "type 2" },
-    { ReligionId: "3", ReligionName: "type 3" }
-  ]
+    { ReligionId: '1', ReligionName: 'type 1' },
+    { ReligionId: '2', ReligionName: 'type 2' },
+    { ReligionId: '3', ReligionName: 'type 3' },
+  ];
   postSanctionEdit: any;
   psData: any;
-  nominame:any;
-  pc:any;
-  nomiCNum:any;
-  guaname:any;
-  guaCNum:any;
+  nominame: any;
+  pc: any;
+  nomiCNum: any;
+  guaname: any;
+  guaCNum: any;
 
   customPopoverOptions = {
-    cssClass: 'custom-popover'
+    cssClass: 'custom-popover',
   };
 
-  constructor(public navCtrl: NavController, 
-    public navParams: NavParams, 
-    public formBuilder: FormBuilder, 
-    // public viewCtrl: viewController, 
-    public modalCtrl: ModalController, 
-    public sqlSupport: SquliteSupportProviderService, 
-    public sqliteProvider: SqliteService, 
-    // public events: Events, 
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    public formBuilder: FormBuilder,
+    // public viewCtrl: viewController,
+    public modalCtrl: ModalController,
+    public sqlSupport: SquliteSupportProviderService,
+    public sqliteProvider: SqliteService,
+    // public events: Events,
     public platform: Platform,
     public globFunc: DataPassingProviderService,
-    public global: GlobalService) {
+    public global: GlobalService,
+    public alertService: CustomAlertControlService
+  ) {
     this.psData = this.navParams.get('PostSanctionData');
     this.refId = this.psData.refId;
     this.id = this.psData.id;
-    this.usertype = "";
+    this.usertype = '';
     // this.usertype = this.global.getborrowerType();
     this.callmaxdate();
     this.getTitles();
@@ -75,31 +83,101 @@ export class NomineeAfterPsPage implements OnInit {
     this.getCityValue(undefined);
     this.nomiDetails = this.formBuilder.group({
       nomTitle: ['', Validators.required],
-      nominame: ['', Validators.compose([Validators.maxLength(30), Validators.pattern('[a-zA-Z ]*'), Validators.required])],
+      nominame: [
+        '',
+        Validators.compose([
+          Validators.maxLength(30),
+          Validators.pattern('[a-zA-Z ]*'),
+          Validators.required,
+        ]),
+      ],
       nomdob: ['', Validators.required],
-      nomiage: ['', Validators.compose([Validators.maxLength(3), Validators.pattern('[0-9]*'), Validators.required])],
+      nomiage: [
+        '',
+        Validators.compose([
+          Validators.maxLength(3),
+          Validators.pattern('[0-9]*'),
+          Validators.required,
+        ]),
+      ],
       nomrelation: ['', Validators.required],
-      nomi_address1: ['', Validators.compose([Validators.maxLength(40), Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/), Validators.required])], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
-      nomi_address2: ['', Validators.compose([Validators.maxLength(40), Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/), Validators.required])], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
-      nomi_address3: ['', Validators.compose([Validators.maxLength(40), Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/)])], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
+      nomi_address1: [
+        '',
+        Validators.compose([
+          Validators.maxLength(40),
+          Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/),
+          Validators.required,
+        ]),
+      ], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
+      nomi_address2: [
+        '',
+        Validators.compose([
+          Validators.maxLength(40),
+          Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/),
+          Validators.required,
+        ]),
+      ], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
+      nomi_address3: [
+        '',
+        Validators.compose([
+          Validators.maxLength(40),
+          Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/),
+        ]),
+      ], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
       nomicities: ['', Validators.required],
       nomistates: ['', Validators.required],
-      nomipincode: ['', Validators.compose([Validators.pattern('[0-9]{6}'), Validators.required])],
+      nomipincode: [
+        '',
+        Validators.compose([
+          Validators.pattern('[0-9]{6}'),
+          Validators.required,
+        ]),
+      ],
       nomicountries: ['India'],
-      nomiCNum: ['', Validators.compose([Validators.maxLength(10), Validators.pattern('[0-9]{10}$')])],
+      nomiCNum: [
+        '',
+        Validators.compose([
+          Validators.maxLength(10),
+          Validators.pattern('[0-9]{10}$'),
+        ]),
+      ],
       guaTitle: [''],
-      guaname: ['', Validators.compose([Validators.maxLength(30), Validators.pattern('[a-zA-Z ]*')])],
+      guaname: [
+        '',
+        Validators.compose([
+          Validators.maxLength(30),
+          Validators.pattern('[a-zA-Z ]*'),
+        ]),
+      ],
       guarelation: [''],
-      guaCNum: ['', Validators.compose([Validators.maxLength(10), Validators.pattern('[0-9]{10}$')])],
-      gua_address1: ['', Validators.compose([Validators.maxLength(35), Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/)])], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
-      gua_address2: ['', Validators.compose([Validators.maxLength(35), Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/)])], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
+      guaCNum: [
+        '',
+        Validators.compose([
+          Validators.maxLength(10),
+          Validators.pattern('[0-9]{10}$'),
+        ]),
+      ],
+      gua_address1: [
+        '',
+        Validators.compose([
+          Validators.maxLength(35),
+          Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/),
+        ]),
+      ], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
+      gua_address2: [
+        '',
+        Validators.compose([
+          Validators.maxLength(35),
+          Validators.pattern(/^[a-zA-Z0-9 ()_\-\[\]{};':"\\.`,<>\/]*$/),
+        ]),
+      ], //Validators.pattern('[a-zA-Z0-9.,/#& ]*')
       guacities: [''],
       guastates: [''],
       guapincode: ['', Validators.compose([Validators.pattern('[0-9]{6}')])],
       guacountries: ['India'],
     });
-    this.nomiDetails.get("nomicountries").setValue('India');
-    this.nomiDetails.get("guacountries").setValue('India');
+    this.nomiDetails.get('nomicountries').setValue('India');
+    this.nomiDetails.get('guacountries').setValue('India');
 
     // if (localStorage.getItem("submit") == "true") {
     //   this.submitDisable = true;
@@ -109,7 +187,6 @@ export class NomineeAfterPsPage implements OnInit {
     //   this.submitDisable = false;
     //   this.relation = false;
     // }
-
   }
 
   ionViewWillEnter() {
@@ -130,7 +207,9 @@ export class NomineeAfterPsPage implements OnInit {
   ngOnInit() {
     // let root = this.viewCtrl.instance.navCtrl._app._appRoot;
     document.addEventListener('click', function (event) {
-      let btn = <HTMLLIElement>document.querySelector('.remove-ok .alert-button-group');
+      let btn = <HTMLLIElement>(
+        document.querySelector('.remove-ok .alert-button-group')
+      );
       let target = <HTMLElement>event.target;
       // if (btn && target.className == 'alert-radio-label' || target.className == 'alert-radio-inner' || target.className == 'alert-radio-icon') {
       //   let view = root._overlayPortal._views[0];
@@ -147,24 +226,38 @@ export class NomineeAfterPsPage implements OnInit {
   }
 
   nomiDetailsSave(value) {
-      this.sqlSupport.InsertNomineeDetails(this.refId, this.id, this.usertype, this.leadId, value, this.nomId).then(data => {
+    this.sqlSupport
+      .InsertNomineeDetails(
+        this.refId,
+        this.id,
+        this.usertype,
+        this.leadId,
+        value,
+        this.nomId
+      )
+      .then((data) => {
         if (this.nomId == null || this.nomId == '' || this.nomId == undefined) {
-          this.globFunc.showAlert("Alert!", "Nominee details saved!").then(data => {
-            this.modalCtrl.dismiss(value)
-          })
+          this.alertService
+            .showAlert('Alert!', 'Nominee details saved!')
+            .then((data) => {
+              this.modalCtrl.dismiss(value);
+            });
         } else {
-          this.globFunc.showAlert("Alert!", "Nominee details updated!").then(data => {
-            this.modalCtrl.dismiss(value)
-          })
+          this.alertService
+            .showAlert('Alert!', 'Nominee details updated!')
+            .then((data) => {
+              this.modalCtrl.dismiss(value);
+            });
         }
         this.nomId = data.insertId;
-      }).catch(err => {
-        console.log(err)
       })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   getnominee() {
-    this.sqlSupport.getNomineeDetails(this.refId, this.id).then(data => {
+    this.sqlSupport.getNomineeDetails(this.refId, this.id).then((data) => {
       if (data.length > 0) {
         this.nomiDetails.get('nomTitle').setValue(data[0].nomTitle);
         this.nomiDetails.get('nominame').setValue(data[0].nominame);
@@ -210,15 +303,12 @@ export class NomineeAfterPsPage implements OnInit {
         //   this.submitDisable = false;
         //   this.relation = false;
         // }
-    
-        
       } else {
-        this.nomiDetails.get('nomicountries').setValue("India");
-        this.nomiDetails.get('guacountries').setValue("India");
+        this.nomiDetails.get('nomicountries').setValue('India');
+        this.nomiDetails.get('guacountries').setValue('India');
       }
-    })
+    });
   }
-
 
   calculate_age(value) {
     let val = value.value;
@@ -227,10 +317,10 @@ export class NomineeAfterPsPage implements OnInit {
     let today_month = today_date.getMonth();
     let today_day = today_date.getDate();
     let age = today_year - val.year;
-    if (today_month < (val.month - 1)) {
+    if (today_month < val.month - 1) {
       age--;
     }
-    if (((val.month - 1) == today_month) && (today_day < val.day)) {
+    if (val.month - 1 == today_month && today_day < val.day) {
       age--;
     }
     console.log(age);
@@ -270,20 +360,58 @@ export class NomineeAfterPsPage implements OnInit {
     } else {
       this.guardian = true;
       this.nomiDetails.get('guaTitle').setValidators(Validators.required);
-      this.nomiDetails.get('guaname').setValidators(Validators.compose([Validators.maxLength(30), Validators.pattern('[a-zA-Z ]*'), Validators.required]));
+      this.nomiDetails
+        .get('guaname')
+        .setValidators(
+          Validators.compose([
+            Validators.maxLength(30),
+            Validators.pattern('[a-zA-Z ]*'),
+            Validators.required,
+          ])
+        );
       this.nomiDetails.get('guarelation').setValidators(Validators.required);
-      this.nomiDetails.get('guaCNum').setValidators(Validators.compose([Validators.maxLength(10), Validators.pattern('[0-9]{10}$')]));
-      this.nomiDetails.get('gua_address1').setValidators(Validators.compose([Validators.maxLength(35), Validators.pattern('[a-zA-Z0-9.,/#& ]*'), Validators.required]));
-      this.nomiDetails.get('gua_address2').setValidators(Validators.compose([Validators.maxLength(35), Validators.pattern('[a-zA-Z0-9.,/#& ]*'), Validators.required]));
+      this.nomiDetails
+        .get('guaCNum')
+        .setValidators(
+          Validators.compose([
+            Validators.maxLength(10),
+            Validators.pattern('[0-9]{10}$'),
+          ])
+        );
+      this.nomiDetails
+        .get('gua_address1')
+        .setValidators(
+          Validators.compose([
+            Validators.maxLength(35),
+            Validators.pattern('[a-zA-Z0-9.,/#& ]*'),
+            Validators.required,
+          ])
+        );
+      this.nomiDetails
+        .get('gua_address2')
+        .setValidators(
+          Validators.compose([
+            Validators.maxLength(35),
+            Validators.pattern('[a-zA-Z0-9.,/#& ]*'),
+            Validators.required,
+          ])
+        );
       this.nomiDetails.get('guacities').setValidators(Validators.required);
       this.nomiDetails.get('guastates').setValidators(Validators.required);
-      this.nomiDetails.get('guapincode').setValidators(Validators.compose([Validators.pattern('[0-9]{6}'), Validators.required]));
+      this.nomiDetails
+        .get('guapincode')
+        .setValidators(
+          Validators.compose([
+            Validators.pattern('[0-9]{6}'),
+            Validators.required,
+          ])
+        );
       this.nomiDetails.get('guacountries').setValidators(Validators.required);
     }
   }
 
   getStateValue() {
-    this.sqliteProvider.getStateList().then(data => {
+    this.sqliteProvider.getStateList().then((data) => {
       this.master_states = data;
     });
   }
@@ -292,19 +420,19 @@ export class NomineeAfterPsPage implements OnInit {
     switch (state) {
       case 'nominee':
         let statecodeEntity = this.nomiDetails.controls.nomistates.value;
-        this.sqliteProvider.getSelectedCity(statecodeEntity).then(data => {
+        this.sqliteProvider.getSelectedCity(statecodeEntity).then((data) => {
           this.nominee_cities = data;
         });
         break;
       case 'guardian':
         let statecodePresent = this.nomiDetails.controls.guastates.value;
-        this.sqliteProvider.getSelectedCity(statecodePresent).then(data => {
+        this.sqliteProvider.getSelectedCity(statecodePresent).then((data) => {
           this.guardian_cities = data;
         });
         // code block
         break;
       default:
-        this.sqliteProvider.getAllCityValues().then(data => {
+        this.sqliteProvider.getAllCityValues().then((data) => {
           this.guardian_cities = data;
           this.nominee_cities = data;
         });
@@ -312,64 +440,86 @@ export class NomineeAfterPsPage implements OnInit {
   }
 
   fetchGuaranDetails() {
-    this.sqlSupport.getCASADetails(this.refId, this.id).then(gua => {
+    this.sqlSupport.getCASADetails(this.refId, this.id).then((gua) => {
       if (gua.length > 0) {
         // this.accDetails.get('guaAvail').setValue(data[0].guaAvail);
-        if (gua[0].guaAvail == "Y") {
-          this.sqliteProvider.getNomList(this.refId, gua[0].nomList).then(data => {
-            console.log(JSON.stringify(data));
-            this.nomiDetails.get('nomTitle').setValue(data[0].genTitle);
-            this.nomiDetails.get('nominame').setValue(data[0].firstname + " " + data[0].lastname);
-            this.nomiDetails.get('nomdob').setValue(data[0].dob);
-            this.nomiDetails.get('nomi_address1').setValue(this.global.basicDec(data[0].perm_plots));
-            this.nomiDetails.get('nomi_address2').setValue(this.global.basicDec(data[0].perm_locality));
-            this.nomiDetails.get('nomi_address3').setValue(this.global.basicDec(data[0].perm_line3));
-            this.nomiDetails.get('nomicities').setValue(this.global.basicDec(data[0].perm_cities));
-            this.nomiDetails.get('nomistates').setValue(this.global.basicDec(data[0].perm_states));
-            this.nomiDetails.get('nomipincode').setValue(this.global.basicDec(data[0].perm_pincode));
-            this.nomiDetails.get('nomicountries').setValue(data[0].perm_countries);
-            this.nomiDetails.get('nomiCNum').setValue(this.global.basicDec(data[0].mobNum));
-            this.leadId = data[0].coAppGuaId;
-            this.sqlSupport.getNomineeDetails(this.refId, this.id).then(data => {
-              if (data.length > 0) {
-                this.fetchRelate = false;
-              } else {
-                this.fetchRelate = true;
-                this.nomiDetails.controls.nomrelation.setValue('');
-              }
-            })
-            this.submitDisable = true;
-            let day = data[0].dob.substring(8, 10);
-            let month = data[0].dob.substring(5, 7);
-            let year = data[0].dob.substring(0, 4);
-            let ageDate = {
-              value: {
-                day: parseInt(day),
-                month: parseInt(month),
-                year: parseInt(year)
-              }
-            }
-            this.calculate_age(ageDate);
-          })
+        if (gua[0].guaAvail == 'Y') {
+          this.sqliteProvider
+            .getNomList(this.refId, gua[0].nomList)
+            .then((data) => {
+              console.log(JSON.stringify(data));
+              this.nomiDetails.get('nomTitle').setValue(data[0].genTitle);
+              this.nomiDetails
+                .get('nominame')
+                .setValue(data[0].firstname + ' ' + data[0].lastname);
+              this.nomiDetails.get('nomdob').setValue(data[0].dob);
+              this.nomiDetails
+                .get('nomi_address1')
+                .setValue(this.global.basicDec(data[0].perm_plots));
+              this.nomiDetails
+                .get('nomi_address2')
+                .setValue(this.global.basicDec(data[0].perm_locality));
+              this.nomiDetails
+                .get('nomi_address3')
+                .setValue(this.global.basicDec(data[0].perm_line3));
+              this.nomiDetails
+                .get('nomicities')
+                .setValue(this.global.basicDec(data[0].perm_cities));
+              this.nomiDetails
+                .get('nomistates')
+                .setValue(this.global.basicDec(data[0].perm_states));
+              this.nomiDetails
+                .get('nomipincode')
+                .setValue(this.global.basicDec(data[0].perm_pincode));
+              this.nomiDetails
+                .get('nomicountries')
+                .setValue(data[0].perm_countries);
+              this.nomiDetails
+                .get('nomiCNum')
+                .setValue(this.global.basicDec(data[0].mobNum));
+              this.leadId = data[0].coAppGuaId;
+              this.sqlSupport
+                .getNomineeDetails(this.refId, this.id)
+                .then((data) => {
+                  if (data.length > 0) {
+                    this.fetchRelate = false;
+                  } else {
+                    this.fetchRelate = true;
+                    this.nomiDetails.controls.nomrelation.setValue('');
+                  }
+                });
+              this.submitDisable = true;
+              let day = data[0].dob.substring(8, 10);
+              let month = data[0].dob.substring(5, 7);
+              let year = data[0].dob.substring(0, 4);
+              let ageDate = {
+                value: {
+                  day: parseInt(day),
+                  month: parseInt(month),
+                  year: parseInt(year),
+                },
+              };
+              this.calculate_age(ageDate);
+            });
         } else {
-          this.nomiDetails.get('nomTitle').setValue("");
-          this.nomiDetails.get('nominame').setValue("");
-          this.nomiDetails.get('nomdob').setValue("");
-          this.nomiDetails.get('nomiage').setValue("");
-          this.nomiDetails.get('nomrelation').setValue("");
-          this.nomiDetails.get('nomi_address1').setValue("");
-          this.nomiDetails.get('nomi_address2').setValue("");
-          this.nomiDetails.get('nomi_address3').setValue("");
-          this.nomiDetails.get('nomicities').setValue("");
-          this.nomiDetails.get('nomistates').setValue("");
-          this.nomiDetails.get('nomipincode').setValue("");
-          this.nomiDetails.get('nomiCNum').setValue("");
+          this.nomiDetails.get('nomTitle').setValue('');
+          this.nomiDetails.get('nominame').setValue('');
+          this.nomiDetails.get('nomdob').setValue('');
+          this.nomiDetails.get('nomiage').setValue('');
+          this.nomiDetails.get('nomrelation').setValue('');
+          this.nomiDetails.get('nomi_address1').setValue('');
+          this.nomiDetails.get('nomi_address2').setValue('');
+          this.nomiDetails.get('nomi_address3').setValue('');
+          this.nomiDetails.get('nomicities').setValue('');
+          this.nomiDetails.get('nomistates').setValue('');
+          this.nomiDetails.get('nomipincode').setValue('');
+          this.nomiDetails.get('nomiCNum').setValue('');
           this.submitDisable = false;
           this.fetchRelate = false;
-          this.leadId = "";
+          this.leadId = '';
         }
       }
-    })
+    });
   }
 
   getRelateValue(value) {
@@ -377,14 +527,14 @@ export class NomineeAfterPsPage implements OnInit {
   }
 
   getTitles() {
-    this.sqliteProvider.getMasterDataUsingType('TitleMaster').then(data => {
+    this.sqliteProvider.getMasterDataUsingType('TitleMaster').then((data) => {
       this.titles = data;
-    })
+    });
   }
   getRelationship() {
-    this.sqliteProvider.getMasterDataUsingType('RelationShip').then(data => {
+    this.sqliteProvider.getMasterDataUsingType('RelationShip').then((data) => {
       this.master_relations = data;
-    })
+    });
   }
 
   callmaxdate() {
@@ -406,23 +556,33 @@ export class NomineeAfterPsPage implements OnInit {
     if (value == 'nom') {
       if (this.nomiDetails.controls.nomipincode.value.length == 6) {
         let str = this.nomiDetails.controls.nomipincode.value;
-        str = str.split("");
-        if (str[0] == str[1] && str[0] == str[2] && str[0] == str[3] && str[0] == str[4] && str[0] == str[5]) {
+        str = str.split('');
+        if (
+          str[0] == str[1] &&
+          str[0] == str[2] &&
+          str[0] == str[3] &&
+          str[0] == str[4] &&
+          str[0] == str[5]
+        ) {
           this.nomiDetails.controls.nomipincode.setValue('');
-          this.globFunc.showAlert("Alert!", "Given pincode is not valid!");
+          this.alertService.showAlert('Alert!', 'Given pincode is not valid!');
         }
       }
     } else if (value == 'guar') {
       if (this.nomiDetails.controls.guapincode.value.length == 6) {
         let str = this.nomiDetails.controls.guapincode.value;
-        str = str.split("");
-        if (str[0] == str[1] && str[0] == str[2] && str[0] == str[3] && str[0] == str[4] && str[0] == str[5]) {
+        str = str.split('');
+        if (
+          str[0] == str[1] &&
+          str[0] == str[2] &&
+          str[0] == str[3] &&
+          str[0] == str[4] &&
+          str[0] == str[5]
+        ) {
           this.nomiDetails.controls.guapincode.setValue('');
-          this.globFunc.showAlert("Alert!", "Given pincode is not valid!");
+          this.alertService.showAlert('Alert!', 'Given pincode is not valid!');
         }
       }
     }
   }
-
-
 }

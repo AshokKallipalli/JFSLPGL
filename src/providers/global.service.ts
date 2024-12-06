@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import {
-  AlertController,
   LoadingController,
   ModalController,
   ToastController,
@@ -25,6 +24,7 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { CropImageComponent } from 'src/app/components/crop-image/crop-image.component';
 declare var google: any;
 import { Plugins } from '@capacitor/core';
+import { CustomAlertControlService } from './custom-alert-control.service';
 const { WebPConvertor } = Plugins;
 
 @Injectable({
@@ -65,7 +65,6 @@ export class GlobalService {
   wifiStatus: any = new BehaviorSubject<any>(undefined);
 
   constructor(
-    public alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
     public zone: NgZone,
     public loadCtrl: LoadingController,
@@ -74,7 +73,8 @@ export class GlobalService {
     public device: Device,
     public batteryStatus: BatteryStatus,
     private diagnostic: Diagnostic,
-    public modalCtrl: ModalController
+    public modalCtrl: ModalController,
+    public alertService: CustomAlertControlService
   ) {
     this.getSystemDate();
     this.getTimestamp();
@@ -176,13 +176,6 @@ export class GlobalService {
       .dismiss()
       .then(() => console.log('dismissed'));
   }
-
-  // async globalLodingDismiss() {
-  //   if (this._loading) {
-  //     await this._loading.dismiss();
-  //     this._loading = null;
-  //   }
-  // }
 
   /* Nidheesh Source */
 
@@ -605,24 +598,6 @@ export class GlobalService {
     // alert(`reseting array length => ${this.applicationDataChangeDetector.length}`);
   }
 
-  async showAlert(tittle, subtitle, message?: string, buttons?: any[]) {
-    const alert = await this.alertCtrl.create({
-      header: tittle,
-      subHeader: subtitle,
-      message: message,
-      buttons: this._buttonBehaviour(buttons),
-    });
-    await alert.present();
-  }
-
-  _buttonBehaviour(buttons?: any[]) {
-    if (buttons) {
-      return buttons;
-    } else {
-      return ['OK'];
-    }
-  }
-
   encMyReq(val) {
     if (val != '' && val != null && val != undefined) {
       let encryptedMessage = CryptoJS.AES.encrypt(val, this._sk);
@@ -718,24 +693,6 @@ export class GlobalService {
     console.log('Value ', value);
   }
 
-  confirmationVersionAlert(title, message, page?): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      let alert = await this.alertCtrl.create({
-        header: title,
-        message,
-        buttons: [
-          {
-            text: 'OK',
-            handler: () => {
-              resolve(true);
-            },
-          },
-        ],
-      });
-      alert.present();
-    });
-  }
-
   getCertPinningStatus() {
     return new Promise((resolve, reject) => {
       this.http.setServerTrustMode('nocheck').then(
@@ -817,7 +774,7 @@ export class GlobalService {
         cropComponent.present();
         cropComponent.onDidDismiss().then(async (data) => {
           if (data.data == 'data:,') {
-            this.showAlert('Alert', 'Please again take photo');
+            this.alertService.showAlert('Alert', 'Please again take photo');
           } else if (data) {
             let path = data.data.replace('data:image/jpeg;base64,', '');
             let size = path.length / 1024;
@@ -832,7 +789,7 @@ export class GlobalService {
               console.log('imageData for UploadConsent', data.data);
               resolve(data.data.replace('data:image/jpeg;base64,', ''));
             } else {
-              this.showAlert(
+              this.alertService.showAlert(
                 'Alert',
                 'Image Size should be lesser then (2-MB),Please Capture again!'
               );
@@ -910,37 +867,6 @@ export class GlobalService {
       alert(err);
       console.log(err);
     }
-  }
-
-  async logout() {
-    let alert = await new AlertController().create({
-      header: 'Alert',
-      message: 'Are you sure to logout?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('cancel');
-          },
-        },
-        {
-          text: 'Sure',
-          role: 'ok',
-          handler: () => {
-            // navigator["app"].exitApp();
-            // new MenuController().close();
-            // this.logout.next('logout');
-            // this.router.navigate(['/login'], { skipLocationChange: true, replaceUrl: true });
-            // localStorage.removeItem("keys")
-          },
-        },
-      ],
-    });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    return role;
   }
 
   getDroomAccessToken() {
@@ -1033,7 +959,7 @@ export class GlobalService {
       }
       if (finalsize) return true;
       else
-        this.showAlert(
+        this.alertService.showAlert(
           'Alert',
           `Image Size should be lesser then ( ${requiredSize}.KB),Please Capture again!`
         );
