@@ -10,6 +10,7 @@ import {
 import { RemarksComponent } from 'src/app/components/remarks/remarks.component';
 import { SfdCviewComponent } from 'src/app/components/sfd-cview/sfd-cview.component';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { RestService } from 'src/providers/rest.service';
@@ -75,7 +76,8 @@ export class PosidexCheckPage {
     public sqliteSupport: SquliteSupportProviderService,
     public router: Router,
     public activatedRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -254,7 +256,7 @@ export class PosidexCheckPage {
   getCoApplicantDetails() {}
 
   fetchPosidex(ev?) {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body;
     if (this.appCustId || this.coAppCustId) {
       body = {
@@ -263,7 +265,7 @@ export class PosidexCheckPage {
           this.custType === 'Promoter' ? this.appCustId : this.coAppCustId,
       };
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert',
         'The Customer Id is Empty in the Application'
@@ -273,7 +275,7 @@ export class PosidexCheckPage {
       (res) => {
         let posidexData = <any>res;
         if (posidexData.errorCode === '000') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (
             posidexData.hasOwnProperty('MatchedCustomer') &&
             posidexData.MatchedCustomer.length > 0
@@ -297,12 +299,12 @@ export class PosidexCheckPage {
             this.storedRemarks = '';
           }
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', posidexData.errorStatus);
         }
       },
       (err) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         if (err.name == 'TimeoutError') {
           this.alertService.showAlert('Alert!', err.message);
         } else {
@@ -328,7 +330,7 @@ export class PosidexCheckPage {
         },
       });
       popover.onDidDismiss().then((data) => {
-        // this.globFunc.globalLodingPresent("Please wait...");
+        // this.loadingService.globalLodingPresent("Please wait...");
         if (data) {
           remarks = data.data;
           if (this.showEixtCust && this.selectedItem.MatchedCRN != 'new') {
@@ -412,7 +414,7 @@ export class PosidexCheckPage {
                 }
                 this.loadAppPosidexDetails();
                 this.loadAllPosidexDetails(this.id);
-                // this.globFunc.globalLodingDismiss();
+                // this.loadingService.globalLodingDismiss();
                 if (this.showNewCust || this.selectedItem.MatchedCRN == 'new') {
                   this.showAml = true;
                   this.alertService.showAlert(
@@ -427,7 +429,7 @@ export class PosidexCheckPage {
                   );
                 }
               } else {
-                // this.globFunc.globalLodingDismiss();
+                // this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert',
                   verifyPosidexData.errorDesc
@@ -437,7 +439,7 @@ export class PosidexCheckPage {
               }
             },
             (err) => {
-              // this.globFunc.globalLodingDismiss();
+              // this.loadingService.globalLodingDismiss();
               if (err) {
                 this.alertService.showAlert(
                   'Alert',
@@ -451,15 +453,15 @@ export class PosidexCheckPage {
               }
             }
           );
-          // this.globFunc.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
         } else {
-          // this.globFunc.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
         }
       });
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       return await popover.present();
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', 'Please Select a URN');
     }
   }
@@ -468,7 +470,7 @@ export class PosidexCheckPage {
     console.log(this.existingRemarks, 'aaaaaaaaa');
     let remarks;
     if (this.showNewCust || (this.selectedItem && this.showEixtCust)) {
-      this.globFunc.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       let body;
       if (this.showEixtCust) {
         remarks = this.existingRemarks[this.selectedItem.MatchedCRN];
@@ -480,7 +482,7 @@ export class PosidexCheckPage {
   }
 
   fetchAml() {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let methodName, custId, body;
     if (
       this.posidexInfo[0].amlStatus == 'AML Initiated' ||
@@ -520,7 +522,7 @@ export class PosidexCheckPage {
             'Y'
           );
           this.loadAllPosidexDetails(this.id);
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (amlData.errorDesc == 'Success') {
             this.alertService.showAlert(
               'Alert',
@@ -542,7 +544,7 @@ export class PosidexCheckPage {
           // this.proceedNextPage();
           // })
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService
             .showAlert('Alert', amlData.errorDesc)
             .then((data) => {
@@ -556,13 +558,13 @@ export class PosidexCheckPage {
         } else {
           this.alertService.showAlert('Alert', 'No Response from Server!');
         }
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     );
   }
 
   fetchCbs() {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let methodName, body;
     if (this.posidexInfo[0].cbsStatus == 'Inititated') {
       methodName = 'CbsAccountFetch';
@@ -626,9 +628,9 @@ export class PosidexCheckPage {
                 });
             }
           }
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert(
             'Alert',
             cbsData.errorDesc ? cbsData.errorDesc : 'No response'
@@ -641,7 +643,7 @@ export class PosidexCheckPage {
         } else {
           this.alertService.showAlert('Alert', 'No Response from Server!');
         }
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     );
   }
@@ -732,7 +734,7 @@ export class PosidexCheckPage {
   // }
 
   view360(item) {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body = {
       custurn: this.existingUrn,
     };
@@ -756,7 +758,7 @@ export class PosidexCheckPage {
         };
         let cfdsData = <any>res;
         if (cfdsData.errorCode === '000') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           console.log('360 view');
           let modal = await this.modalCtrl.create({
             component: SfdCviewComponent,
@@ -764,7 +766,7 @@ export class PosidexCheckPage {
           });
           modal.present();
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', cfdsData.errorDesc);
         }
       },
@@ -774,7 +776,7 @@ export class PosidexCheckPage {
         } else {
           this.alertService.showAlert('Alert', 'No Response from Server!');
         }
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     );
   }

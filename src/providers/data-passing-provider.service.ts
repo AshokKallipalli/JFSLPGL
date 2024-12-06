@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 // import { GlobalfunctionsProvider } from "../globalfunctions/globalfunctions";
 // import { File } from '@ionic-native/file';
 import { Device } from '@awesome-cordova-plugins/device/ngx';
@@ -8,6 +8,7 @@ import { GlobalService } from './global.service';
 import { RestService } from 'src/providers/rest.service';
 import { environment } from 'src/environments/environment';
 import { Plugins } from '@capacitor/core';
+import { CustomLoadingControlService } from './custom-loading-control.service';
 const { WebPConvertorBase64 } = Plugins;
 
 @Injectable({
@@ -52,9 +53,9 @@ export class DataPassingProviderService {
   loginUser: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   constructor(
     // public global: GlobalService,
-    public loadingCtrl: LoadingController,
     public device: Device,
-    public toastCtrl: ToastController // public master: RestService,
+    public toastCtrl: ToastController, // public master: RestService,
+    public loadingService: CustomLoadingControlService
   ) {
     //     // this.urlEndPoint = this.global.getLocalUrlEndpoint().url; // Local URL
     //     // this.urlEndPointStat = this.global.getLocalUrlEndpoint().local; // Local URL
@@ -162,44 +163,6 @@ export class DataPassingProviderService {
       position: 'middle',
     });
     toast.present();
-  }
-
-  // globalLodingPresent(loadingContent: string) {
-  //   this._loading = this.loadingCtrl.create({
-  //     spinner: 'bubbles',
-  //     // content: `${loadingContent}`,
-  //     cssClass: 'spinnerCss'
-  //   });
-  //   this._loading.present();
-  // }
-
-  async globalLodingPresent(msg, time?) {
-    this._loading = true;
-    return await this.loadingCtrl
-      .create({
-        message: msg,
-        duration: time,
-        spinner: 'circles',
-        cssClass: 'custom-loading',
-      })
-      .then((a) => {
-        a.present().then(() => {
-          if (!this._loading) {
-            a.dismiss().then(() => console.log('abort presenting'));
-          }
-        });
-      });
-  }
-
-  async globalLodingDismiss() {
-    this._loading = false;
-    return await this.loadingCtrl
-      .dismiss()
-      .then(() => console.log('dismissed'));
-  }
-
-  globalLodingDismissAll() {
-    this._loading.dismissAll();
   }
 
   setgId(value) {
@@ -355,7 +318,7 @@ export class DataPassingProviderService {
 
   async convertToWebPBase64(data, sizeReq?: number) {
     try {
-      this.globalLodingPresent('Please Wait...');
+      this.loadingService.globalLodingPresent('Please Wait...');
       let webpResult;
       if (WebPConvertorBase64) {
         const result = await WebPConvertorBase64['convertToWebP']({
@@ -371,15 +334,15 @@ export class DataPassingProviderService {
             size = Math.ceil(size);
           }
           webpResult = { path: pathData, size: size };
-          this.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           return webpResult;
         } else {
-          this.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         }
       }
-      this.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } catch (e) {
-      this.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       alert(`Error From WebPConvertor Plugin => ${e}`);
     }
   }

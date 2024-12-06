@@ -4,6 +4,7 @@ import { Device } from '@awesome-cordova-plugins/device/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import { NavController, NavParams } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { GlobalService } from 'src/providers/global.service';
 import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -48,7 +49,8 @@ export class GroupInboxPage implements OnInit {
     public sqlSupport: SquliteSupportProviderService,
     public device: Device,
     public router: Router,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.userName = this.globFunc.basicDec(localStorage.getItem('username'));
   }
@@ -120,7 +122,7 @@ export class GroupInboxPage implements OnInit {
         Groups: JSON.parse(this.loginDetails[0].userGroups),
         page: count,
       };
-      this.globFunc.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       this.master.restApiCallAngular('getMobileGroupInbox', request).then(
         async (data) => {
           let groupInboxResponse = <any>data;
@@ -161,10 +163,10 @@ export class GroupInboxPage implements OnInit {
                 }
               });
               this.itemslist = this.groupInboxList;
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               event.detail.complete();
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', 'No data found!');
               event.detail.complete();
             }
@@ -177,7 +179,7 @@ export class GroupInboxPage implements OnInit {
         },
         (err) => {
           console.log(err, 'ssssssssssssssss');
-          // this.globFunc.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // event.detail.complete();
           event ? event.detail.complete() : '';
           if (err.name == 'TimeoutError') {
@@ -187,7 +189,7 @@ export class GroupInboxPage implements OnInit {
           }
         }
       );
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       // event.detail.complete();;
     }
   }
@@ -203,7 +205,7 @@ export class GroupInboxPage implements OnInit {
   }
 
   getUserDetails(fse) {
-    this.globFunc.globalLodingPresent('Please Wait...');
+    this.loadingService.globalLodingPresent('Please Wait...');
     let body = {
       UserID: this.userName,
       propNo: fse.AppNo,
@@ -223,15 +225,15 @@ export class GroupInboxPage implements OnInit {
           result.PdLeadDetails[0]['flowPointDesc'] = flowdesc[0]['flowDesc'];
           console.log(flowdesc[0]['flowDesc'], 'After db');
           let fseObj = result.PdLeadDetails[0];
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.proceedApplication(fseObj);
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', result.errorDesc);
         }
       })
       .catch((err) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         console.log(JSON.stringify(err));
         this.alertService.showAlert('Alert!', 'Something went wrong!!!');
       });
@@ -519,7 +521,7 @@ export class GroupInboxPage implements OnInit {
   }
 
   insertGroupInboxOnData(groupInboxData) {
-    this.globFunc.globalLodingPresent('loading...');
+    this.loadingService.globalLodingPresent('loading...');
     this.deviceId = this.device.uuid;
 
     this.sqlSupport
@@ -537,7 +539,7 @@ export class GroupInboxPage implements OnInit {
         },
         (err) => {
           console.log('Lead error', err);
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         }
       );
   }
@@ -1210,7 +1212,7 @@ export class GroupInboxPage implements OnInit {
                   ''
                 );
                 this.sqlSupport.insertPosidex(refId, id, 'Y', 'C');
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
               }
               this.sqliteProvider.getCoappDetails(refId).then((data) => {
                 if (data.length > 0) {
@@ -1232,7 +1234,7 @@ export class GroupInboxPage implements OnInit {
                 }
               });
             }
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (
               groupInboxData.flowPointDesc.toLowerCase() ==
                 'Sourcing Data entry'.toLowerCase() &&
@@ -1331,7 +1333,7 @@ export class GroupInboxPage implements OnInit {
       }
     });
     if (everyarr.every((val) => val == false)) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', 'Product code is not found');
     }
   }

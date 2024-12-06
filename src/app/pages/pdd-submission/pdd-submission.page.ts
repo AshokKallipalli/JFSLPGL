@@ -25,6 +25,7 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 import { OnRoadPriceService } from 'src/providers/on-road-price.service';
 import { PicproofPage } from '../picproof/picproof.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-pdd-submission',
@@ -108,7 +109,8 @@ export class PddSubmissionPage implements OnInit {
     public orpApi: OnRoadPriceService,
     //  public camera: Camera,
     public webview: WebView,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.loading = this.loadCtrl.create({
       message: 'Please wait...',
@@ -507,7 +509,7 @@ export class PddSubmissionPage implements OnInit {
       this.PddDocUploadImgs();
       this.sqlite.getPddDetailsFromDd(this.refId, this.id).then((data) => {
         if (data.length > 0) {
-          this.globalFunction.globalLodingPresent('Please wait...');
+          this.loadingService.globalLodingPresent('Please wait...');
           let body = {
             PropNo: this.applicNo,
             remarks: 'Remark',
@@ -522,7 +524,7 @@ export class PddSubmissionPage implements OnInit {
             .then((res) => {
               let pddDocRes = <any>res;
               if (pddDocRes.errorCode === '000') {
-                this.globalFunction.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert',
                   'Pdd Documents Uploaded Successfully'
@@ -546,14 +548,14 @@ export class PddSubmissionPage implements OnInit {
                 this.uploadBtn = true;
                 this.pddDisable = true;
               } else if (pddDocRes.errorCode === '001') {
-                this.globalFunction.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert',
                   'Pdd Documents Image Should not be Empty'
                 );
                 this.uploadBtn = false;
               } else {
-                this.globalFunction.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert', pddDocRes.errorStatus);
                 this.uploadBtn = false;
               }
@@ -578,7 +580,7 @@ export class PddSubmissionPage implements OnInit {
   }
 
   finalWorkFlow() {
-    this.globalFunction.globalLodingPresent(
+    this.loadingService.globalLodingPresent(
       'Submitting for disbursed account Please wait...'
     );
     let body = {
@@ -594,15 +596,15 @@ export class PddSubmissionPage implements OnInit {
         (res) => {
           let fieldInsRes = <any>res;
           if (fieldInsRes.ErrorCode === '000') {
-            this.globalFunction.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.deleteAllData();
           } else {
-            this.globalFunction.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', fieldInsRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globalFunction.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -662,7 +664,7 @@ export class PddSubmissionPage implements OnInit {
         this.imgName = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
         localStorage.setItem('PPBS', res.size);
         localStorage.setItem('PPAS', cnvtImg.size);
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         if (value == 'profPic') {
           this.uploadService(this.imgName);
         }
@@ -840,7 +842,7 @@ export class PddSubmissionPage implements OnInit {
   }
 
   uploadToServer(file, docDetails) {
-    this.globalFunction.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let uplodfile = [];
     uplodfile.push(file);
     let body = {
@@ -869,16 +871,16 @@ export class PddSubmissionPage implements OnInit {
             }
           }
           console.log('pddDetailsArray', this.pddDetailsArray);
-          this.globalFunction.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert(
             'Alert',
             'Pdd Documents Uploaded Successfully'
           );
         } else if (pddDocRes.errorCode === '001') {
-          this.globalFunction.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', JSON.stringify(pddDocRes));
         } else {
-          this.globalFunction.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', pddDocRes.errorStatus);
         }
       })
@@ -898,12 +900,12 @@ export class PddSubmissionPage implements OnInit {
 
   async fetchDetailsFromRC() {
     try {
-      this.globalData.globalLodingPresent('Please Wait..');
+      this.loadingService.globalLodingPresent('Please Wait..');
       await this.orpApi
         .getRCDetails(this.PddData.get('rcNo').value)
         .then((data: any) => {
           console.log('getRCDetails', data);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (data) {
             if (!data.blacklisted) {
               this.PddData.get('engineNo').setValue(

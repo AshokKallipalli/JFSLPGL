@@ -18,6 +18,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 declare var cordova: any;
 declare var window: any;
 @Component({
@@ -44,7 +45,8 @@ export class AppComponent {
     public sqliteSuportProvider: SquliteSupportProviderService,
     public platform: Platform,
     public menuCtrl: MenuController,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.pages = [
       {
@@ -109,7 +111,7 @@ export class AppComponent {
     } catch (error) {
       console.log('Get Location:', error.message);
 
-      this.globFunc.globalLodingPresent(error.message);
+      this.loadingService.globalLodingPresent(error.message);
     }
   }
 
@@ -125,19 +127,19 @@ export class AppComponent {
         .then(async (data) => {
           this.userGroupsName = [];
           if (data == 'Yes') {
-            this.globFunc.globalLodingPresent('Logging out...');
+            this.loadingService.globalLodingPresent('Logging out...');
             this.menuCtrl.close();
             await this.router.navigate(['/login'], {
               skipLocationChange: true,
               replaceUrl: true,
             });
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           }
         })
         .catch((Error) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         });
     }
   }

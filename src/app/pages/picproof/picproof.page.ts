@@ -16,6 +16,7 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { CropImgPage } from '../crop-img/crop-img.page';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-picproof',
@@ -72,7 +73,8 @@ export class PicproofPage {
     public loadingCtrl: LoadingController,
     public globalFun: GlobalService,
     public globalData: DataPassingProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     let submitstatus = this.navParams.get('submitstatus');
     if (submitstatus == true) {
@@ -220,7 +222,7 @@ export class PicproofPage {
       this.globalFun.takeImage('document').then((data: any) => {
         let imageName = data.path;
         this.globalData.convertToWebPBase64(imageName).then(async (cnvtImg) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
           localStorage.setItem('BS', data.size);
           localStorage.setItem('AS', cnvtImg.size);
@@ -406,7 +408,7 @@ export class PicproofPage {
       } else {
         return new Promise(async (resolve, reject) => {
           if (event.target.files && event.target.files[0]) {
-            this.globalFun.globalLodingPresent('Please Wait...');
+            this.loadingService.globalLodingPresent('Please Wait...');
             var filename = event.target.files[0].name
               .toString()
               .replace(/ /gi, '_');
@@ -471,7 +473,7 @@ export class PicproofPage {
                     this.docImg = true;
                     this.slides.slideNext();
                     console.log(document);
-                    this.globalFun.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     resolve(true);
                   }
                 };
@@ -484,11 +486,11 @@ export class PicproofPage {
                   'Alert',
                   'Document Should be lesser then 10MB!'
                 );
-                this.globalFun.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 resolve(true);
               }
             } else {
-              this.globalFun.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.showAlert('Alert', 'This Type Of File Is Not Supported');
             }
           }

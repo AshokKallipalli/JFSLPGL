@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import { AlertController, ModalController, NavParams } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { RestService } from 'src/providers/rest.service';
@@ -62,7 +63,8 @@ export class KarzaDetailsPage implements OnInit {
     public network: Network,
     public sqlite: SqliteService,
     public alertCtrl: AlertController,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.idType = this.navParams.get('idType');
     console.log(this.idType);
@@ -198,9 +200,9 @@ export class KarzaDetailsPage implements OnInit {
   }
 
   passportKarza(value) {
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -259,7 +261,7 @@ export class KarzaDetailsPage implements OnInit {
                   gender: value.gender[0],
                   type: 'passport',
                 };
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.globalData.setCustType('N');
                 this.sqlite.InsertKarzaData(
                   this.leadId,
@@ -280,44 +282,44 @@ export class KarzaDetailsPage implements OnInit {
                 this.modalCntrl.dismiss(body);
                 // this.navCtrl.push(NewapplicationPage, { passport: body, leadStatus: this.leadStatus, leadId: this.leadId, userType: this.globalData.getborrowerType() });
               } else if (resData.status_code == 102) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Invalid ID number or combination of inputs'
                 );
               } else if (resData.status_code == 103) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'No records found for the given ID or combination of inputs'
                 );
               } else if (resData.status_code == 104) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Max retries exceeded');
               } else if (resData.status_code == 105) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Missing Consent');
               } else if (resData.status_code == 106) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Multiple Records Exist');
               } else if (resData.status_code == 107) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Not Supported');
               } else if (resData.status_code == 108) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Internal Resource Unavailable'
                 );
               } else if (resData.status_code == 109) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Too many records Found');
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', resData.error);
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Something went wrong!!!');
             }
           },
@@ -331,7 +333,7 @@ export class KarzaDetailsPage implements OnInit {
                   text: 'No',
                   role: 'cancel',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.navCtrl.navigate(['/JsfhomePage'], {
                       skipLocationChange: true,
                       replaceUrl: true,
@@ -341,7 +343,7 @@ export class KarzaDetailsPage implements OnInit {
                 {
                   text: 'Yes',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.globalData.setCustType('N');
                     this.navCtrl.navigate(['/NewapplicationPage'], {
                       queryParams: {
@@ -361,16 +363,16 @@ export class KarzaDetailsPage implements OnInit {
         )
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response From Server!');
         });
     }
   }
 
   dlKarza(value) {
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -448,47 +450,47 @@ export class KarzaDetailsPage implements OnInit {
                   permState: state,
                   type: 'licence',
                 };
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.dlDataHandling(this.dlDataFetch);
               } else if (resData.statusCode == 102) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Invalid ID number or combination of inputs'
                 );
               } else if (resData.statusCode == 103) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'No records found for the given ID or combination of inputs'
                 );
               } else if (resData.statusCode == 104) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Max retries exceeded');
               } else if (resData.statusCode == 105) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Missing Consent');
               } else if (resData.statusCode == 106) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Multiple Records Exist');
               } else if (resData.statusCode == 107) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Not Supported');
               } else if (resData.statusCode == 108) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Internal Resource Unavailable'
                 );
               } else if (resData.statusCode == 109) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Too many records Found');
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', resData.error);
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Something went wrong!!!');
             }
           },
@@ -502,7 +504,7 @@ export class KarzaDetailsPage implements OnInit {
                   text: 'No',
                   role: 'cancel',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.navCtrl.navigate(['/JsfhomePage'], {
                       skipLocationChange: true,
                       replaceUrl: true,
@@ -512,7 +514,7 @@ export class KarzaDetailsPage implements OnInit {
                 {
                   text: 'Yes',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.globalData.setCustType('N');
                     this.navCtrl.navigate(['/NewapplicationPage'], {
                       queryParams: {
@@ -532,7 +534,7 @@ export class KarzaDetailsPage implements OnInit {
         )
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response From Server!');
         });
     }
@@ -598,8 +600,8 @@ export class KarzaDetailsPage implements OnInit {
   }
 
   dlDataFormPopulate(value) {
-    this.globFunc.globalLodingPresent('Please wait....');
-    this.globalData.globalLodingDismiss();
+    this.loadingService.globalLodingPresent('Please wait....');
+    this.loadingService.globalLodingDismiss();
     if (this.idType == 'pan') {
       this.panData.firstname = value.firstname;
       this.panData.lastname = value.lastname || '';

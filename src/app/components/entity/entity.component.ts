@@ -13,6 +13,7 @@ import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-entity',
@@ -102,7 +103,8 @@ export class EntityComponent {
     public activateRoute: ActivatedRoute,
     public network: Network,
     public sqlSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -207,7 +209,7 @@ export class EntityComponent {
   }
 
   entitysave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     this.profPic = this.globalData.getProfileImage();
     this.entiProfPic = this.globalData.getEntiProfileImage();
     this.refId = this.globalData.getrefId();
@@ -250,18 +252,18 @@ export class EntityComponent {
             localStorage.setItem('entity', 'entitySaved');
           })
           .catch((Error) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Failed!');
           });
       } else {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert(
           'Alert!',
           'Must Capture the Entity Profile Image!'
         );
       }
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Must Save Loan Facilities!');
     }
   }
@@ -326,7 +328,7 @@ export class EntityComponent {
         this.constitutionChng(this.getEntityData[0].constitution);
         this.saveStatus.emit('entityTick');
         localStorage.setItem('entity', 'entitySaved');
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       })
       .catch((Error) => {
         console.log(Error);

@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { DataPassingProviderService } from './data-passing-provider.service';
 import { GlobalService } from './global.service';
 import { CustomAlertControlService } from './custom-alert-control.service';
+import { CustomLoadingControlService } from './custom-loading-control.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,8 @@ export class SqliteService {
     public globalData: DataPassingProviderService,
     public device: Device,
     private globFunc: GlobalService, // ,public base64: Base64,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.databaseReady = new BehaviorSubject(false);
     this.platform.ready().then(() => {
@@ -975,7 +977,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Sourcing Details Added Successfully'
@@ -1021,7 +1023,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Sourcing Details Updated Successfully'
@@ -1117,7 +1119,7 @@ export class SqliteService {
               'Insert Sucess',
               JSON.stringify(data)
             );
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             // this.alertService.showAlert("Alert!", "PSL_BUSINESS Details Added Successfully");
             return data;
           },
@@ -1165,7 +1167,7 @@ export class SqliteService {
               'Insert Sucess',
               JSON.stringify(data)
             );
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             // this.alertService.showAlert("Alert!", "PSL_BUSINESS Details Updated Successfully");
             return data;
           },
@@ -2080,7 +2082,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Property Details Updated Successfully'
@@ -2122,7 +2124,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Property Details Added Successfully'
@@ -4984,7 +4986,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Entity Details Added Successfully'
@@ -5028,7 +5030,7 @@ export class SqliteService {
         )
         .then(
           (data) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Entity Details Updated Successfully'

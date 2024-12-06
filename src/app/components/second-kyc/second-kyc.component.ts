@@ -18,6 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { KarzaDetailsPage } from 'src/app/pages/karza-details/karza-details.page';
 import { FingerprintPage } from 'src/app/pages/fingerprint/fingerprint.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 // import { NewapplicationPage } from './../../pages/newapplication/newapplication';
 // import { FingerprintPage } from './../../pages/fingerprint/fingerprint';
@@ -64,7 +65,8 @@ export class SecondKycComponent {
     public modalCtrl: ModalController,
     public globalFunc: GlobalService,
     public activateRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.ageRestrict();
 
@@ -170,7 +172,7 @@ export class SecondKycComponent {
         value.aadhar != undefined &&
         value.aadhar != ''
       ) {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         // this.aadharEkyc(value.idType[0], value.aadhar, leadId);
         this.aadharVault(
           value.idType,
@@ -275,12 +277,12 @@ export class SecondKycComponent {
 
     modal.onDidDismiss().then((data) => {
       console.log(data, data.data, 'data');
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (data.data) {
         if (idType == 'pan') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.navCtrl.navigate(['/NewapplicationPage'], {
             queryParams: {
               pan: JSON.stringify(data.data),
@@ -293,8 +295,8 @@ export class SecondKycComponent {
           });
         } else if (idType == 'voterid') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.navCtrl.navigate(['/NewapplicationPage'], {
             queryParams: {
               voter: JSON.stringify(data.data),
@@ -308,25 +310,25 @@ export class SecondKycComponent {
         } else if (idType == 'drivingLicence') {
           this.globalData.setCustType('N');
           this.ids.push(data.data);
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           console.log(this.globalData._loading);
           this.globalData._loading.dismissAll();
-          this.globalData.globalLodingDismissAll();
+          this.loadingService.globalLodingDismiss();
           this.globalData._loading.dismissAll();
           // this.navCtrl.navigate(['/NewapplicationPage'], {queryParams:{licence: data, leadStatus: 'online', leadId: leadId, userType: this.globalData.getborrowerType() }});
         } else if (idType == 'passport') {
           this.globalData.setCustType('N');
           this.ids.push(data.data);
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.globalData._loading.dismissAll();
-          this.globalData.globalLodingDismissAll();
+          this.loadingService.globalLodingDismiss();
           this.globalData._loading.dismissAll();
 
           // this.navCtrl.navigate(['/NewapplicationPage'], {queryParams:{passport: data, leadStatus: 'online', leadId: leadId, userType: this.globalData.getborrowerType() }});
         } else if (idType == 'aadhar') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.navCtrl.navigate(['/NewapplicationPage'], {
             queryParams: {
               leadStatus: 'online',
@@ -349,7 +351,7 @@ export class SecondKycComponent {
 
   stitchApiCall(idType, idNumber, leadId) {
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -421,104 +423,104 @@ export class SecondKycComponent {
                     proPin: obj.pin,
                     contact: obj.contact,
                   };
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   this.sqliteProvider.InsertEntityKarzaData(body);
                   // this.navCtrl.push(NewapplicationPage, { nonIndividual: body, leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                 } else if (res.statusCode == 102) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Invalid ID number or combination of inputs'
                   );
                 } else if (res.statusCode == 103) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'No records found for the given ID or combination of inputs'
                   );
                 } else if (res.statusCode == 104) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Max retries exceeded');
                 } else if (res.statusCode == 105) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Missing Consent');
                 } else if (res.statusCode == 106) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Multiple Records Exist'
                   );
                 } else if (res.statusCode == 107) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Not Supported');
                 } else if (res.statusCode == 108) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Internal Resource Unavailable'
                   );
                 } else if (res.statusCode == 109) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Too many records Found'
                   );
                 } else {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', res.statusMessage);
                 }
               } else {
                 if (res.statusCode == 102) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Invalid ID number or combination of inputs'
                   );
                 } else if (res.statusCode == 103) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'No records found for the given ID or combination of inputs'
                   );
                 } else if (res.statusCode == 104) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Max retries exceeded');
                 } else if (res.statusCode == 105) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Missing Consent');
                 } else if (res.statusCode == 106) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Multiple Records Exist'
                   );
                 } else if (res.statusCode == 107) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Not Supported');
                 } else if (res.statusCode == 108) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Internal Resource Unavailable'
                   );
                 } else if (res.statusCode == 109) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Too many records Found'
                   );
                 } else {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', res.statusMessage);
                 }
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', res.error);
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', result.errorStatus);
           }
         },
@@ -532,14 +534,14 @@ export class SecondKycComponent {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   // this.navCtrl.push(JsfhomePage);
                 },
               },
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                 },
@@ -548,7 +550,7 @@ export class SecondKycComponent {
           });
           alert.present();
 
-          // this.globalData.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // this.alertService.showAlert("Alert!", error.statusText);
         }
       );
@@ -572,13 +574,13 @@ export class SecondKycComponent {
             // this.globalData.setCustType('N');
             // this.navCtrl.push(NewapplicationPage, { newApplication: "N", leadStatus: this.leadStatus, aadhar: "aadhaar", leadId: leadId, idNumber: idNumber, userType: this.globalData.getborrowerType() });
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>result).error);
           }
         }
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Something went wrong!!!');
       }
     );
@@ -606,19 +608,19 @@ export class SecondKycComponent {
 
     modal.onDidDismiss().then((data) => {
       console.log(data, 'data');
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (data) {
         if (idType == 'aadhar') {
           this.globalData.setCustType('N');
           this.ekycData = data.data.ekycData;
           this.ids.push(data.data.body);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           // this.validated = true;
           // this.globalFunc.secKycAdd({ id: 'aadhar', val: data });
           // this.navCtrl.push(NewapplicationPage, { licence: data, leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
         } else if (idType == 'passport') {
           this.globalData.setCustType('N');
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           // this.validated = true;
           // this.navCtrl.push(NewapplicationPage, { passport: data, leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
         }
@@ -961,9 +963,9 @@ export class SecondKycComponent {
   }
 
   voterKarza(idType, idNumber, leadId) {
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -997,7 +999,7 @@ export class SecondKycComponent {
                   type: 'voterid',
                 };
                 this.globalData.setCustType('N');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.sqliteProvider.InsertKarzaData(
                   leadId,
                   res.name,
@@ -1015,54 +1017,54 @@ export class SecondKycComponent {
                   'Y'
                 );
                 this.ids.push(body);
-                // this.globalData.globalLodingDismissAll();
+                // this.loadingService.globalLodingDismissAll();
                 // this.navCtrl.push(NewapplicationPage, { voter: body, leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                 // this.initKarzaAPi(idType, idNumber, leadId, body);
               } else if (resData.status_code == 102) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Invalid ID number or combination of inputs'
                 );
               } else if (resData.status_code == 103) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'No records found for the given ID or combination of inputs'
                 );
               } else if (resData.status_code == 104) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Max retries exceeded');
               } else if (resData.status_code == 105) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Missing Consent');
               } else if (resData.status_code == 106) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Multiple Records Exist');
               } else if (resData.status_code == 107) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Not Supported');
               } else if (resData.status_code == 108) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Internal Resource Unavailable'
                 );
               } else if (resData.status_code == 109) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Too many records Found');
               } else if (resData.status_code == 222) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   resData.error ? resData.error : 'Response is Empty'
                 );
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', resData.error);
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Something went wrong!!!');
             }
           },
@@ -1076,14 +1078,14 @@ export class SecondKycComponent {
                   text: 'No',
                   role: 'cancel',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     // this.navCtrl.push(JsfhomePage);
                   },
                 },
                 {
                   text: 'Yes',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.globalData.setCustType('N');
                     // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                   },
@@ -1095,7 +1097,7 @@ export class SecondKycComponent {
         )
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response From Server!');
         });
     }
@@ -1117,9 +1119,9 @@ export class SecondKycComponent {
       panDob.substring(5, 7) +
       '/' +
       panDob.substring(0, 4);
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -1144,13 +1146,13 @@ export class SecondKycComponent {
               let res = resData[0];
               if (resData[0].StatusCode == '1' && resData[0].Panstatus == 'E') {
                 if (res.nameValidation != 'Y') {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Please mention correct name as per PAN!!!'
                   );
                 } else if (res.DOBValidation != 'Y') {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Please mention correct DOB as per PAN!!!'
@@ -1176,7 +1178,7 @@ export class SecondKycComponent {
                     seedingStatus: res.seedingStatus,
                   };
                   this.globalData.setCustType('N');
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.sqliteProvider.InsertKarzaData(
                     leadId,
                     name,
@@ -1194,16 +1196,16 @@ export class SecondKycComponent {
                     'Y'
                   );
                   this.ids.push(body);
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   // this.initKarzaAPi(idType, idNumber, leadId, body);
                   // this.navCtrl.push(NewapplicationPage, { pan: body, leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                 }
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Invalid PAN number');
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 (<any>result).responseData.errorDesc
@@ -1220,14 +1222,14 @@ export class SecondKycComponent {
                   text: 'No',
                   role: 'cancel',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     // this.navCtrl.push(JsfhomePage);
                   },
                 },
                 {
                   text: 'Yes',
                   handler: () => {
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.globalData.setCustType('N');
                     // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
                   },
@@ -1239,7 +1241,7 @@ export class SecondKycComponent {
         )
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response From Server!');
         });
     }

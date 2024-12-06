@@ -11,6 +11,7 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
 import { KarzaDetailsPage } from '../karza-details/karza-details.page';
 import { GlobalService } from 'src/providers/global.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-choose-customer',
@@ -73,7 +74,8 @@ export class ChooseCustomerPage implements OnInit {
     // public viewCtrl: ViewController,
     public alertCtrl: AlertController,
     public sqliteSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.cifDataForm = this.formBuilder.group({
       cifId: ['', Validators.required],
@@ -175,7 +177,7 @@ export class ChooseCustomerPage implements OnInit {
     // this.navCtrl.pop();
     // this.globalData.setCustType('N');
     // this.globalData.setborrowerType('G');
-    // this.globalData.globalLodingDismiss();
+    // this.loadingService.globalLodingDismiss();
     // this.navCtrl.push(NewapplicationPage, { userType: 'G' });
   }
 
@@ -201,7 +203,7 @@ export class ChooseCustomerPage implements OnInit {
         'Sorry! Applicant Cannot be a Guarantor'
       );
     } else {
-      this.globalData.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       let cifvalues = {
         CustRequest: {
           OrgSelect: localStorage.getItem('janaCenter'), // this.globalData.getJanaCenter(), //org scode
@@ -218,7 +220,7 @@ export class ChooseCustomerPage implements OnInit {
               (<any>data).RedFlag == 'true' ||
               (<any>data).RedFlag == 'TRUE'
             ) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Given URN is Red Flag, should not be proceed further!!!'
@@ -230,7 +232,7 @@ export class ChooseCustomerPage implements OnInit {
                 .then((getData) => {
                   this.globalData.setborrowerType('G');
                   this.globalData.setCustType('E');
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   if (getData.length == 0) {
                     this.sqliteProvider.saveExistingData(data).then(
                       (_) => {
@@ -252,25 +254,25 @@ export class ChooseCustomerPage implements OnInit {
                   }
                 });
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Enter Valid URN');
             }
           } else {
             if ((<any>data).AppId == '0') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Not a valid URN!');
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', (<any>data).ErrorMsg);
             }
           }
         },
         (err) => {
           if (err.name == 'TimeoutError') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.message);
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'No Response from Server!');
           }
         }
@@ -501,7 +503,7 @@ export class ChooseCustomerPage implements OnInit {
       .then((data) => {
         if (data.length == 0) {
           if (this.network.type == 'none' || this.network.type == 'unknown') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Kindly check your internet connection!!!'
@@ -515,7 +517,7 @@ export class ChooseCustomerPage implements OnInit {
               value.aadhar != undefined &&
               value.aadhar != ''
             ) {
-              // this.globalData.globalLodingDismiss();
+              // this.loadingService.globalLodingDismiss();
               this.aadharVault(
                 value.idType,
                 value.aadhar,
@@ -558,7 +560,7 @@ export class ChooseCustomerPage implements OnInit {
             }
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert(
             'Alert',
             'Same ID proof is captured in the same application!!!'
@@ -568,7 +570,7 @@ export class ChooseCustomerPage implements OnInit {
   }
 
   aadharVault(idType, idNumber, aepsStatus, leadId) {
-    this.globalData.globalLodingPresent('Checking given Aadhar!');
+    this.loadingService.globalLodingPresent('Checking given Aadhar!');
     let body = {
       aadhaar: idNumber,
       aepsStatus: aepsStatus,
@@ -584,13 +586,13 @@ export class ChooseCustomerPage implements OnInit {
               )
               .then((data) => {
                 if (data.length > 0) {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Given Aadhar number is already added in this application!'
                   );
                 } else {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/FingerprintPage'], {
                     queryParams: {
                       idType: idType,
@@ -607,17 +609,17 @@ export class ChooseCustomerPage implements OnInit {
                 }
               });
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>result).error);
           }
         }
       },
       (err) => {
         if (err.name == 'TimeoutError') {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', err.message);
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response from Server!');
         }
       }
@@ -634,7 +636,7 @@ export class ChooseCustomerPage implements OnInit {
     panName?,
     panDob?
   ) {
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     let body = {
       idType: idType,
       idvalue: idNumber,
@@ -650,13 +652,13 @@ export class ChooseCustomerPage implements OnInit {
               let res = JSON.parse((<any>result).result);
               let resList = res.customerResponseList[0];
               if (resList.matchCount == '1') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 let urn = {
                   cifId: resList.customerList[0].matchURN,
                 };
                 this.cifData(urn);
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log('Karza');
                 if (idType == 'voterid') {
                   this.voterKarza(idType, idNumber, leadId);
@@ -676,23 +678,23 @@ export class ChooseCustomerPage implements OnInit {
                 }
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', (<any>result).errorDesc);
             }
           }
         },
         (err) => {
           if (err.name == 'TimeoutError') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.message);
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.statusText);
           }
         }
       )
       .catch((err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Something went wrong!!!');
       });
   }
@@ -710,11 +712,11 @@ export class ChooseCustomerPage implements OnInit {
     });
     await modal.onDidDismiss().then((data) => {
       console.log(data, 'data');
-      this.globalFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (data) {
         if (idType == 'pan') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.router.navigate(['/NewapplicationPage'], {
             queryParams: {
               voter: data,
@@ -727,7 +729,7 @@ export class ChooseCustomerPage implements OnInit {
           });
         } else if (idType == 'voterid') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.router.navigate(['/NewapplicationPage'], {
             queryParams: {
               voter: data,
@@ -740,11 +742,11 @@ export class ChooseCustomerPage implements OnInit {
           });
         } else if (idType == 'drivingLicence') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.secKyc(idType, idNumber, leadId, body);
         } else if (idType == 'passport') {
           this.globalData.setCustType('N');
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.secKyc(idType, idNumber, leadId, body);
         }
       }
@@ -768,9 +770,9 @@ export class ChooseCustomerPage implements OnInit {
   }
 
   voterKarza(idType, idNumber, leadId) {
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -801,7 +803,7 @@ export class ChooseCustomerPage implements OnInit {
                 type: 'voterid',
               };
               this.globalData.setCustType('N');
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.sqliteProvider.InsertKarzaData(
                 leadId,
                 res.name,
@@ -821,44 +823,44 @@ export class ChooseCustomerPage implements OnInit {
               // this.initKarzaAPi(idType, idNumber, leadId, body);
               this.secKyc(idType, idNumber, leadId, body);
             } else if (resData.status_code == 102) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Invalid ID number or combination of inputs'
               );
             } else if (resData.status_code == 103) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'No records found for the given ID or combination of inputs'
               );
             } else if (resData.status_code == 104) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Max retries exceeded');
             } else if (resData.status_code == 105) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Missing Consent');
             } else if (resData.status_code == 106) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Multiple Records Exist');
             } else if (resData.status_code == 107) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Not Supported');
             } else if (resData.status_code == 108) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Internal Resource Unavailable'
               );
             } else if (resData.status_code == 109) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Too many records Found');
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', resData.error);
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Something went wrong!!!');
           }
         },
@@ -872,7 +874,7 @@ export class ChooseCustomerPage implements OnInit {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/JsfhomePage'], {
                     replaceUrl: true,
                     skipLocationChange: true,
@@ -882,7 +884,7 @@ export class ChooseCustomerPage implements OnInit {
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   // let navigationExtras: NavigationExtras = {
                   //   queryParams: {
@@ -907,7 +909,7 @@ export class ChooseCustomerPage implements OnInit {
             ],
           });
           await alert.present();
-          // this.globalData.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // this.alertService.showAlert("Alert!", error.statusText);
         }
       );
@@ -930,9 +932,9 @@ export class ChooseCustomerPage implements OnInit {
       panDob.substring(5, 7) +
       '/' +
       panDob.substring(0, 4);
-    this.globalData.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -953,13 +955,13 @@ export class ChooseCustomerPage implements OnInit {
             if (resData[0].StatusCode == '1' && resData[0].Panstatus == 'E') {
               let res = resData[0];
               if (res.nameValidation != 'Y') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Please mention correct name as per PAN!!!'
                 );
               } else if (res.DOBValidation != 'Y') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Please mention correct DOB as per PAN!!!'
@@ -983,7 +985,7 @@ export class ChooseCustomerPage implements OnInit {
                   seedingStatus: res.seedingStatus,
                 };
                 this.globalData.setCustType('N');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.sqliteProvider.InsertKarzaData(
                   leadId,
                   panName,
@@ -1003,11 +1005,11 @@ export class ChooseCustomerPage implements OnInit {
                 this.secKyc(idType, idNumber, leadId, body);
               }
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Invalid PAN number');
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Something went wrong!!!');
           }
         },
@@ -1021,7 +1023,7 @@ export class ChooseCustomerPage implements OnInit {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/JsfhomePage'], {
                     replaceUrl: true,
                     skipLocationChange: true,
@@ -1031,7 +1033,7 @@ export class ChooseCustomerPage implements OnInit {
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
 
                   this.router.navigate(['/NewapplicationPage'], {
@@ -1048,7 +1050,7 @@ export class ChooseCustomerPage implements OnInit {
             ],
           });
           await alert.present();
-          // this.globalData.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // this.alertService.showAlert("Alert!", error.statusText);
         }
       );
@@ -1145,14 +1147,14 @@ export class ChooseCustomerPage implements OnInit {
         'Please Check your Data Connection!'
       );
     } else {
-      this.globalData.globalLodingPresent('Getting aadhar number!!!');
+      this.loadingService.globalLodingPresent('Getting aadhar number!!!');
       let body = {
         keyValue: value,
       };
       this.master.restApiCallAngular('aadharretrieveService', body).then(
         (data) => {
           if ((<any>data).status == '00') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             // this.vaultStatus = 'Y';
             // this.vaultDisable = true;
             // this.aadharBtn = "Retrieve";
@@ -1162,16 +1164,16 @@ export class ChooseCustomerPage implements OnInit {
             this.idProofForm.controls.aadhar.updateValueAndValidity();
           } else {
             // this.vaultDisable = true;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>data).error);
           }
         },
         (err) => {
           if (err.name == 'TimeoutError') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.message);
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'No Response from Server!');
           }
         }

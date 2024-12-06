@@ -9,6 +9,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import * as d3 from 'd3';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-score-card',
@@ -85,7 +86,8 @@ export class ScoreCardPage implements OnInit {
     public sqlSupport: SquliteSupportProviderService,
     public router: Router,
     public activatedRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -261,7 +263,7 @@ export class ScoreCardPage implements OnInit {
     );
   }
   ManualApprovalCall() {
-    this.globFunc.globalLodingPresent(
+    this.loadingService.globalLodingPresent(
       'Submitting for manual approval Please wait...'
     );
     let body = {
@@ -276,7 +278,7 @@ export class ScoreCardPage implements OnInit {
       .then((res) => {
         let fieldInvesRes = <any>res;
         if (fieldInvesRes.ErrorCode === '000') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.disableManualApprvalBtn = true;
           // this.undoProposalServiceCall();
           this.sqlSupport.updateManualApprovalForSubmit(
@@ -296,14 +298,14 @@ export class ScoreCardPage implements OnInit {
               // })
             });
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', fieldInvesRes.ErrorDesc);
         }
       })
       .catch((err) => err);
   }
   checkScoreCard() {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let dd = this.today.getDate();
     let mm = this.today.getMonth() + 1; //January is 0!
     let yyyy = this.today.getFullYear();
@@ -327,18 +329,18 @@ export class ScoreCardPage implements OnInit {
               +this.reqLoanAmount < this.commonLoanAmount &&
               this.houseOwned == '1'
             ) {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.showManualUser = true;
             } else {
               this.fiFlageEnble(scoreResponse);
             }
           } else if (scoreResponse.SRFLAG == 'Y') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.srFlageEnable();
           } else if (scoreResponse.FIFLAG == 'Y') {
             this.fiFlageEnble(scoreResponse);
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', scoreResponse.errorDesc);
           }
         } else {
@@ -454,12 +456,12 @@ export class ScoreCardPage implements OnInit {
               }
             }
           } else if (scoreResponse.SRFLAG == 'Y') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.srFlageEnable();
           }
         }
       } else {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert', scoreResponse.errorDesc);
       }
     });
@@ -509,7 +511,7 @@ export class ScoreCardPage implements OnInit {
     }
 
     this.isAutoApprovalFlag = true;
-    this.globFunc.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
     this.alertService.showAlert('Your Score', 'is Eligible');
   }
 
@@ -543,7 +545,7 @@ export class ScoreCardPage implements OnInit {
         });
     }
     this.isAutoApprovalFlag = false;
-    this.globFunc.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
     this.alertService.showAlert('Your Request', 'Move to Field Investigation');
   }
 
@@ -562,7 +564,7 @@ export class ScoreCardPage implements OnInit {
             this.sqlSupport
               .updateApplicationStatus('SR', this.refId)
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert',
                   'This Proposal has been Rejected'
@@ -575,7 +577,7 @@ export class ScoreCardPage implements OnInit {
           }
         },
         (err) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -587,7 +589,7 @@ export class ScoreCardPage implements OnInit {
   }
 
   fieldInvestigation() {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body = {
       userId: this.applicantDetails[0].createdUser,
       PropNo: this.applicantDetails[0].applicationNumber,
@@ -604,25 +606,25 @@ export class ScoreCardPage implements OnInit {
           let fieldInsRes = <any>res;
           if (fieldInsRes.ErrorCode === '000') {
             // this.sqlsupport.updateFieldInvestigationStatus(this.applicantDetails[0].applicationNumber, 'Y').then(data => {
-            //   this.globFunc.globalLodingDismiss();
+            //   this.loadingService.globalLodingDismiss();
             //   this.navCtrl.push(ExistApplicationsPage)
             // })
             this.sqliteProvider
               .updateFIstatus(this.applicantDetails[0].applicationNumber, 'Y')
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.router.navigate(['/ExistApplicationsPage'], {
                   skipLocationChange: true,
                   replaceUrl: true,
                 });
               });
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', fieldInsRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -635,9 +637,9 @@ export class ScoreCardPage implements OnInit {
 
   scoreId: any;
   autoApproval() {
-    this.globFunc.globalLodingPresent('Submitting for auto approval...');
+    this.loadingService.globalLodingPresent('Submitting for auto approval...');
     // setTimeout(() => {
-    //   this.globFunc.globalLodingDismiss();
+    //   this.loadingService.globalLodingDismiss();
 
     //   this.alertService.showAlert('Alert', 'Network Error')
     // }, 2000);
@@ -693,7 +695,7 @@ export class ScoreCardPage implements OnInit {
         // }
         // })
       } else {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert(
           'Alert',
           appData.errorDesc ? appData.errorDesc : appData.status
@@ -757,7 +759,7 @@ export class ScoreCardPage implements OnInit {
   }
 
   postSubmission() {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     // let body = {
     //   "PropNo": this.ScoreData.propNo,
     //   "userId": "VLCRES1",
@@ -774,7 +776,7 @@ export class ScoreCardPage implements OnInit {
     this.master.restApiCallAngular('mobileWorkflow', body).then((res) => {
       let postSanctionRes = <any>res;
       if (postSanctionRes.ErrorCode === '000') {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert', postSanctionRes.ErrorDesc);
         this.sqlsupport
           .updatePostSanction(this.appStatId)
@@ -787,7 +789,7 @@ export class ScoreCardPage implements OnInit {
           })
           .catch((err) => err);
       } else {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert', postSanctionRes.ErrorDesc);
       }
     });
@@ -1086,7 +1088,7 @@ export class ScoreCardPage implements OnInit {
       // })
       this.pddChargesCalc();
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1105,7 +1107,7 @@ export class ScoreCardPage implements OnInit {
       this.getGstPddCharges();
       this.calcProcessFess();
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1129,7 +1131,7 @@ export class ScoreCardPage implements OnInit {
         this.applicantDetails[0].gstonPddCharges = 0;
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1175,7 +1177,7 @@ export class ScoreCardPage implements OnInit {
         this.loanAmtRoadPriceCheck();
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1199,7 +1201,7 @@ export class ScoreCardPage implements OnInit {
         this.applicantDetails[0].gstonPf = 0;
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1219,7 +1221,7 @@ export class ScoreCardPage implements OnInit {
       }
       this.preEmiCalculation();
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1261,7 +1263,7 @@ export class ScoreCardPage implements OnInit {
       // this.basicData.controls.preEmi.updateValueAndValidity();
       this.lpiCalculation();
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1314,7 +1316,7 @@ export class ScoreCardPage implements OnInit {
         this.insuranceLPICheck();
       });
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1323,7 +1325,7 @@ export class ScoreCardPage implements OnInit {
     try {
       this.preEmiIncudeCheck(this.applicantDetails[0].preEmiDB);
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1336,7 +1338,7 @@ export class ScoreCardPage implements OnInit {
         this.preEmiNoCalculation();
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1352,7 +1354,7 @@ export class ScoreCardPage implements OnInit {
         this.emiCalculation();
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1368,7 +1370,7 @@ export class ScoreCardPage implements OnInit {
         this.emiCalculation();
       }
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1426,7 +1428,7 @@ export class ScoreCardPage implements OnInit {
         this.downPaymentCalc();
       });
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1518,7 +1520,7 @@ export class ScoreCardPage implements OnInit {
       this.loanFacilitiesServiceCall();
       console.log('app details', this.applicantDetails);
     } catch (error) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', JSON.stringify(error));
     }
   }
@@ -1583,7 +1585,7 @@ export class ScoreCardPage implements OnInit {
         (res) => {
           let loanFacilityRes = <any>res;
           if (loanFacilityRes.ErrorCode === '000') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               this.autoApprovalMsg.errorDesc
@@ -1603,12 +1605,12 @@ export class ScoreCardPage implements OnInit {
               })
               .catch((err) => err);
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', loanFacilityRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err) {
             this.alertService.showAlert('Alert', err.message);
           } else {

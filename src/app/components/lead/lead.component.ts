@@ -5,6 +5,7 @@ import { DataPassingProviderService } from 'src/providers/data-passing-provider.
 import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-lead',
@@ -40,7 +41,8 @@ export class LeadComponent {
     private activateRoute: ActivatedRoute,
     public alertCtrl: AlertController,
     public master: RestService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -91,7 +93,7 @@ export class LeadComponent {
         //       text: 'No',
         //       role: 'cancel',
         //       handler: () => {
-        //         this.globalData.globalLodingDismiss();
+        //         this.loadingService.globalLodingDismiss();
         //         // this.navCtrl.push(JsfhomePage);
         //       }
         //     },
@@ -180,10 +182,10 @@ export class LeadComponent {
             this.showTick = false;
           }
           this.showLead = true;
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         } else {
           this.showLead = false;
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         }
       })
       .catch((err) => {

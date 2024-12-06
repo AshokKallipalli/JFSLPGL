@@ -18,6 +18,7 @@ import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-basic',
@@ -161,7 +162,8 @@ export class BasicComponent implements OnInit {
     public master: RestService,
     private activateRoute: ActivatedRoute,
     public sqlSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -332,7 +334,7 @@ export class BasicComponent implements OnInit {
 
   async basicsave(value) {
     console.log(value, 'basicsave');
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     this.profPic = this.globalData.getProfileImage();
     this.loanAmount = parseInt(this.basicData.get('loanAmount').value);
     if (value.janaLoan.length == 1) {
@@ -344,13 +346,13 @@ export class BasicComponent implements OnInit {
     // let tenure = this.basicData.get('tenure').value
     // let tenureval = this.vlTenure.filter(data => data.CODE == tenure);
     if (this.loanAmount < this.loanAmountFrom) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'You must enter the minimum loan amount of ' + this.loanAmountFrom
       );
     } else if (this.loanAmount > this.loanAmountTo) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'You are Eligible maximum loan amount of ' + this.loanAmountTo
@@ -418,7 +420,7 @@ export class BasicComponent implements OnInit {
                   this.id = data.insertId;
                   this.globalData.setborrowerType(this.userType);
                   this.globalData.setId(this.id);
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Loan Facilities Added Successfully'
@@ -434,7 +436,7 @@ export class BasicComponent implements OnInit {
                   this.globalData.setPDT('');
                 })
                 .catch((Error) => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Failed!');
                 });
             });
@@ -457,7 +459,7 @@ export class BasicComponent implements OnInit {
                 this.saveStatus.emit('basicTick');
                 // this.globalData.setEditSaveStatus('basicSaved');
                 localStorage.setItem('Basic', 'basicSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Loan Facilities Updated Successfully'
@@ -470,19 +472,19 @@ export class BasicComponent implements OnInit {
                 this.globalData.setPDT('');
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert(
             'Alert!',
             'Must Capture the Signatre Image!'
           );
         }
       } else {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert(
           'Alert!',
           'Must Capture the Applicant Profile Image!'
@@ -492,7 +494,7 @@ export class BasicComponent implements OnInit {
   }
 
   getBasicDetails() {
-    this.globalData.globalLodingPresent('Fetching Data...!');
+    this.loadingService.globalLodingPresent('Fetching Data...!');
     this.sqliteProvider
       .getBasicDetails(this.refId, this.id)
       .then((data) => {

@@ -1,5 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AlertController, IonSlides, ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  AlertController,
+  IonSlides,
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -10,8 +18,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
   styleUrls: ['./pdd-imgs.page.scss'],
 })
 export class PddImgsPage {
-
-  name = "PddImgsPage";
+  name = 'PddImgsPage';
   @ViewChild('Slides') slides: IonSlides;
 
   docImg: boolean = false;
@@ -34,7 +41,7 @@ export class PddImgsPage {
     let alert = await this.alertCtrl.create({
       header: tittle,
       subHeader: subtitle,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
     alert.present();
   }
@@ -51,8 +58,9 @@ export class PddImgsPage {
     // public crop: Crop,
     public modalCtrl: ModalController,
     public globalData: DataPassingProviderService,
-    public globalFun: GlobalService) {
-
+    public globalFun: GlobalService,
+    public loadingService: CustomLoadingControlService
+  ) {
     let submitstatus = this.navParams.get('submitstatus');
     if (submitstatus == true) {
       this.fieldDisable = true;
@@ -61,16 +69,15 @@ export class PddImgsPage {
     if (this.navParams.get('pddpics')) {
       this.proofpic = true;
       this.proofdocinfo = this.navParams.get('pddpics');
-      console.log("this.proofdocinfo",this.proofdocinfo)
+      console.log('this.proofdocinfo', this.proofdocinfo);
     }
 
     if (this.proofdocinfo.length > 0) {
       this.addProofDocs = this.proofdocinfo[0].AllImages;
-      console.log("this.addProofDocs",this.addProofDocs)
+      console.log('this.addProofDocs', this.addProofDocs);
 
       this.docImg = true;
     }
-
   }
 
   ionViewDidLoad() {
@@ -115,27 +122,27 @@ export class PddImgsPage {
 
   capureImg() {
     this.globalFun.takeImage('document').then((data: any) => {
-      let imageName = data.path
-      this.globalData.convertToWebPBase64(imageName).then(cnvtImg => {
-        this.globalData.globalLodingDismiss();
+      let imageName = data.path;
+      this.globalData.convertToWebPBase64(imageName).then((cnvtImg) => {
+        this.loadingService.globalLodingDismiss();
         // let imagePath = `data:image/jpeg;base64,${cnvtImg.path}`
-        let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`
-        localStorage.setItem('BS' , data.size);
-        localStorage.setItem('AS' , cnvtImg.size);
-        this.addProofDocs.push(
-          {
-            imgpath: imagePath,
-            BS: data.size, AS: cnvtImg.size
-          });
+        let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
+        localStorage.setItem('BS', data.size);
+        localStorage.setItem('AS', cnvtImg.size);
+        this.addProofDocs.push({
+          imgpath: imagePath,
+          BS: data.size,
+          AS: cnvtImg.size,
+        });
         this.docImg = true;
         this.slides.slideNext();
-      })
+      });
     });
   }
 
   takeProofImg() {
     if (this.addProofDocs.length >= 3) {
-      this.showAlert("Document", "Document Maximum Limit Reached.");
+      this.showAlert('Document', 'Document Maximum Limit Reached.');
     } else {
       this.capureImg();
     }
@@ -143,32 +150,34 @@ export class PddImgsPage {
 
   async proofImgRemove(img) {
     let alertq = await this.alertCtrl.create({
-      header: "Delete?",
-      subHeader: "Do you want to delete?",
-      buttons: [{
-        text: 'NO',
-        role: 'cancel',
-        handler: () => {
-          console.log("cancelled");
-        }
-      },
-      {
-        text: 'yes',
-        handler: () => {
-          if (img.id != null || img.id != undefined) {
-            if (this.proofpic) {
-              // this.sqliteProvider.deletePddDocumentImages(img.id).then(data => {
-              //   this.removeimgbylocal(img);
-              // }).catch(err => {
-              //   console.log(err);
-              // });
+      header: 'Delete?',
+      subHeader: 'Do you want to delete?',
+      buttons: [
+        {
+          text: 'NO',
+          role: 'cancel',
+          handler: () => {
+            console.log('cancelled');
+          },
+        },
+        {
+          text: 'yes',
+          handler: () => {
+            if (img.id != null || img.id != undefined) {
+              if (this.proofpic) {
+                // this.sqliteProvider.deletePddDocumentImages(img.id).then(data => {
+                //   this.removeimgbylocal(img);
+                // }).catch(err => {
+                //   console.log(err);
+                // });
+              }
+            } else {
+              this.removeimgbylocal(img);
             }
-          } else {
-            this.removeimgbylocal(img);
-          }
-        }
-      }]
-    })
+          },
+        },
+      ],
+    });
     alertq.present();
   }
 
@@ -177,7 +186,7 @@ export class PddImgsPage {
     let index: number = this.addProofDocs.indexOf(img);
     this.addProofDocs.splice(index, 1);
     if (slideend) {
-      this.slides.slideTo(0)
+      this.slides.slideTo(0);
     }
     if (this.addProofDocs.length == 0) {
       this.docImg = false;
@@ -187,5 +196,4 @@ export class PddImgsPage {
   closeProofModal() {
     this.modalCtrl.dismiss(this.addProofDocs);
   }
-
 }

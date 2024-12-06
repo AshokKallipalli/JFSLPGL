@@ -6,6 +6,7 @@ import { AlertController, ModalController, NavParams } from '@ionic/angular';
 import { ModalPage } from 'src/app/pages/modal/modal.page';
 import { PicproofPage } from 'src/app/pages/picproof/picproof.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -113,7 +114,8 @@ export class ProofComponent implements OnInit {
     public network: Network,
     public master: RestService,
     public sqlSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.userType = this.globalData.getborrowerType();
     this.refId = this.globalData.getrefId();
@@ -199,7 +201,7 @@ export class ProofComponent implements OnInit {
           'Please complete aadhar vault process!!!'
         );
       } else {
-        this.globalData.globalLodingPresent('Please wait...');
+        this.loadingService.globalLodingPresent('Please wait...');
         if (
           (this.showBusiness &&
             localStorage.getItem('Business') == 'businessAddSaved') ||
@@ -223,7 +225,7 @@ export class ProofComponent implements OnInit {
                       if (sameApp.length > 0) {
                         this.IDTypeDisable = false;
                         this.idNumDisable = false;
-                        this.globalData.globalLodingDismiss();
+                        this.loadingService.globalLodingDismiss();
 
                         this.updateProofImg();
                         this.clearpromo();
@@ -239,7 +241,7 @@ export class ProofComponent implements OnInit {
                         this.vaultDisable = false;
                         this.janaRefId = false;
                         this.vaultStatus = '';
-                        this.globalData.globalLodingDismiss();
+                        this.loadingService.globalLodingDismiss();
                         this.alertService.showAlert(
                           'Alert',
                           'Same ID proof is already captured in the same application!!!'
@@ -270,7 +272,7 @@ export class ProofComponent implements OnInit {
                       ) {
                         this.pproofId = data.insertId;
                         this.uploadimg();
-                        this.globalData.globalLodingDismiss();
+                        this.loadingService.globalLodingDismiss();
                         if (this.userType == 'A') {
                           this.alertService.showAlert(
                             'Alert!',
@@ -300,7 +302,7 @@ export class ProofComponent implements OnInit {
                     })
                     .catch((error) => {
                       console.log('Failed!');
-                      this.globalData.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       this.alertService.showAlert('Alert!', 'Failed!');
                       this.sqlSupport.insertErrorLog(
                         error.stack,
@@ -316,11 +318,11 @@ export class ProofComponent implements OnInit {
                 );
               });
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Please Add Proof Images.');
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (this.showBusiness) {
             this.alertService.showAlert(
               'Alert!',
@@ -1359,7 +1361,9 @@ export class ProofComponent implements OnInit {
         if (aepsValue === '' || aepsValue === undefined || aepsValue === null) {
           this.alertService.showAlert('Alert!', 'Please Select AEPS Status');
         } else {
-          this.globalData.globalLodingPresent('Getting reference number!!!');
+          this.loadingService.globalLodingPresent(
+            'Getting reference number!!!'
+          );
           let body = {
             aadhaar: this.proofData.controls.promoIDRef.value,
             aepsStatus: aepsValue,
@@ -1374,7 +1378,7 @@ export class ProofComponent implements OnInit {
                   )
                   .then((pro) => {
                     if (pro.length > 0) {
-                      this.globalData.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       this.vaultStatus = 'N';
                       this.janaRefId = false;
                       this.proofData.controls.promoIDRef.setValue('');
@@ -1387,7 +1391,7 @@ export class ProofComponent implements OnInit {
                         'Given aadhar number already used in this application!'
                       );
                     } else {
-                      this.globalData.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       this.vaultStatus = 'Y';
                       this.janaRefId = true;
                       this.proofData.controls.promoIDRef.setValue('');
@@ -1411,16 +1415,16 @@ export class ProofComponent implements OnInit {
               } else {
                 this.vaultDisable = false;
                 this.janaRefId = false;
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', (<any>data).error);
               }
             },
             (err) => {
               if (err.name == 'TimeoutError') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert!', err.message);
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'No Response from Server!'
@@ -1446,14 +1450,14 @@ export class ProofComponent implements OnInit {
           'Please Check your Data Connection!'
         );
       } else {
-        this.globalData.globalLodingPresent('Getting aadhar number!!!');
+        this.loadingService.globalLodingPresent('Getting aadhar number!!!');
         let body = {
           keyValue: this.proofData.controls.promoIDRef.value,
         };
         this.master.restApiCallAngular('aadharretrieveService', body).then(
           (data) => {
             if ((<any>data).status == '00') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.vaultStatus = 'Y';
               this.vaultDisable = true;
               this.aadharBtn = 'Retrieve';
@@ -1463,16 +1467,16 @@ export class ProofComponent implements OnInit {
               );
             } else {
               this.vaultDisable = true;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', (<any>data).error);
             }
           },
           (err) => {
             if (err.name == 'TimeoutError') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', err.message);
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'No Response from Server!');
             }
           }
@@ -2471,7 +2475,7 @@ export class ProofComponent implements OnInit {
   updateProofImg() {
     try {
       this.updateimg(this.pproofId);
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (this.userType == 'A') {
         this.alertService.showAlert(
           'Alert!',

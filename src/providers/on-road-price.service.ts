@@ -13,6 +13,7 @@ import { GlobalService } from './global.service';
 import { SqliteService } from './sqlite.service';
 import { environment } from 'src/environments/environment';
 import { CustomAlertControlService } from './custom-alert-control.service';
+import { CustomLoadingControlService } from './custom-loading-control.service';
 
 // import { Network } from '@awesome-cordova-plugins/network/ngx';
 // import { HttpClient } from '@angular/common/http';
@@ -37,7 +38,8 @@ export class OnRoadPriceService {
     public httpAngular: HttpClient,
     public alertService: CustomAlertControlService,
     public network: Network,
-    public sqliteService: SqliteService
+    public sqliteService: SqliteService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.apiUrl = ORPApiStrings.url;
     this.uatLive = environment.uatlive;
@@ -89,7 +91,7 @@ export class OnRoadPriceService {
   async getAccessTokenCall() {
     try {
       return new Promise(async (resolve, reject) => {
-        this.global.globalLodingPresent('Please Wait...');
+        this.loadingService.globalLodingPresent('Please Wait...');
         let link = `${this.apiUrl}v1/oauth/token`;
         let body = this.accessTokenRequest;
         await this.http.post(link, body).subscribe(
@@ -97,7 +99,7 @@ export class OnRoadPriceService {
             if (response.access_token) {
               localStorage.setItem('access_token', response.access_token);
               localStorage.setItem('refresh_token', response.refresh_token);
-              this.global.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               resolve(true);
             } else {
               resolve(false);
@@ -157,7 +159,7 @@ export class OnRoadPriceService {
     let endPoint = `${this.apiUrl}${method}`;
     if (this.network.type == 'none' || this.network.type == 'unknown') {
       this.alertService.showAlert('Alert', 'Enable Internet connection!.');
-      this.global.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } else {
       return new Promise((resolve, reject) => {
         let headers = {

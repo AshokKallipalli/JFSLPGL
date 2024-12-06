@@ -5,6 +5,7 @@ import { RestService } from 'src/providers/rest.service';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 import { Plugins } from '@capacitor/core';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 const { WebPConvertor } = Plugins;
 
 @Component({
@@ -28,7 +29,8 @@ export class CaptureImageComponent implements OnInit {
   constructor(
     private globFunc: GlobalService,
     public modalController: ModalController,
-    private master: RestService
+    private master: RestService,
+    public loadingService: CustomLoadingControlService
   ) {}
 
   async onSlideChanged(event) {
@@ -111,10 +113,10 @@ export class CaptureImageComponent implements OnInit {
   //         "OtherDocs": this.uploadingDoc
   //       }
   //     }
-  //     this.globFunc.globalLodingPresent('Please wait...')
+  //     this.loadingService.globalLodingPresent('Please wait...')
   //     this.master.restApiCallAngular('LoginDocument', docs_upload).then(data => {
   //       if (data) {
-  //         this.globFunc.globalLodingDismiss();
+  //         this.loadingService.globalLodingDismiss();
   //         this.alertService.showAlert('Alert', data.ErrorDesc)
   //       }
   //     })
@@ -143,7 +145,7 @@ export class CaptureImageComponent implements OnInit {
   async convertToWebPBase64() {
     try {
       console.log(WebPConvertor);
-      this.globFunc.globalLodingPresent('Please Wait...');
+      this.loadingService.globalLodingPresent('Please Wait...');
       if (WebPConvertor) {
         for (let i = 0; i < this.capturedImage.length; i++) {
           const result = await WebPConvertor['convertToWebP']({
@@ -162,10 +164,10 @@ export class CaptureImageComponent implements OnInit {
             this.convertedImg.push({ path: path, size: size });
           }
         }
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     } catch (e) {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       alert(`Error From WebPConvertor Plugin => ${e}`);
     }
   }

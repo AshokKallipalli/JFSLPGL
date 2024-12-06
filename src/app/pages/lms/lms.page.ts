@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, NavParams } from '@ionic/angular';
 import * as moment from 'moment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -28,7 +29,8 @@ export class LmsPage {
     public master: RestService,
     public globalData: DataPassingProviderService,
     public router: Router,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.username = this.navParams.snapshot.queryParamMap.get('user');
     this.branchCode = this.navParams.snapshot.queryParamMap.get('branch');
@@ -39,7 +41,7 @@ export class LmsPage {
   }
 
   checkLMS(event) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let lmsData = {
       User_id: this.username,
       Branch_code: this.branchCode,
@@ -56,7 +58,7 @@ export class LmsPage {
       (data) => {
         if ((<any>data).errorStatus == 'Success') {
           if ((<any>data).errorDesc == 'No Data found!!!') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             event.detail.complete();
             this.alertService.showAlert('Alert!', (<any>data).errorDesc);
           } else {
@@ -65,16 +67,16 @@ export class LmsPage {
             for (var i = 0; i < this.lmsDetails.length; i++) {
               this.compareLeads(this.lmsDetails[i]);
             }
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           }
         } else {
           this.alertService.showAlert('Alert!', (<any>data).errorDesc);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         }
       },
       (err) => {
         event.detail.complete();
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );
@@ -106,10 +108,10 @@ export class LmsPage {
             }
           }
         }
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );
@@ -137,14 +139,14 @@ export class LmsPage {
   }
 
   passdetails(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     this.globalData.setloanType('L');
     this.router.navigate(['/NewapplicationPage'], {
       queryParams: { lmsData: value, usertype: 'A' },
       skipLocationChange: true,
       replaceUrl: true,
     });
-    this.globalData.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
   }
 
   compareLeads(value) {

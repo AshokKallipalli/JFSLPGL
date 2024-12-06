@@ -16,6 +16,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { KarzaDetailsPage } from '../karza-details/karza-details.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-home',
@@ -81,7 +82,8 @@ export class HomePage {
     public globFunc: GlobalService,
     public navParams: ActivatedRoute,
     public router: Router,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     // this.cifUrl = this.globalFunc.getMasterSubmitUrlEndpoint().url + "ExCustDetails";  //Local
     // this.cifUrl = this.globalData.urlEndPoint + "ExCustDetails"; // UAT
@@ -280,7 +282,7 @@ export class HomePage {
   }
 
   cifData(value) {
-    this.globFunc.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let cifvalues = {
       CustRequest: {
         OrgSelect: localStorage.getItem('janaCenter'),
@@ -293,7 +295,7 @@ export class HomePage {
         if ((<any>data).ErrorCode == '000') {
           let exdata = <any>data;
           if ((<any>data).RedFlag == 'true' || (<any>data).RedFlag == 'TRUE') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Given URN is Red Flag, should not be proceed further!!!'
@@ -305,7 +307,7 @@ export class HomePage {
               .then((getData) => {
                 this.globalData.setborrowerType('A');
                 this.globalData.setCustType('E');
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 if (getData.length == 0) {
                   this.sqliteProvider.saveExistingData(data).then(
                     (_) => {
@@ -329,22 +331,22 @@ export class HomePage {
           }
         } else {
           if ((<any>data).AppId == '0') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Not a valid URN!');
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>data).ErrorMsg);
           }
-          // this.globFunc.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // this.alertService.showAlert("Alert!", (<any>data).ErrorMsg);
         }
       },
       (err) => {
         if (err.name == 'TimeoutError') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', err.message);
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response from Server!');
         }
       }
@@ -631,13 +633,13 @@ export class HomePage {
 
   posidexCheck(value) {
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert',
         'Kindly check your internet connection!!!'
       );
     } else {
-      this.globFunc.globalLodingPresent('Fetching data...');
+      this.loadingService.globalLodingPresent('Fetching data...');
       this.globalData.setCustomerType(value.custType);
       let leadId = Math.floor(Math.random() * 900000000000) + 100000000000;
       this.globalData.setLeadId(leadId);
@@ -646,7 +648,7 @@ export class HomePage {
         value.aadhar != undefined &&
         value.aadhar != ''
       ) {
-        // this.globalData.globalLodingDismiss();
+        // this.loadingService.globalLodingDismiss();
         // this.aadharEkyc(value.idType[0], value.aadhar, leadId);
         this.aadharVault(value.idType, value.aadhar, value.aepsStatus, leadId);
       } else if (
@@ -710,7 +712,7 @@ export class HomePage {
       (result) => {
         if (result != undefined && result != null && result != '') {
           if ((<any>result).status === '00') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.router.navigate(['/FingerprintPage'], {
               queryParams: {
                 idType: idType,
@@ -730,13 +732,13 @@ export class HomePage {
             // this.globalData.setCustType('N');
             // this.navCtrl.push(NewapplicationPage, { newApplication: "N", leadStatus: this.leadStatus, aadhar: "aadhaar", leadId: leadId, idNumber: idNumber, userType: this.globFunc.getborrowerType() });
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>result).error);
           }
         }
       },
       (err) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Something went wrong!!!');
       }
     );
@@ -769,13 +771,13 @@ export class HomePage {
               let res = JSON.parse((<any>result).result);
               let resList = res.customerResponseList[0];
               if (resList.matchCount == '1') {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 let urn = {
                   cifId: resList.customerList[0].matchURN,
                 };
                 this.cifData(urn);
               } else {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 // console.log("Karza");
                 if (this.globalData.getCustomerType() == '1') {
                   if (idType == 'voterid') {
@@ -799,23 +801,23 @@ export class HomePage {
                 }
               }
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', (<any>result).errorDesc);
             }
           }
         },
         (err) => {
           if (err.name == 'TimeoutError') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.message);
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.statusText);
           }
         }
       )
       .catch((err) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Something went wrong!!!');
       });
   }
@@ -838,11 +840,11 @@ export class HomePage {
     });
     modal.onDidDismiss().then((data) => {
       console.log(data, 'data');
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (data.data) {
         if (idType == 'pan') {
           this.globalData.setCustType('N');
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.router.navigate(['/NewapplicationPage'], {
             queryParams: {
               pan: data.data,
@@ -855,7 +857,7 @@ export class HomePage {
           });
         } else if (idType == 'voterid') {
           this.globalData.setCustType('N');
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.router.navigate(['/NewapplicationPage'], {
             queryParams: {
               voter: data.data,
@@ -868,11 +870,11 @@ export class HomePage {
           });
         } else if (idType == 'drivingLicence') {
           this.globalData.setCustType('N');
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.secKyc(idType, idNumber, leadId, data.data);
         } else if (idType == 'passport') {
           this.globalData.setCustType('N');
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.secKyc(idType, idNumber, leadId, data.data);
         }
       }
@@ -896,9 +898,9 @@ export class HomePage {
   }
 
   voterKarza(idType, idNumber, leadId) {
-    this.globFunc.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -929,7 +931,7 @@ export class HomePage {
                 type: 'voterid',
               };
               this.globalData.setCustType('N');
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.sqliteProvider.InsertKarzaData(
                 leadId,
                 res.name,
@@ -949,44 +951,44 @@ export class HomePage {
               // this.initKarzaAPi(idType, idNumber, leadId, body);
               this.secKyc(idType, idNumber, leadId, body);
             } else if (resData.status_code == 102) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Invalid ID number or combination of inputs'
               );
             } else if (resData.status_code == 103) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'No records found for the given ID or combination of inputs'
               );
             } else if (resData.status_code == 104) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Max retries exceeded');
             } else if (resData.status_code == 105) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Missing Consent');
             } else if (resData.status_code == 106) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Multiple Records Exist');
             } else if (resData.status_code == 107) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Not Supported');
             } else if (resData.status_code == 108) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Internal Resource Unavailable'
               );
             } else if (resData.status_code == 109) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Too many records Found');
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', resData.error);
             }
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'Something went wrong!!!');
           }
         },
@@ -1000,7 +1002,7 @@ export class HomePage {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/JsfhomePage'], {
                     replaceUrl: true,
                     skipLocationChange: true,
@@ -1010,7 +1012,7 @@ export class HomePage {
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   this.router.navigate(['/NewapplicationPage'], {
                     queryParams: {
@@ -1047,9 +1049,9 @@ export class HomePage {
       panDob.substring(5, 7) +
       '/' +
       panDob.substring(0, 4);
-    this.globFunc.globalLodingPresent('Fetching data...');
+    this.loadingService.globalLodingPresent('Fetching data...');
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -1064,20 +1066,20 @@ export class HomePage {
       this.master.restApiCallAngular('panvalidation', body, 'Y').then(
         (result) => {
           if ((<any>result).success) {
-            // this.globFunc.globalLodingDismiss();
+            // this.loadingService.globalLodingDismiss();
             let resData = JSON.parse((<any>result).responseData.panValidation);
             resData = resData.NSDL.Response.details;
             console.log(resData);
             let res = resData[0];
             if (res.StatusCode == '1' && res.Panstatus == 'E') {
               if (res.nameValidation != 'Y') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Please mention correct name as per PAN!!!'
                 );
               } else if (res.DOBValidation != 'Y') {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Please mention correct DOB as per PAN!!!'
@@ -1101,7 +1103,7 @@ export class HomePage {
                   seedingStatus: res.seedingStatus,
                 };
                 this.globalData.setCustType('N');
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.sqliteProvider.InsertKarzaData(
                   leadId,
                   panName,
@@ -1120,11 +1122,11 @@ export class HomePage {
                 this.secKyc(idType, idNumber, leadId, body);
               }
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', 'Invalid PAN number');
             }
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               (<any>result).responseData.errorDesc
@@ -1141,7 +1143,7 @@ export class HomePage {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/JsfhomePage'], {
                     replaceUrl: true,
                     skipLocationChange: true,
@@ -1151,7 +1153,7 @@ export class HomePage {
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   this.router.navigate(['/NewapplicationPage'], {
                     queryParams: {
@@ -1238,7 +1240,7 @@ export class HomePage {
 
   stitchApiCall(idType, idNumber, leadId) {
     if (this.network.type == 'none' || this.network.type == 'unknown') {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Kindly check your internet connection!!!'
@@ -1310,104 +1312,104 @@ export class HomePage {
                     proPin: obj.pin,
                     contact: obj.contact,
                   };
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   this.sqliteProvider.InsertEntityKarzaData(body);
                   // this.navCtrl.push(NewapplicationPage, { nonIndividual: body, leadStatus: this.leadStatus, leadId: leadId, userType: this.globFunc.getborrowerType() });
                 } else if (res.statusCode == 102) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Invalid ID number or combination of inputs'
                   );
                 } else if (res.statusCode == 103) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'No records found for the given ID or combination of inputs'
                   );
                 } else if (res.statusCode == 104) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Max retries exceeded');
                 } else if (res.statusCode == 105) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Missing Consent');
                 } else if (res.statusCode == 106) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Multiple Records Exist'
                   );
                 } else if (res.statusCode == 107) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Not Supported');
                 } else if (res.statusCode == 108) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Internal Resource Unavailable'
                   );
                 } else if (res.statusCode == 109) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Too many records Found'
                   );
                 } else {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', res.statusMessage);
                 }
               } else {
                 if (res.statusCode == 102) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Invalid ID number or combination of inputs'
                   );
                 } else if (res.statusCode == 103) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'No records found for the given ID or combination of inputs'
                   );
                 } else if (res.statusCode == 104) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Max retries exceeded');
                 } else if (res.statusCode == 105) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Missing Consent');
                 } else if (res.statusCode == 106) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Multiple Records Exist'
                   );
                 } else if (res.statusCode == 107) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', 'Not Supported');
                 } else if (res.statusCode == 108) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Internal Resource Unavailable'
                   );
                 } else if (res.statusCode == 109) {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert(
                     'Alert!',
                     'Too many records Found'
                   );
                 } else {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert!', res.statusMessage);
                 }
               }
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', res.error);
             }
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', result.errorStatus);
           }
         },
@@ -1421,7 +1423,7 @@ export class HomePage {
                 text: 'No',
                 role: 'cancel',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.router.navigate(['/JsfhomePage'], {
                     replaceUrl: true,
                     skipLocationChange: true,
@@ -1431,7 +1433,7 @@ export class HomePage {
               {
                 text: 'Yes',
                 handler: () => {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.globalData.setCustType('N');
                   this.router.navigate(['/NewapplicationPage'], {
                     queryParams: {
@@ -1448,7 +1450,7 @@ export class HomePage {
           });
           alert.present();
 
-          // this.globFunc.globalLodingDismiss();
+          // this.loadingService.globalLodingDismiss();
           // this.alertService.showAlert("Alert!", error.statusText);
         }
       );
@@ -1532,14 +1534,14 @@ export class HomePage {
         'Please Check your Data Connection!'
       );
     } else {
-      this.globFunc.globalLodingPresent('Getting aadhar number!!!');
+      this.loadingService.globalLodingPresent('Getting aadhar number!!!');
       let body = {
         keyValue: value,
       };
       this.master.restApiCallAngular('aadharretrieveService', body).then(
         (data) => {
           if ((<any>data).status == '00') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             // this.vaultStatus = 'Y';
             // this.vaultDisable = true;
             // this.aadharBtn = "Retrieve";
@@ -1549,16 +1551,16 @@ export class HomePage {
             this.idProofForm.controls['aadhar'].updateValueAndValidity();
           } else {
             // this.vaultDisable = true;
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>data).error);
           }
         },
         (err) => {
           if (err.name == 'TimeoutError') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', err.message);
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'No Response from Server!');
           }
         }

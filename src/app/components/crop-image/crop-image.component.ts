@@ -1,7 +1,12 @@
-
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { LoadingController, NavParams, NavController, ModalController } from '@ionic/angular';
-import Cropper from "cropperjs";
+import {
+  LoadingController,
+  NavParams,
+  NavController,
+  ModalController,
+} from '@ionic/angular';
+import Cropper from 'cropperjs';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { GlobalService } from 'src/providers/global.service';
 
 @Component({
@@ -10,27 +15,30 @@ import { GlobalService } from 'src/providers/global.service';
   styleUrls: ['./crop-image.component.scss'],
 })
 export class CropImageComponent implements OnInit {
-
   @ViewChild('image') imageElement: ElementRef;
   public cropper: Cropper;
   myImage = null;
   croppedImage = null;
   location = null;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams,
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
     public loadingCtrl: LoadingController,
     private modal: ModalController,
-    public global: GlobalService) {
+    public global: GlobalService,
+    public loadingService: CustomLoadingControlService
+  ) {
     this.myImage = this.navParams.get('imgUrl');
     // this.location = this.navParams.get('location');
   }
 
   ngOnInit() {
-    this.global.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
   }
 
   ionViewDidEnter() {
-    this.global.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
     this.cropper = new Cropper(this.imageElement.nativeElement, {
       zoomable: true,
       scalable: true,
@@ -43,9 +51,9 @@ export class CropImageComponent implements OnInit {
       cropBoxMovable: true,
       cropBoxResizable: true,
       crop: () => {
-        const canvas = this.cropper.getCroppedCanvas()
-      }
-    })
+        const canvas = this.cropper.getCroppedCanvas();
+      },
+    });
   }
 
   reset() {
@@ -70,13 +78,15 @@ export class CropImageComponent implements OnInit {
 
   save() {
     try {
-      let croppedImgB64String: string = this.cropper.getCroppedCanvas().toDataURL('image/jpeg', (50 / 100));
+      let croppedImgB64String: string = this.cropper
+        .getCroppedCanvas()
+        .toDataURL('image/jpeg', 50 / 100);
       this.croppedImage = croppedImgB64String;
-      let realData = this.croppedImage.split(",")[1]
-      let blob = this.b64toBlob(realData, 'image/jpeg')
+      let realData = this.croppedImage.split(',')[1];
+      let blob = this.b64toBlob(realData, 'image/jpeg');
       this.modal.dismiss(this.croppedImage);
     } catch (error) {
-      console.log(error, "CropImgComponent-save");
+      console.log(error, 'CropImgComponent-save');
     }
   }
 
@@ -86,7 +96,11 @@ export class CropImageComponent implements OnInit {
       var sliceSize = 512;
       var byteCharacters = atob(b64Data);
       var byteArrays = [];
-      for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      for (
+        var offset = 0;
+        offset < byteCharacters.length;
+        offset += sliceSize
+      ) {
         var slice = byteCharacters.slice(offset, offset + sliceSize);
         var byteNumbers = new Array(slice.length);
         for (var i = 0; i < slice.length; i++) {
@@ -98,7 +112,7 @@ export class CropImageComponent implements OnInit {
       var blob = new Blob(byteArrays, { type: contentType });
       return blob;
     } catch (error) {
-      console.log(error, "CropImgComponent-b64toBlob");
+      console.log(error, 'CropImgComponent-b64toBlob');
     }
   }
 }

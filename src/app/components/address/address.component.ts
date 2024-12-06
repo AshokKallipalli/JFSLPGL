@@ -8,6 +8,7 @@ import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-address',
@@ -151,7 +152,8 @@ export class AddressComponent implements OnInit {
     // public viewCtrl: ViewController,
     public sqlSupport: SquliteSupportProviderService,
     public globFunc: GlobalService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -855,7 +857,7 @@ export class AddressComponent implements OnInit {
   }
 
   presentAddressSave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let saveStatus = localStorage.getItem('Permanent');
     // this.globalData.getEditSaveStatus().forEach(element => {
     //   if (element == "PermanentAddSaved") {
@@ -881,7 +883,7 @@ export class AddressComponent implements OnInit {
             this.PRESID === undefined
           ) {
             this.PRESID = data.insertId;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (this.userType === 'A') {
               this.alertService.showAlert(
                 'Alert!',
@@ -904,7 +906,7 @@ export class AddressComponent implements OnInit {
               );
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (this.userType === 'A') {
               this.alertService.showAlert(
                 'Alert!',
@@ -938,11 +940,11 @@ export class AddressComponent implements OnInit {
           }
         })
         .catch((Error) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'Failed!');
         });
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Must Save Permanent Address Details!'
@@ -1056,7 +1058,7 @@ export class AddressComponent implements OnInit {
   }
 
   businessAdrsSave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     //let saveStatus = localStorage.getItem('Permanent');
     // if (saveStatus == "PermanentAddSaved") {
     this.refId = this.globalData.getrefId();
@@ -1077,7 +1079,7 @@ export class AddressComponent implements OnInit {
           this.BUSID === undefined
         ) {
           this.BUSID = data.insertId;
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (this.userType === 'A') {
             this.alertService.showAlert(
               'Alert!',
@@ -1095,7 +1097,7 @@ export class AddressComponent implements OnInit {
             );
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (this.userType === 'A') {
             this.alertService.showAlert(
               'Alert!',
@@ -1122,11 +1124,11 @@ export class AddressComponent implements OnInit {
         }
       })
       .catch((Error) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Failed!');
       });
     // } else {
-    //   this.globalData.globalLodingDismiss();
+    //   this.loadingService.globalLodingDismiss();
     //   this.alertService.showAlert("Alert!", "Must Save Permanent Address Details!");
     // }
   }
@@ -1246,7 +1248,7 @@ export class AddressComponent implements OnInit {
   }
 
   permanentAdrsSave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     // let saveStatus = localStorage.getItem('Personal');
 
     // if (saveStatus == "personalSaved") {
@@ -1270,7 +1272,7 @@ export class AddressComponent implements OnInit {
             this.PERMID === undefined
           ) {
             this.PERMID = data.insertId;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (this.userType === 'A') {
               this.alertService.showAlert(
                 'Alert!',
@@ -1293,7 +1295,7 @@ export class AddressComponent implements OnInit {
               );
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (this.userType === 'A') {
               this.alertService.showAlert(
                 'Alert!',
@@ -1326,11 +1328,11 @@ export class AddressComponent implements OnInit {
           }
         })
         .catch((Error) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'Failed!');
         });
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (this.userType == 'A') {
         this.alertService.showAlert('Alert!', 'Must Save Applicant Details!');
       } else {

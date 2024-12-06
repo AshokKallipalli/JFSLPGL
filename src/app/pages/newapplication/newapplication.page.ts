@@ -30,6 +30,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ShowImagePage } from '../show-image/show-image.page';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-newapplication',
@@ -109,7 +110,8 @@ export class NewapplicationPage {
     public network: Network,
     public platform: Platform,
     public menuCtrl: MenuController,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -370,7 +372,7 @@ export class NewapplicationPage {
         this.imgName = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
         localStorage.setItem('PPBS', res.size);
         localStorage.setItem('PPAS', cnvtImg.size);
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         if (value == 'profPic') {
           this.profPic = this.imgName;
           this.profileSize = [{ PPBS: res.size, PPAS: cnvtImg.size }];

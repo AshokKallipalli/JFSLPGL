@@ -14,6 +14,7 @@ import { RestService } from 'src/providers/rest.service';
 import { OnRoadPriceService } from 'src/providers/on-road-price.service';
 import { ORPApiStrings } from 'src/utility/AppConstants';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-asset-tabs',
@@ -185,7 +186,8 @@ export class AssetTabsPage implements OnInit {
     public master: RestService,
     public orpApi: OnRoadPriceService,
     public network: Network,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.refId = this.globalData.getrefId();
     this.id = this.globalData.getId();
@@ -857,7 +859,7 @@ export class AssetTabsPage implements OnInit {
 
   vehicleDetailsSave(value) {
     console.log(value, 'vehicle details submit');
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     this.loanAmount = parseInt(this.basicData.get('loanAmount').value);
     let assetAgeValue = this.basicData.get('assetAge').value;
     if (this.basicData.value.janaLoan.length == 1) {
@@ -869,13 +871,13 @@ export class AssetTabsPage implements OnInit {
     let tenure = this.basicData.get('tenure').value;
     let tenureval = this.vlTenure.filter((data) => data.CODE == tenure);
     if (this.loanAmount < this.loanAmountFrom) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'You must enter the minimum loan amount of ' + this.loanAmountFrom
       );
     } else if (this.loanAmount > this.loanAmountTo) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'You are Eligible maximum loan amount of ' + this.loanAmountTo
@@ -884,7 +886,7 @@ export class AssetTabsPage implements OnInit {
       +tenureval[0].NAME < this.tenureFrom ||
       +tenureval[0].NAME > this.tenureTo
     ) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         `Please Select Tenure period between ${this.tenureFrom} - ${this.tenureTo}`
@@ -892,7 +894,7 @@ export class AssetTabsPage implements OnInit {
     } else if (
       parseInt(this.basicData.get('holiday').value) > this.moratorium
     ) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         `Holiday period should not be more than ${this.moratorium} months!`
@@ -911,10 +913,10 @@ export class AssetTabsPage implements OnInit {
           this.id
         )
         .then((data) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         })
         .catch((Error) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'Failed!');
         });
 
@@ -929,7 +931,7 @@ export class AssetTabsPage implements OnInit {
           )
           .then((data) => {
             console.log(data, 'update vehicle details');
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService
               .showAlert('Alert!', 'Vehicle Details Updated Successfully')
               .then((data) => {
@@ -941,7 +943,7 @@ export class AssetTabsPage implements OnInit {
           .addVehicleDetails(this.refId, this.id, value, assetAgeValue)
           .then((data) => {
             this.vehicleId = data['insertId'];
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService
               .showAlert('Alert!', 'Vehicle Details Added Successfully')
               .then((data) => {
@@ -1118,9 +1120,9 @@ export class AssetTabsPage implements OnInit {
       .catch((err) => err);
   }
   onSearch() {
-    this.globalFunction.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     setTimeout(() => {
-      this.globalFunction.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     }, 3000);
   }
 
@@ -1167,7 +1169,7 @@ export class AssetTabsPage implements OnInit {
 
   async getBasicDetails() {
     try {
-      this.globalData.globalLodingPresent('Fetching Data...!');
+      this.loadingService.globalLodingPresent('Fetching Data...!');
       this.sqliteProvider
         .getBasicDetails(this.refId, this.id)
         .then(async (data) => {
@@ -1304,11 +1306,11 @@ export class AssetTabsPage implements OnInit {
               }
             );
           }
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         })
         .catch((Error) => {
           console.log(Error);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         });
     } catch (error) {
       console.log(error, 'getBasicDetails');
@@ -2550,7 +2552,7 @@ export class AssetTabsPage implements OnInit {
         }
         break;
     }
-    this.globalFunction.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
   }
 
   /**
@@ -2648,13 +2650,13 @@ export class AssetTabsPage implements OnInit {
    */
   async fetchDetailsFromRC() {
     try {
-      this.globalFunction.globalLodingPresent('Please Wait..');
+      this.loadingService.globalLodingPresent('Please Wait..');
       this.vehicleDetails.get('obv').reset();
       this.vehicleDetails.get('kmDriven').reset();
       await this.orpApi
         .getRCDetails(this.vehicleDetails.get('rcNo').value)
         .then((data: any) => {
-          this.globalFunction.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           console.log('getRCDetails', data);
           if (data) {
             if (!data.blacklisted) {

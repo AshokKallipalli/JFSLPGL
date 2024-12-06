@@ -19,6 +19,7 @@ import { KarzaDetailsPage } from '../karza-details/karza-details.page';
 import * as X2JS from 'x2js';
 import { BioNavigatorService } from 'src/providers/BioMetricPlugin/bio-navigator.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 declare var EsysRDService;
 declare var MantraRDService;
 var capturexml = '';
@@ -127,7 +128,8 @@ export class FingerprintPage implements OnInit {
     public navParams: NavParams,
     public bioMetricService: BioNavigatorService,
     public actionSheetCtrl: ActionSheetController,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.ekycUrl = this.globalData.urlEndPoint + 'Ekyc';
     if (this.navParams.get('second') == true) {
@@ -551,7 +553,7 @@ export class FingerprintPage implements OnInit {
         //   duration: 3000
         // });
         // this.loading.present();
-        // this.globFunc.globalLodingPresent('Please wait...')
+        // this.loadingService.globalLodingPresent('Please wait...')
         // var demotag = "<Demo lang =\"07\">" + "<Pi " + "name=\"" + "Dummy Name" + "\"/>" + "</Demo>";
         var self = this;
         // , "2.0", 0, 0, 1, "P", demotag, "N", "", "", "E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=", ""
@@ -570,7 +572,7 @@ export class FingerprintPage implements OnInit {
         this.bioMetricService
           .selectedDevice(this.selectedDeviceName)
           .then((data: any) => {
-            self.globalData.globalLodingPresent('Getting data!!!');
+            self.loadingService.globalLodingPresent('Getting data!!!');
             var jsonData = JSON.parse(data);
             if ((<any>jsonData).PidData.Resp._errCode == '0') {
               let dpId = (<any>jsonData).PidData.DeviceInfo._dpId;
@@ -683,7 +685,7 @@ export class FingerprintPage implements OnInit {
                             this.aepsStatus
                           );
                           self.globalData.setCustType('E');
-                          self.globalData.globalLodingDismiss();
+                          self.loadingService.globalLodingDismiss();
                           self.router.navigate(['/NewapplicationPage'], {
                             queryParams: {
                               leadStatus: self.leadStatus,
@@ -709,21 +711,21 @@ export class FingerprintPage implements OnInit {
                             'Alert!!!',
                             res.NpciResponse.statusInfo.respMsg
                           );
-                          self.globalData.globalLodingDismiss();
+                          self.loadingService.globalLodingDismiss();
                           self.globalData.setCustomerType('1');
                           self.globalData.setCustType('N');
                           self.normalWorkflow(EkycRes);
                           // self.navCtrl.push(NewapplicationPage, { leadStatus: self.leadStatus, leadId: self.leadId, userType: self.globalData.getborrowerType(), ekycData: ekycData, janaid: janaid });
                         }
                       } else {
-                        self.globalData.globalLodingDismiss();
+                        self.loadingService.globalLodingDismiss();
                         self.alertService.showAlert(
                           'Alert!!!',
                           res.NpciResponse.statusInfo.respMsg
                         );
                       }
                     } else {
-                      self.globalData.globalLodingDismiss();
+                      self.loadingService.globalLodingDismiss();
                       self.alertService.showAlert(
                         'Alert!!!',
                         (<any>data).errorDesc
@@ -732,10 +734,10 @@ export class FingerprintPage implements OnInit {
                   },
                   (err) => {
                     if (err.name == 'TimeoutError') {
-                      self.globalData.globalLodingDismiss();
+                      self.loadingService.globalLodingDismiss();
                       self.alertService.showAlert('Alert!', err.message);
                     } else {
-                      self.globalData.globalLodingDismiss();
+                      self.loadingService.globalLodingDismiss();
                       self.alertService.showAlert(
                         'Alert!',
                         'No Response from Server!'
@@ -744,11 +746,11 @@ export class FingerprintPage implements OnInit {
                   }
                 )
                 .catch((err) => {
-                  self.globalData.globalLodingDismiss();
+                  self.loadingService.globalLodingDismiss();
                   self.alertService.showAlert('Alert!!!', JSON.stringify(err));
                 });
             } else {
-              self.globalData.globalLodingDismiss();
+              self.loadingService.globalLodingDismiss();
               self.alertService.showAlert(
                 'Alert!!!',
                 (<any>jsonData).PidData.Resp._errInfo
@@ -757,19 +759,19 @@ export class FingerprintPage implements OnInit {
 
             // }
             //   }, function (err) {
-            //     self.globalData.globalLodingDismiss();
+            //     self.loadingService.globalLodingDismiss();
             //     console.log("Error");
             //     // console.log(JSON.stringify(err));
             //     self.alertService.showAlert("Alert!!!", JSON.stringify(err));
             //   }, this._pidOptionsXML);
 
             // }, err => {
-            //   self.globalData.globalLodingDismiss();
+            //   self.loadingService.globalLodingDismiss();
             //   this._pidOptionsXML = err;
             // });
           })
           .catch((err) => {
-            self.globalData.globalLodingDismiss();
+            self.loadingService.globalLodingDismiss();
             console.log('Error');
             self.alertService.showAlert('Alert!!!', JSON.stringify(err));
           });
@@ -788,12 +790,12 @@ export class FingerprintPage implements OnInit {
       // })
       EsysRDService.vGetPidOptionXML(
         function (pid) {
-          _self.globalData.globalLodingDismiss();
+          _self.loadingService.globalLodingDismiss();
           capturexml = pid[0].res_info;
           resolve(capturexml);
         },
         function (err) {
-          _self.globalData.globalLodingDismiss();
+          _self.loadingService.globalLodingDismiss();
           console.log('Error');
           // console.log(JSON.stringify(err));
           _self.alertService.showAlert('Alert!!!', JSON.stringify(err));
@@ -879,7 +881,7 @@ export class FingerprintPage implements OnInit {
         'Please Check your Data Connection!'
       );
     } else {
-      this.globalData.globalLodingPresent('Sending OTP...');
+      this.loadingService.globalLodingPresent('Sending OTP...');
       //6digit
       this.OTPNUM = Math.floor(Math.random() * 900000) + 100000;
       // console.log(this.OTPNUM);
@@ -929,7 +931,7 @@ export class FingerprintPage implements OnInit {
           (data) => {
             console.log(data, 'otp 1st service response');
             if ((<any>data).errorCode === '000') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.randomDataRefNumber =
                 otpRequestEKYC.NpciRequest['headerInfo']['dataRef'];
               this.otpCheckEnable = true;
@@ -943,7 +945,7 @@ export class FingerprintPage implements OnInit {
               // }
             } else {
               this.otpCheckEnable = false;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', (<any>data).errorDesc);
             }
 
@@ -968,7 +970,7 @@ export class FingerprintPage implements OnInit {
 
   checkOTP(val) {
     // console.log(val)
-    this.globalData.globalLodingPresent('Verifying OTP...');
+    this.loadingService.globalLodingPresent('Verifying OTP...');
     let receivedOTP = Object.values(val).join('');
     let newDate = new Date();
     let timeformat =
@@ -1055,7 +1057,7 @@ export class FingerprintPage implements OnInit {
                 this.aepsStatus
               );
               this.globalData.setCustType('E');
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               aadharRes.name = aadharRes.name.replace(/[~!#$%^&*=|?+@.]/g, ' ');
               this.router.navigate(['/NewapplicationPage'], {
                 queryParams: {
@@ -1071,11 +1073,11 @@ export class FingerprintPage implements OnInit {
                 skipLocationChange: true,
               });
             } else {
-              // this.globalData.globalLodingDismissAll();
+              // this.loadingService.globalLodingDismissAll();
               this.normalWorkflow(aadharRes);
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', aadharRes.ErrorDesc);
           }
           // if ((<any>data).EkycResponse.NpciResponse.statusInfo.respCode == "00") {
@@ -1090,7 +1092,7 @@ export class FingerprintPage implements OnInit {
         },
         (err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -1118,11 +1120,11 @@ export class FingerprintPage implements OnInit {
 
     await modal.onDidDismiss().then((data) => {
       console.log(data, 'data');
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       if (data) {
         if (idType == 'aadhar') {
           this.globalData.setCustType('N');
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.router.navigate(['/NewapplicationPage'], {
             queryParams: {
               leadStatus: this.leadStatus,
@@ -1225,7 +1227,7 @@ export class FingerprintPage implements OnInit {
         fifth: '',
         sixth: '',
       };
-      this.globalData.globalLodingPresent('Sending OTP...');
+      this.loadingService.globalLodingPresent('Sending OTP...');
       //6digit
       this.OTPNUM = Math.floor(Math.random() * 900000) + 100000;
       // console.log(this.OTPNUM);
@@ -1275,7 +1277,7 @@ export class FingerprintPage implements OnInit {
           (data) => {
             console.log(data, 'otp 1st service response');
             if ((<any>data).errorCode === '000') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.randomDataRefNumber =
                 otpRequestEKYC.NpciRequest['headerInfo']['dataRef'];
               this.otpCheckEnable = true;
@@ -1289,7 +1291,7 @@ export class FingerprintPage implements OnInit {
               // }
             } else {
               this.otpCheckEnable = false;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', (<any>data).errorDesc);
             }
 
@@ -1301,7 +1303,7 @@ export class FingerprintPage implements OnInit {
             // }
           },
           (err) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             console.log(err);
             if (err.name == 'TimeoutError') {
               this.alertService.showAlert('Alert!', err.message);
@@ -1349,7 +1351,7 @@ export class FingerprintPage implements OnInit {
       this.aepsStatus
     );
     // if (JSON.parse((<any>data).EkycResponse).NpciResponse.statusInfo.respCode == "00") {
-    this.globalData.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
 
     // this.alertService.showAlert("Alert", "OTP Verified Successfully!.");
     this.globalData.setCustomerType('1');
@@ -1377,7 +1379,7 @@ export class FingerprintPage implements OnInit {
 
     // this.viewCtrl.dismiss('success');
     // } else {
-    //   this.globalData.globalLodingDismiss();
+    //   this.loadingService.globalLodingDismiss();
     //   this.alertService.showAlert("Alert", JSON.parse((<any>data).EkycResponse).NpciResponse.statusInfo.respMsg);
     // }
   }
@@ -1563,7 +1565,7 @@ export class FingerprintPage implements OnInit {
                                 this.aepsStatus
                               );
                               self.globalData.setCustType('E');
-                              self.globalData.globalLodingDismiss();
+                              self.loadingService.globalLodingDismiss();
                               self.router.navigate(['/NewapplicationPage'], {
                                 queryParams: {
                                   leadStatus: self.leadStatus,
@@ -1589,21 +1591,21 @@ export class FingerprintPage implements OnInit {
                                 'Alert!!!',
                                 res.NpciResponse.statusInfo.respMsg
                               );
-                              self.globalData.globalLodingDismiss();
+                              self.loadingService.globalLodingDismiss();
                               self.globalData.setCustomerType('1');
                               self.globalData.setCustType('N');
                               self.normalWorkflow(EkycRes);
                               // self.navCtrl.push(NewapplicationPage, { leadStatus: self.leadStatus, leadId: self.leadId, userType: self.globalData.getborrowerType(), ekycData: ekycData, janaid: janaid });
                             }
                           } else {
-                            self.globalData.globalLodingDismiss();
+                            self.loadingService.globalLodingDismiss();
                             self.alertService.showAlert(
                               'Alert!!!',
                               res.NpciResponse.statusInfo.respMsg
                             );
                           }
                         } else {
-                          self.globalData.globalLodingDismiss();
+                          self.loadingService.globalLodingDismiss();
                           self.alertService.showAlert(
                             'Alert!!!',
                             (<any>data).errorDesc
@@ -1612,10 +1614,10 @@ export class FingerprintPage implements OnInit {
                       },
                       (err) => {
                         if (err.name == 'TimeoutError') {
-                          self.globalData.globalLodingDismiss();
+                          self.loadingService.globalLodingDismiss();
                           self.alertService.showAlert('Alert!', err.message);
                         } else {
-                          self.globalData.globalLodingDismiss();
+                          self.loadingService.globalLodingDismiss();
                           self.alertService.showAlert(
                             'Alert!',
                             'No Response from Server!'
@@ -1624,7 +1626,7 @@ export class FingerprintPage implements OnInit {
                       }
                     )
                     .catch((err) => {
-                      self.globalData.globalLodingDismiss();
+                      self.loadingService.globalLodingDismiss();
                       self.alertService.showAlert(
                         'Alert!!!',
                         JSON.stringify(err)

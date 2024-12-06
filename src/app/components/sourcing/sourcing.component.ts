@@ -12,6 +12,7 @@ import {
   Platform,
 } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -97,7 +98,8 @@ export class SourcingComponent implements OnInit {
     public network: Network,
     private globFunc: GlobalService,
     public sqlSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -193,7 +195,7 @@ export class SourcingComponent implements OnInit {
   }
 
   sourcingSave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let saveStatus = localStorage.getItem('Basic');
     // this.globalData.getEditSaveStatus().forEach(element => {
     //   if (element == "basicSaved") {
@@ -228,7 +230,7 @@ export class SourcingComponent implements OnInit {
           localStorage.setItem('Sourcing', 'sourcingSaved');
         });
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Must Save Loan Facilities!');
     }
   }

@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { SubmitModalPage } from '../submit-modal/submit-modal.page';
 import * as moment from 'moment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-submit',
@@ -158,7 +159,8 @@ export class SubmitPage {
     public network: Network,
     private errorLog: ErrorLogService,
     public activateRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -479,7 +481,7 @@ export class SubmitPage {
     try {
       console.log('submit leads');
       this.submitDisable = true;
-      this.globalFunc.globalLodingPresent('Please Wait...');
+      this.loadingService.globalLodingPresent('Please Wait...');
       // let loading = this.loadCtrl.create({
       //   content: 'Please wait...'
       // });
@@ -589,7 +591,7 @@ export class SubmitPage {
                     if ((<any>data).LeadResMain.SuccessMsg === '000') {
                       let submitResponse = (<any>data).LeadResMain;
                       // loading.dismiss();
-                      this.globalFunc.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       this.applicationNumber = (<any>data).LeadResMain.AppNo;
                       // this.submitStat = 1;
                       // this.sqliteProvider.updateSubmitDetails(this.appCibilCheckStat, this.submitStat, this.applicationNumber, this.applicationStatus, this.appCibilColor, this.appCibilScore, this.appStatId);
@@ -2636,7 +2638,7 @@ export class SubmitPage {
 
   initImdSubmit(appNo) {
     try {
-      this.globalFunc.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       this.imdSubmitData = {
         PaymentType: this.IMD_data[0].imdPayType,
         InstrumentDetails: this.IMD_data[0].imdInstrument,
@@ -2668,7 +2670,7 @@ export class SubmitPage {
           } else if ((<any>data).code == '001') {
             this.documentCheck = false;
             //  this.loading.dismiss();
-            this.globalFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Application IMD Details submission Failed!'
@@ -2676,7 +2678,7 @@ export class SubmitPage {
           } else {
             this.documentCheck = false;
             // this.loading.dismiss();
-            this.globalFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Something went wrong! IMD Details not submitted'
@@ -2707,7 +2709,7 @@ export class SubmitPage {
   casaInit(appNo) {
     try {
       // this.loading.present();
-      this.globalFunc.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       // if(this.CASA_data[0].janaAcc == 'Y') {
       if (this.CASA_data[0].nomAvail == 'Y') {
         this.nomAvail = '1';
@@ -2871,11 +2873,11 @@ export class SubmitPage {
             // this.getVehicleDetails(appNo);
             if ((<any>data).ErrorDesc) {
               this.documentCheck = false;
-              this.globalFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', (<any>data).ErrorDesc);
             } else {
               this.documentCheck = false;
-              this.globalFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert!',
                 'Application CA/SA Details submission Failed!'
@@ -2885,7 +2887,7 @@ export class SubmitPage {
         },
         (err) => {
           this.documentCheck = false;
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           // this.globalFunc.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
@@ -3033,7 +3035,7 @@ export class SubmitPage {
             } else {
               this.documentCheck = false;
               // this.loading.dismiss();
-              this.globalFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               // this.NACHinit(appNo);
               if (vehicleSubmitData.ErrorDesc) {
                 this.alertService.showAlert(
@@ -3051,7 +3053,7 @@ export class SubmitPage {
           (err) => {
             this.documentCheck = false;
             // this.loading.dismiss();
-            this.globalFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (err.name == 'TimeoutError') {
               this.alertService.showAlert('Alert!', err.message);
             } else {
@@ -3095,7 +3097,7 @@ export class SubmitPage {
             if (insuranceData.ErrorCode == '000') {
               this.uploadDocs();
             } else {
-              this.globalFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               if (insuranceData.ErrorDesc) {
                 this.alertService.showAlert('Alert!', insuranceData.ErrorDesc);
               } else {
@@ -3107,7 +3109,7 @@ export class SubmitPage {
             }
           },
           (err) => {
-            this.globalFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (err.name == 'TimeoutError') {
               this.alertService.showAlert('Alert!', err.message);
             } else {
@@ -3422,11 +3424,11 @@ export class SubmitPage {
             });
             alert.present();
             // this.loading.dismiss();
-            // this.globalFunc.globalLodingDismiss();
-            this.globalFunc.globalLodingDismiss();
+            // this.loadingService.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           } else {
             this.documentCheck = false;
-            this.globalFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.submitDisable = false;
             this.docUpload = true;
             this.alertService.showAlert(
@@ -3436,7 +3438,7 @@ export class SubmitPage {
           }
         },
         (err) => {
-          this.globalFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.documentCheck = false;
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
@@ -3612,7 +3614,9 @@ export class SubmitPage {
 
   getDocumentStatusCheck(): Promise<any> {
     try {
-      this.globalData.globalLodingPresent('Please wait... Documents uploading');
+      this.loadingService.globalLodingPresent(
+        'Please wait... Documents uploading'
+      );
       return new Promise((resolve, reject) => {
         this.sqlSupport
           .getdocumentUpload(this.applicationNumber)
@@ -3666,7 +3670,7 @@ export class SubmitPage {
   //           // this.globalData.presentToastbottom("Documents uploading " +( imgcount + 1) + "/" + this.docFinalReq.length);
   //         }
 
-  //         this.globalData.globalLodingDismiss();
+  //         this.loadingService.globalLodingDismiss();
 
   //         this.loadChild(imgcount + 1, this.docFinalReq.length); // DynamicComponent Call
 
@@ -3704,7 +3708,7 @@ export class SubmitPage {
   //                   // } else {
   //                   //   resolve(true);
   //                   // }
-  //                   this.globalData.globalLodingDismiss();
+  //                   this.loadingService.globalLodingDismiss();
   //                 }
   //               });
   //             } else {
@@ -3715,7 +3719,7 @@ export class SubmitPage {
   //                   this.removeDynamicComponent(this.uploadprogressCmpRef);
   //                   resolve(true);
   //                 })
-  //                 this.globalData.globalLodingDismiss();
+  //                 this.loadingService.globalLodingDismiss();
   //               }
   //             }
   //           } else {
@@ -3726,7 +3730,7 @@ export class SubmitPage {
   //             }
   //             this.sqlSupport.documentResubmitStatus("Y", this.applicationNumber);
   //             this.documentCheck = true;
-  //             this.globalData.globalLodingDismiss();
+  //             this.loadingService.globalLodingDismiss();
 
   //             let message = `Documents Upload Service Interrupted, Due to Service / Network Issues`;
   //             let submessage = `${imgcount} - Document Uploaded Successfully, ${failureCount} - Document Failed!`;
@@ -3745,7 +3749,7 @@ export class SubmitPage {
   //           }
   //           this.sqlSupport.documentResubmitStatus("Y", this.applicationNumber);
   //           i = document.length;
-  //           this.globalData.globalLodingDismiss();
+  //           this.loadingService.globalLodingDismiss();
   //           this.documentCheck = true;
   //           if (err.name == "TimeoutError") {
   //             this.alertService.showAlert("Alert!", err.message);
@@ -3786,7 +3790,7 @@ export class SubmitPage {
             // this.globalData.presentToastbottom("Documents uploading " +( imgcount + 1) + "/" + this.docFinalReq.length);
           }
 
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
 
           this.loadChild(imgcount + 1, this.docFinalReq.length); // DynamicComponent Call
 
@@ -3844,7 +3848,7 @@ export class SubmitPage {
                         // } else {
                         //   resolve(true);
                         // }
-                        this.globalData.globalLodingDismiss();
+                        this.loadingService.globalLodingDismiss();
                       }
                     });
                 } else {
@@ -3860,7 +3864,7 @@ export class SubmitPage {
                         resolve(true);
                       }
                     );
-                    this.globalData.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                   }
                 }
               } else {
@@ -3882,7 +3886,7 @@ export class SubmitPage {
                   this.applicationNumber
                 );
                 this.documentCheck = true;
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
 
                 let message = `Documents Upload Service Interrupted, Due to Service / Network Issues`;
                 let submessage = `${imgcount} - Document Uploaded Successfully, ${failureCount} - Document Failed!`;
@@ -3913,7 +3917,7 @@ export class SubmitPage {
                 this.applicationNumber
               );
               i = document.length;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.documentCheck = true;
               if (err.name == 'TimeoutError') {
                 this.alertService.showAlert('Alert!', err.message);

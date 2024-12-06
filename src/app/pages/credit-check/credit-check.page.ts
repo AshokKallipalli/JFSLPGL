@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { RestService } from 'src/providers/rest.service';
@@ -49,7 +50,8 @@ export class CreditCheckPage implements OnInit {
     public master: RestService,
     public globalFun: DataPassingProviderService,
     public activatedRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -243,7 +245,7 @@ export class CreditCheckPage implements OnInit {
   }
 
   forwardToWeb() {
-    this.global.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     // let body = {
     //   "PropNo": this.applicantDetails[0].applicationNumber,
     //   "userId": this.applicantDetails[0].createdUser,
@@ -260,7 +262,7 @@ export class CreditCheckPage implements OnInit {
     this.master.restApiCallAngular('mobileWorkflow', body).then((res) => {
       let creditCheck = <any>res;
       if (creditCheck.ErrorCode === '000') {
-        this.global.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.sqlsupport.updateWorkFlowStatus(
           this.applicantDetails[0].applicationNumber
         );
@@ -273,7 +275,7 @@ export class CreditCheckPage implements OnInit {
         //   this.proceedNextPage();
         // });
       } else {
-        this.global.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert', creditCheck.ErrorDesc);
       }
     });

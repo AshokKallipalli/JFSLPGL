@@ -1,5 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AlertController, IonSlides, ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  AlertController,
+  IonSlides,
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -10,8 +18,7 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
   templateUrl: './sign-annex-imgs.page.html',
   styleUrls: ['./sign-annex-imgs.page.scss'],
 })
-export class SignAnnexImgsPage  {
-
+export class SignAnnexImgsPage {
   @ViewChild('Slides') slides: IonSlides;
   maxImgs: number = 1;
   public addProofDocs = [];
@@ -38,7 +45,7 @@ export class SignAnnexImgsPage  {
     let alert = await this.alertCtrl.create({
       header: tittle,
       subHeader: subtitle,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
     alert.present();
   }
@@ -56,7 +63,8 @@ export class SignAnnexImgsPage  {
     public modalCtrl: ModalController,
     public sqlSupport: SquliteSupportProviderService,
     public globalFun: GlobalService,
-    public globalData: DataPassingProviderService
+    public globalData: DataPassingProviderService,
+    public loadingService: CustomLoadingControlService
   ) {
     let submitstatus = this.navParams.get('submitstatus');
     if (submitstatus == true) {
@@ -68,13 +76,10 @@ export class SignAnnexImgsPage  {
       // if(this.navParams.get('fieldDisable')){
       //   this.fieldDisable = false;
       // }
-
-    }
-    else if (this.navParams.get('eproofpics')) {
+    } else if (this.navParams.get('eproofpics')) {
       this.entitypic = true;
       this.proofdocinfo = this.navParams.get('eproofpics');
-    }
-    else if (this.navParams.get('imdpics')) {
+    } else if (this.navParams.get('imdpics')) {
       this.imdpic = true;
       this.proofdocinfo = this.navParams.get('imdpics');
     } else if (this.navParams.get('nachpics')) {
@@ -138,21 +143,21 @@ export class SignAnnexImgsPage  {
 
   capureImg() {
     this.globalFun.takeImage('document').then((data: any) => {
-      let imageName = data.path
-      this.globalData.convertToWebPBase64(imageName).then(cnvtImg => {
-        this.globalData.globalLodingDismiss();
-       // let imagePath = `data:image/jpeg;base64,${cnvtImg.path}`
-       let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`
-        localStorage.setItem('BS' , data.size);
-        localStorage.setItem('AS' , cnvtImg.size);
-        this.addProofDocs.push(
-          {
-            imgpath: imagePath,
-            BS: data.size, AS: cnvtImg.size
-          });
+      let imageName = data.path;
+      this.globalData.convertToWebPBase64(imageName).then((cnvtImg) => {
+        this.loadingService.globalLodingDismiss();
+        // let imagePath = `data:image/jpeg;base64,${cnvtImg.path}`
+        let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
+        localStorage.setItem('BS', data.size);
+        localStorage.setItem('AS', cnvtImg.size);
+        this.addProofDocs.push({
+          imgpath: imagePath,
+          BS: data.size,
+          AS: cnvtImg.size,
+        });
         this.docImg = true;
         this.slides.slideNext();
-      })
+      });
     });
   }
 
@@ -163,7 +168,7 @@ export class SignAnnexImgsPage  {
       this.maxImgs = 4;
     }
     if (this.addProofDocs.length >= this.maxImgs) {
-      this.showAlert("Document", "Document Maximum Limit Reached.");
+      this.showAlert('Document', 'Document Maximum Limit Reached.');
     } else {
       this.capureImg();
     }
@@ -171,7 +176,7 @@ export class SignAnnexImgsPage  {
 
   openProofGallery() {
     if (this.addProofDocs.length >= 2) {
-      this.showAlert("Document", "Document Maximum Limit Reached.");
+      this.showAlert('Document', 'Document Maximum Limit Reached.');
     } else {
       // const goptions: CameraOptions = {
       //   quality: 50,
@@ -183,70 +188,88 @@ export class SignAnnexImgsPage  {
       //   destinationType: this.camera.DestinationType.FILE_URI
       // }
 
-      this.globalFun.takeOnlyImage('GDocument').then((imageData) => {
-        this.addProofDocs.push({ imgpath: imageData });
-        this.docImg = true;
-        this.slides.slideNext();
-      }, (err) => {
-        this.showAlert("Document Image", "Document Not Uploaded");
-      })
+      this.globalFun.takeOnlyImage('GDocument').then(
+        (imageData) => {
+          this.addProofDocs.push({ imgpath: imageData });
+          this.docImg = true;
+          this.slides.slideNext();
+        },
+        (err) => {
+          this.showAlert('Document Image', 'Document Not Uploaded');
+        }
+      );
     }
   }
 
   async proofImgRemove(img) {
     let alertq = await this.alertCtrl.create({
-      header: "Delete?",
-      subHeader: "Do you want to delete?",
-      buttons: [{
-        text: 'NO',
-        role: 'cancel',
-        handler: () => {
-          console.log("cancelled");
-        }
-      },
-      {
-        text: 'yes',
-        handler: () => {
-          if (img.id != null || img.id != undefined) {
-            if (this.proofpic) {
-              this.sqlSupport.removeAnnexure(img.id).then(data => {
-                this.removeimgbylocal(img);
-              }).catch(err => {
-                console.log(err);
-              });
+      header: 'Delete?',
+      subHeader: 'Do you want to delete?',
+      buttons: [
+        {
+          text: 'NO',
+          role: 'cancel',
+          handler: () => {
+            console.log('cancelled');
+          },
+        },
+        {
+          text: 'yes',
+          handler: () => {
+            if (img.id != null || img.id != undefined) {
+              if (this.proofpic) {
+                this.sqlSupport
+                  .removeAnnexure(img.id)
+                  .then((data) => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else if (this.entitypic) {
+                this.sqlSupport
+                  .removeSignImages(img.id)
+                  .then((data) => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else if (this.imdpic) {
+                this.sqlSupport
+                  .removeImdImages(img.id)
+                  .then((data) => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else if (this.nachpic) {
+                this.sqlSupport
+                  .removeNachImages(img.id)
+                  .then((data) => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else if (this.nachStatePic) {
+                this.sqlSupport
+                  .removeNachStateImages(img.id)
+                  .then((data) => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }
+            } else {
+              this.removeimgbylocal(img);
             }
-            else if (this.entitypic) {
-              this.sqlSupport.removeSignImages(img.id).then(data => {
-                this.removeimgbylocal(img);
-              }).catch(err => {
-                console.log(err);
-              });
-            } else if (this.imdpic) {
-              this.sqlSupport.removeImdImages(img.id).then(data => {
-                this.removeimgbylocal(img);
-              }).catch(err => {
-                console.log(err);
-              });
-            } else if (this.nachpic) {
-              this.sqlSupport.removeNachImages(img.id).then(data => {
-                this.removeimgbylocal(img);
-              }).catch(err => {
-                console.log(err);
-              });
-            } else if (this.nachStatePic) {
-              this.sqlSupport.removeNachStateImages(img.id).then(data => {
-                this.removeimgbylocal(img);
-              }).catch(err => {
-                console.log(err);
-              });
-            }
-          }
-          else {
-            this.removeimgbylocal(img);
-          }
-        }
-      }]
-    })
+          },
+        },
+      ],
+    });
     alertq.present();
   }
 
@@ -256,7 +279,7 @@ export class SignAnnexImgsPage  {
     this.addProofDocs.splice(index, 1);
     // console.log(this.addProofDocs);
     if (slideend) {
-      this.slides.slideTo(0)
+      this.slides.slideTo(0);
     }
     if (this.addProofDocs.length == 0) {
       this.docImg = false;

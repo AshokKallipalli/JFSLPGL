@@ -10,6 +10,7 @@ import { RestService } from 'src/providers/rest.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-nach',
@@ -73,7 +74,8 @@ export class NachComponent {
     // public base64: Base64,
     public master: RestService,
     public activatedRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -573,7 +575,7 @@ export class NachComponent {
       .getSubmitDetails(this.userInfo.refId, this.userInfo.id)
       .then((submitlead) => {
         if (submitlead[0].NACH == '0') {
-          this.globalFunction.globalLodingPresent('Please wait...');
+          this.loadingService.globalLodingPresent('Please wait...');
           this.nachSubmitData = {
             lpcomProposal: this.applicationNumber,
             lndAccountNo: this.NACH_data[0].nachACNumber,
@@ -594,11 +596,11 @@ export class NachComponent {
                     .updateNACHSubmitDetails('1', this.applicationNumber)
                     .then((data) => {
                       this.submitDisable = true;
-                      this.globalFunction.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       this.uploadDocs();
                     });
                 } else {
-                  this.globalFunction.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   if ((<any>data).ErrorDesc) {
                     this.alertService.showAlert('Alert', (<any>data).ErrorDesc);
                   } else {
@@ -610,7 +612,7 @@ export class NachComponent {
                 }
               },
               (err) => {
-                this.globalFunction.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 if (err.name == 'TimeoutError') {
                   this.alertService.showAlert('Alert!', err.message);
                 } else {
@@ -673,7 +675,7 @@ export class NachComponent {
 
   checkEnachRequest() {
     console.log('Check EnachRequest');
-    this.globalFunction.globalLodingPresent('Please Wait..');
+    this.loadingService.globalLodingPresent('Please Wait..');
     let body = {
       UserID: this.applicantDetails[0].createdUser,
       propNo: this.applicantDetails[0].applicationNumber,
@@ -685,9 +687,9 @@ export class NachComponent {
       if (response.success == true) {
         this.eRequest = false;
         this.eStatus = true;
-        this.globalFunction.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       } else {
-        this.globalFunction.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', response.fetchAlert);
         this.eRequest = true;
       }
@@ -709,9 +711,9 @@ export class NachComponent {
         // this.eRequest = false;
         this.eStatus = false;
         this.alertService.showAlert('Alert!', response.success);
-        this.globalFunction.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       } else {
-        this.globalFunction.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', response.fetchAlert);
       }
     });

@@ -20,6 +20,7 @@ import { environment } from 'src/environments/environment';
 import { OnRoadPriceService } from 'src/providers/on-road-price.service';
 import { BioNavigatorService } from 'src/providers/BioMetricPlugin/bio-navigator.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 // import 'rxjs/add/operator/map';
 
@@ -75,7 +76,8 @@ export class LoginPage {
     private appVersion: AppVersion,
     public menuCtrl: MenuController,
     public orpService: OnRoadPriceService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.userData = [{ username: '', password: '' }];
     this.userData.username = '0024CH';
@@ -202,7 +204,7 @@ export class LoginPage {
         VersionId: this.versionDetails,
         Module: 'GL',
       };
-      this.globFunc.globalLodingPresent('loading...');
+      this.loadingService.globalLodingPresent('loading...');
       this.master
         .restApiCallAngular('VersionCheck', body)
         .then((data) => {
@@ -211,7 +213,7 @@ export class LoginPage {
             this.sqliteProvider
               .insertApplicationVersionCheck(this.updateDate)
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.login();
               })
               .catch((Error) => {
@@ -222,7 +224,7 @@ export class LoginPage {
               resp.ErrorDesc == 'App Version Mismatch' &&
               resp.ErrorCode === '001'
             ) {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               let dd = this.todayDate.getDate();
               let mm = this.todayDate.getMonth() + 1; //January is 0!
               let yyyy = this.todayDate.getFullYear();
@@ -291,14 +293,14 @@ export class LoginPage {
                   console.log(err);
                 });
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', resp.ErrorDesc);
             }
           }
         })
         .catch((err) => {
           console.log(err);
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', 'No Response From Server!');
         });
     }
@@ -347,7 +349,7 @@ export class LoginPage {
           this.alertService.showAlert('Alert!', 'Please enter password!');
         } else {
           if (this.network.type == 'none' || this.network.type == 'unknown') {
-            this.globFunc.globalLodingPresent(
+            this.loadingService.globalLodingPresent(
               'Please wait... Fetching master data!'
             );
             this.sqliteProvider
@@ -372,7 +374,7 @@ export class LoginPage {
                               localStorage.setItem('roname', data[0].ro_name);
                               this.globalData.setJanaCenter(this.orgscode);
                               localStorage.setItem('janaCenter', this.orgscode);
-                              this.globFunc.globalLodingDismiss();
+                              this.loadingService.globalLodingDismiss();
                               this.userData.username = '';
                               this.userData.password = '';
                               this.getUserGroupsNames(this.userData.username);
@@ -386,7 +388,7 @@ export class LoginPage {
                                 replaceUrl: true,
                               });
                             } else {
-                              this.globFunc.globalLodingDismiss();
+                              this.loadingService.globalLodingDismiss();
                               this.alertService.showAlert(
                                 'Alert!',
                                 'Username or Password Invalid!!'
@@ -403,7 +405,7 @@ export class LoginPage {
                     this.network.type == 'none' ||
                     this.network.type == 'unknown'
                   ) {
-                    this.globFunc.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.alertService.showAlert(
                       'Alert',
                       'Enable Internet connection / First Time Login Must be Online.'
@@ -417,7 +419,7 @@ export class LoginPage {
                 console.log('Failed!');
               });
           } else {
-            this.globFunc.globalLodingPresent(
+            this.loadingService.globalLodingPresent(
               'Please wait... Fetching master data!'
             );
             this.master
@@ -469,36 +471,36 @@ export class LoginPage {
                   } else if ((<any>data).StatusCode === '001') {
                     let status = (<any>data).Status.toUpperCase();
                     if (status == 'USERBLOCKED') {
-                      this.globFunc.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       alert('User Blocked, please contact administrator!');
                     } else if (status == 'ACCLOCKED') {
-                      this.globFunc.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       alert('Acc Blocked, please contact administrator!');
                     } else if (status == 'FAILED') {
-                      this.globFunc.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       alert('Username or Password Invalid!!');
                     } else {
-                      this.globFunc.globalLodingDismiss();
+                      this.loadingService.globalLodingDismiss();
                       alert((<any>data).Status);
                     }
                   } else {
-                    this.globFunc.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     this.logResult = undefined;
                     alert((<any>data).Status);
                   }
                 },
                 (err) => {
                   if (err.name == 'TimeoutError') {
-                    this.globFunc.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     alert(err.message);
                   } else {
-                    this.globFunc.globalLodingDismiss();
+                    this.loadingService.globalLodingDismiss();
                     alert('No Response from Server!');
                   }
                 }
               )
               .catch((err) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 alert('No Response from Server!');
               });
           }
@@ -540,7 +542,7 @@ export class LoginPage {
                 } else if ((<any>result).errorCode === '002') {
                   this.checklogin();
                 } else {
-                  this.globFunc.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                   this.alertService.showAlert('Alert', (<any>result).errorDesc);
                 }
               }
@@ -548,10 +550,10 @@ export class LoginPage {
           },
           (err) => {
             if (err.name == 'TimeoutError') {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               alert(err.message);
             } else {
-              this.globFunc.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               alert('No Response from Server!');
             }
           }
@@ -567,7 +569,7 @@ export class LoginPage {
       .getDocuments()
       .then((data) => {
         if (data.length > 0) {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.userData.username = '';
           this.userData.password = '';
           this.globalData.loginUserName(true);
@@ -578,7 +580,7 @@ export class LoginPage {
           });
         } else {
           if (this.network.type == 'none' || this.network.type == 'unknown') {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Enable Internet connection / First Time Login Must be Online.'
@@ -633,7 +635,7 @@ export class LoginPage {
                     this.getOrganisations();
                   });
               } else {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Product list values are empty!'
@@ -643,17 +645,17 @@ export class LoginPage {
           } else if ((<any>result).errorCode === '002') {
             this.checklogin();
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             alert((<any>result).errorDesc);
           }
         }
       },
       (err) => {
         if (err.name == 'TimeoutError') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           alert(err.message);
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           alert('No Response from Server!');
         }
       }
@@ -673,7 +675,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Organizations values are empty!');
     }
   }
@@ -696,7 +698,7 @@ export class LoginPage {
             });
         });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Mode of repayment values are empty!'
@@ -722,7 +724,7 @@ export class LoginPage {
             });
         });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Sourcing channel values are empty!'
@@ -745,7 +747,7 @@ export class LoginPage {
           });
       });
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.getTitleMaster();
       this.alertService.showAlert('Alert!', 'Customer Type values are empty!');
     }
@@ -763,7 +765,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Title Master values are empty!');
     }
   }
@@ -785,7 +787,7 @@ export class LoginPage {
             });
         });
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.otherDocuments();
       this.alertService.showAlert(
         'Alert!',
@@ -810,7 +812,7 @@ export class LoginPage {
           });
       });
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.getCasteMaster();
       this.alertService.showAlert('Alert!', 'OtherDocuments values are empty!');
     }
@@ -829,7 +831,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Caste values are empty!');
     }
   }
@@ -847,7 +849,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Religion values are empty!');
     }
   }
@@ -870,7 +872,7 @@ export class LoginPage {
             });
         });
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.getEducationMaster();
       this.alertService.showAlert(
         'Alert!',
@@ -892,7 +894,7 @@ export class LoginPage {
           });
       });
     } else {
-      // this.globFunc.globalLodingDismiss();
+      // this.loadingService.globalLodingDismiss();
       this.getMaritalStatus();
       this.alertService.showAlert('Alert!', 'Education values are empty!');
     }
@@ -913,7 +915,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Marital Status values are empty!');
     }
   }
@@ -930,7 +932,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'AddressType values are empty!');
     }
   }
@@ -950,7 +952,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Annual Income values are empty!');
     }
   }
@@ -972,7 +974,7 @@ export class LoginPage {
             });
         });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Business Description values are empty!'
@@ -997,7 +999,7 @@ export class LoginPage {
             });
         });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Occupation Type values are empty!'
@@ -1020,7 +1022,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Occupation Type values are empty!'
@@ -1040,7 +1042,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Interest Rate Master values are empty!'
@@ -1060,7 +1062,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Gender values are empty!');
     }
   }
@@ -1077,7 +1079,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'GL Tenure values are empty!');
     }
   }
@@ -1097,7 +1099,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Industry Type values are empty!');
     }
   }
@@ -1119,7 +1121,7 @@ export class LoginPage {
             });
         });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Nature of Bussiness values are empty!'
@@ -1139,7 +1141,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'DocumentsVehicle values are empty!'
@@ -1162,7 +1164,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'Product Scheme values are empty!');
     }
   }
@@ -1179,7 +1181,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'State City Master values are empty!'
@@ -1199,7 +1201,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'YesNo values are empty!');
     }
   }
@@ -1215,7 +1217,7 @@ export class LoginPage {
             this.sqliteProvider
               .insertversionDetails(this.versionvalue)
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.userData.username = '';
                 this.userData.password = '';
                 this.globalData.loginUserName(true);
@@ -1228,7 +1230,7 @@ export class LoginPage {
           });
       });
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'Document Master values are empty!'

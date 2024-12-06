@@ -16,6 +16,7 @@ import { SignAnnexImgsPage } from '../sign-annex-imgs/sign-annex-imgs.page';
 import { OnRoadPriceService } from 'src/providers/on-road-price.service';
 import { ORPApiStrings } from 'src/utility/AppConstants';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-post-sanction',
@@ -311,7 +312,8 @@ export class PostSanctionPage implements OnInit {
     public router: Router,
     public orpApi: OnRoadPriceService,
     public activatedRoute: ActivatedRoute,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -1340,12 +1342,12 @@ export class PostSanctionPage implements OnInit {
       .getPostSanctionDetails(this.refId, this.id)
       .then((postSanction) => {
         if (postSanction.length > 0) {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.sqliteProvider
             .getApplicantDataforPostSanction(this.userInfo.refId)
             .then((data) => {
               if (data.length > 0) {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.getProductValueLoanAmt(data[0].prdSche);
                 this.onroadPrices = data[0].onroadPrice;
                 this.assetRoadPrice = data[0].assetPrice;
@@ -1356,9 +1358,9 @@ export class PostSanctionPage implements OnInit {
                 } else {
                   this.disableModify = false;
                 }
-                this.globalData.globalLodingPresent('Please wait...');
+                this.loadingService.globalLodingPresent('Please wait...');
                 setTimeout(() => {
-                  this.globalData.globalLodingDismiss();
+                  this.loadingService.globalLodingDismiss();
                 }, 2000);
                 this.postSanId = postSanction[0].postSanId;
                 if (
@@ -1526,16 +1528,16 @@ export class PostSanctionPage implements OnInit {
                   this.getApplicantDataforPost();
                 }
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
               }
             });
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.getApplicantDataforPost();
         }
       })
       .then((data) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.getSanctionandEligibleAmount();
       });
   }
@@ -2084,7 +2086,7 @@ export class PostSanctionPage implements OnInit {
       this.dbDateModified ||
       this.DealerNameModified
     ) {
-      this.globalData.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       if (this.segmentType == value.segment) {
         segmentFlag = 'N';
       } else {
@@ -2144,7 +2146,7 @@ export class PostSanctionPage implements OnInit {
               this.postSanId
             );
             this.sqlSupport.updatePostSanctionStatus(this.PropNo);
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Post sanction modification successful!.Proceed further.'
@@ -2154,12 +2156,12 @@ export class PostSanctionPage implements OnInit {
             this.loadAllApplicantDetails();
             this.getApplicantDataforPostSanction();
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', sanctionRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -2193,7 +2195,7 @@ export class PostSanctionPage implements OnInit {
       });
       popover.onDidDismiss().then((remarks) => {
         if (remarks) {
-          this.globalData.globalLodingPresent('Please wait...');
+          this.loadingService.globalLodingPresent('Please wait...');
           let body = {
             propNo: this.PropNo,
             UserID: this.applicantDetails[0].createdUser,
@@ -2208,16 +2210,16 @@ export class PostSanctionPage implements OnInit {
                 } else {
                   this.fieldInvestigationCall();
                 }
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.sqlSupport.updateUndoProposal(this.refId, this.id);
                 // this.alertService.showAlert("Alert!", undoPropRes.ErrorDesc);
               } else {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert', undoPropRes.ErrorDesc);
               }
             },
             (err) => {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               if (err.name == 'TimeoutError') {
                 this.alertService.showAlert('Alert!', err.message);
               } else {
@@ -2235,7 +2237,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   scoreCardReRun() {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body = {
       propNo: this.applicantDetails[0].applicationNumber,
       productId: this.applicantDetails[0].janaLoan,
@@ -2266,17 +2268,17 @@ export class PostSanctionPage implements OnInit {
                 scoreResponse.NTCFLAG,
                 scoreResponse.FIENTRY
               );
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.getPostSanctionModifications(true);
               this.getSanctionandEligibleAmount();
               scoreResponse.NTCFLAG == 'N'
                 ? this.postSanctionWFBLForETC(scoreResponse, 3)
                 : this.postSanctionWFBLForNTC(scoreResponse, 3);
             } else if (scoreResponse.SRFLAG == 'Y') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.srFlageEnable();
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', scoreResponse.errorDesc);
             }
           } else {
@@ -2297,7 +2299,7 @@ export class PostSanctionPage implements OnInit {
                 scoreResponse.NTCFLAG,
                 scoreResponse.FIENTRY
               );
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.getPostSanctionModifications(true);
               this.getSanctionandEligibleAmount();
               if (+this.postsanction.controls.loanAmount.value < 100000) {
@@ -2317,20 +2319,20 @@ export class PostSanctionPage implements OnInit {
                 }
               }
             } else if (scoreResponse.SRFLAG == 'Y') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.srFlageEnable();
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', scoreResponse.errorDesc);
             }
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', scoreResponse.errorDesc);
         }
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         if (err.name == 'TimeoutError') {
           this.alertService.showAlert('Alert!', err.message);
         } else {
@@ -2355,7 +2357,7 @@ export class PostSanctionPage implements OnInit {
             this.sqlSupport
               .updateApplicationStatus('SR', this.refId)
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert',
                   'This Proposal has been Rejected'
@@ -2368,7 +2370,7 @@ export class PostSanctionPage implements OnInit {
           }
         },
         (err) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -2387,7 +2389,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   ManualApprovalCall() {
-    this.globFunc.globalLodingPresent(
+    this.loadingService.globalLodingPresent(
       'Submitting for manual approval Please wait...'
     );
     let body = {
@@ -2402,7 +2404,7 @@ export class PostSanctionPage implements OnInit {
       .then((res) => {
         let fieldInvesRes = <any>res;
         if (fieldInvesRes.ErrorCode === '000') {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.disableManualApprvalBtn = true;
           this.sqlSupport.updateScorecardRerunStatus(
             'ManualApprovalStatus',
@@ -2421,7 +2423,7 @@ export class PostSanctionPage implements OnInit {
               });
             });
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', fieldInvesRes.ErrorDesc);
         }
       })
@@ -2429,7 +2431,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   fieldInvestigationCall() {
-    this.globFunc.globalLodingPresent('Submitting for FI Please wait...');
+    this.loadingService.globalLodingPresent('Submitting for FI Please wait...');
     let body = {
       userId: this.applicantDetails[0].createdUser,
       PropNo: this.applicantDetails[0].applicationNumber,
@@ -2452,19 +2454,19 @@ export class PostSanctionPage implements OnInit {
             this.sqliteProvider
               .updateFIstatus(this.applicantDetails[0].applicationNumber, 'Y')
               .then((data) => {
-                this.globFunc.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.router.navigate(['/ExistApplicationsPage'], {
                   skipLocationChange: true,
                   replaceUrl: true,
                 });
               });
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', fieldInsRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -2476,7 +2478,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   autoApprovalserviceCall() {
-    this.globalData.globalLodingPresent('Submitting for auto approval...');
+    this.loadingService.globalLodingPresent('Submitting for auto approval...');
     let data = {
       propNo: this.applicantDetails[0].applicationNumber,
       custId: this.applicantDetails[0].LpCustid,
@@ -2489,7 +2491,7 @@ export class PostSanctionPage implements OnInit {
       (res) => {
         let appData = <any>res;
         if (appData.errorCode === '000') {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           let sanctionAmt;
           let sanValue = appData.sanctionAmt.toString().split('.');
           if (sanValue[1] <= '49') {
@@ -2523,7 +2525,7 @@ export class PostSanctionPage implements OnInit {
               this.EMICalculation();
               this.downPaymentCalc();
 
-              this.globalData.globalLodingPresent('loading..');
+              this.loadingService.globalLodingPresent('loading..');
               setTimeout(() => {
                 let body = {
                   PropNo: this.applicantDetails[0].applicationNumber,
@@ -2647,7 +2649,7 @@ export class PostSanctionPage implements OnInit {
                       // }
                       let loanFacilityRes = <any>res;
                       if (loanFacilityRes.ErrorCode === '000') {
-                        this.globalData.globalLodingDismiss();
+                        this.loadingService.globalLodingDismiss();
                         // this.alertService.showAlert('Alert',body.LoanDetails.AdvanceEmiAmt)
                         this.sqlSupport.upDateLoanFacilites(
                           body.LoanDetails,
@@ -2705,7 +2707,7 @@ export class PostSanctionPage implements OnInit {
               }, 1000);
             });
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', appData.errorDesc);
         }
       },
@@ -2715,7 +2717,7 @@ export class PostSanctionPage implements OnInit {
         } else {
           this.alertService.showAlert('Alert', 'No Response from Server!');
         }
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     );
   }
@@ -2815,9 +2817,9 @@ export class PostSanctionPage implements OnInit {
   }
 
   onSearch() {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     setTimeout(() => {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     }, 3000);
   }
 
@@ -2859,7 +2861,7 @@ export class PostSanctionPage implements OnInit {
     ) {
       this.alertService.showAlert('Alert', 'Please complete Instakit Creation');
     } else {
-      this.globFunc.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       let body = {
         userId: this.applicantDetails[0].createdUser,
         PropNo: this.applicantDetails[0].applicationNumber,
@@ -2874,7 +2876,7 @@ export class PostSanctionPage implements OnInit {
           this.sqlSupport.updateDisbursement(
             this.applicantDetails[0].applicationNumber
           );
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.enableEditAccStage = 0;
           this.alertService.showAlert('Alert', 'Successfully Forwarded');
           this.router.navigate(['/ExistApplicationsPage'], {
@@ -2882,7 +2884,7 @@ export class PostSanctionPage implements OnInit {
             replaceUrl: true,
           });
         } else {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', creditCheck.ErrorDesc);
         }
       });
@@ -3365,7 +3367,7 @@ export class PostSanctionPage implements OnInit {
       this.assetPriceModified ||
       this.assetAgeModified
     ) {
-      this.globalData.globalLodingPresent('Please wait...');
+      this.loadingService.globalLodingPresent('Please wait...');
       let body = {
         PropNo: this.applicantDetails[0].applicationNumber,
         UserID: this.applicantDetails[0].createdUser,
@@ -3472,7 +3474,7 @@ export class PostSanctionPage implements OnInit {
             // }
             let loanFacilityRes = <any>res;
             if (loanFacilityRes.ErrorCode === '000') {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.sqlSupport.upDateLoanFacilites(
                 body.LoanDetails,
                 this.refId,
@@ -3491,12 +3493,12 @@ export class PostSanctionPage implements OnInit {
               // this.alertService.showAlert('Alert',body.LoanDetails.AdvanceEmiAmt)
               this.postSanctionServiceCall(value);
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', loanFacilityRes.ErrorDesc);
             }
           },
           (err) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (err) {
               this.alertService.showAlert('Alert', err.message);
               this.modalCtrl.dismiss();
@@ -3536,7 +3538,7 @@ export class PostSanctionPage implements OnInit {
     ) {
       this.accCreationEdit = true;
       this.editAccCreation = true;
-      this.globalData.globalLodingPresent('please wait...');
+      this.loadingService.globalLodingPresent('please wait...');
       let body = {
         propNo: this.PropNo,
         reqType: 'customerCreation',
@@ -3548,7 +3550,7 @@ export class PostSanctionPage implements OnInit {
             this.enableEditAccStage = 0;
             this.cbsCustomerEnable = true;
             this.cbsAccountEnable = false;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.sqlSupport.updateCBSstatus(
               this.refId,
               this.id,
@@ -3566,12 +3568,12 @@ export class PostSanctionPage implements OnInit {
             this.accountCreation.get('customerId').updateValueAndValidity();
           } else {
             this.cbsCustomerEnable = false;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', cbsCustomerRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.cbsCustomerEnable = false;
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
@@ -3596,7 +3598,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   casaAccountCreation() {
-    this.globalData.globalLodingPresent('please wait...');
+    this.loadingService.globalLodingPresent('please wait...');
     let body = {
       propNo: this.PropNo,
       reqType: 'CasaCreation',
@@ -3607,7 +3609,7 @@ export class PostSanctionPage implements OnInit {
         let cbsCustomerRes = <any>res;
         if (cbsCustomerRes.ErrorCode == '000') {
           this.cbsAccountEnable = true;
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.sqlSupport.updateCBSstatus(
             this.refId,
             this.id,
@@ -3624,12 +3626,12 @@ export class PostSanctionPage implements OnInit {
           this.accountCreation.get('accountNo').updateValueAndValidity();
         } else {
           this.cbsAccountEnable = false;
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', cbsCustomerRes.ErrorDesc);
         }
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.cbsAccountEnable = false;
         if (err.name == 'TimeoutError') {
           this.alertService.showAlert('Alert!', err.message);
@@ -3654,7 +3656,7 @@ export class PostSanctionPage implements OnInit {
         instaKitValue != undefined &&
         instaKitValue.length == 12
       ) {
-        this.globalData.globalLodingPresent('please wait...');
+        this.loadingService.globalLodingPresent('please wait...');
         let body = {
           propNo: this.PropNo,
           instakitNumber: instaKitValue,
@@ -3666,7 +3668,7 @@ export class PostSanctionPage implements OnInit {
               this.savedInstaKitNumber = instaKitValue;
               this.instakitStatus = true;
               this.instaKitEnable = true;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', inskitRes.ErrorDesc);
               this.sqlSupport.updateCBSstatus(
                 this.refId,
@@ -3678,12 +3680,12 @@ export class PostSanctionPage implements OnInit {
               );
             } else {
               this.instaKitEnable = false;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', inskitRes.ErrorDesc);
             }
           },
           (err) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.instaKitEnable = false;
             if (err.name == 'TimeoutError') {
               this.alertService.showAlert('Alert!', err.message);
@@ -3729,7 +3731,7 @@ export class PostSanctionPage implements OnInit {
       }
     }
     if (!this.cbsButtonEnable) {
-      this.globalData.globalLodingPresent('please wait...');
+      this.loadingService.globalLodingPresent('please wait...');
       let body = {
         propNo: this.PropNo,
       };
@@ -3769,16 +3771,16 @@ export class PostSanctionPage implements OnInit {
               this.cbsButtonEnable
             );
 
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           } else {
             this.cbsButtonEnable = false;
             this.cbsButtonServiceCheck = true;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', cbsButtonData.ErrorDesc);
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.cbsButtonEnable = false;
           this.cbsButtonServiceCheck = true;
           this.cbsCustomerEnable = true;
@@ -3827,7 +3829,7 @@ export class PostSanctionPage implements OnInit {
       this.master
         .restApiCallAngular('UploadDocs', docs_upload)
         .then((res) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           let pslRes = <any>res;
           if (pslRes.errorCode == '00') {
             this.alertService.showAlert('Alert', 'PSL Submitted Successfully');
@@ -3841,7 +3843,7 @@ export class PostSanctionPage implements OnInit {
     console.log(value, 'psl agrisave');
 
     if (this.pslImg.length > 0) {
-      this.globFunc.globalLodingPresent('Please Wait..');
+      this.loadingService.globalLodingPresent('Please Wait..');
       let body = {
         PropNo: this.applicantDetails[0].applicationNumber,
         Agriproof: value.agriProofType,
@@ -3879,7 +3881,7 @@ export class PostSanctionPage implements OnInit {
                 this.pslDocBase64();
               });
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', response.ErrorDesc);
           }
         })
@@ -3892,7 +3894,7 @@ export class PostSanctionPage implements OnInit {
   pslBusSave(value) {
     console.log(value, 'psl bussave');
     if (this.pslImg.length > 0) {
-      this.globFunc.globalLodingPresent('Please Wait..');
+      this.loadingService.globalLodingPresent('Please Wait..');
       let body = {
         PropNo: this.applicantDetails[0].applicationNumber,
         Agriproof: value.agriProofType,
@@ -3929,7 +3931,7 @@ export class PostSanctionPage implements OnInit {
                 this.pslDocBase64();
               });
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', response.ErrorDesc);
           }
         })
@@ -4071,7 +4073,7 @@ export class PostSanctionPage implements OnInit {
   }
 
   serviceCallForSubmission() {
-    this.globFunc.globalLodingPresent('Please Wait...');
+    this.loadingService.globalLodingPresent('Please Wait...');
     if (this.post_other_docs.length > 0) {
       let docs_upload = {
         OtherDoc: {
@@ -4101,13 +4103,13 @@ export class PostSanctionPage implements OnInit {
 
             this.sqlSupport.updatePostSanctionDocument(this.refId, this.id);
             this.post_other_docs = [];
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert!',
               'Documents uploaded successfully!'
             );
           } else {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               sanctionRes.errorDesc || sanctionRes.errorMsg
@@ -4115,7 +4117,7 @@ export class PostSanctionPage implements OnInit {
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err.name == 'TimeoutError') {
             this.alertService.showAlert('Alert!', err.message);
           } else {
@@ -4124,10 +4126,10 @@ export class PostSanctionPage implements OnInit {
         }
       );
     } else {
-      this.globFunc.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert!', 'All documents already uploaded!');
     }
-    // this.globFunc.globalLodingDismiss();
+    // this.loadingService.globalLodingDismiss();
   }
 
   forwardToWeb() {
@@ -4796,13 +4798,13 @@ export class PostSanctionPage implements OnInit {
                     }
                   } else {
                     if ((<any>data).ErrorDesc) {
-                      this.globalData.globalLodingDismissAll();
+                      this.loadingService.globalLodingDismiss();
                       this.alertService.showAlert(
                         'Alert',
                         (<any>data).ErrorDesc
                       );
                     } else {
-                      this.globalData.globalLodingDismissAll();
+                      this.loadingService.globalLodingDismiss();
                       this.alertService.showAlert(
                         'Alert!',
                         'Application CA/SA Details submission Failed!'
@@ -4811,7 +4813,7 @@ export class PostSanctionPage implements OnInit {
                   }
                 },
                 (err) => {
-                  this.globalData.globalLodingDismissAll();
+                  this.loadingService.globalLodingDismiss();
                   if (err.name == 'TimeoutError') {
                     this.alertService.showAlert('Alert!', err.message);
                   } else {
@@ -4925,7 +4927,7 @@ export class PostSanctionPage implements OnInit {
         this.master
           .restApiCallAngular('UploadDocs', docs_upload)
           .then((res) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             let editedCasaDoc = <any>res;
             if (editedCasaDoc.errorCode == '00') {
               this.serviceCallForSubmission();
@@ -5206,7 +5208,7 @@ export class PostSanctionPage implements OnInit {
         }
         break;
     }
-    this.globFunc.globalLodingDismiss();
+    this.loadingService.globalLodingDismiss();
   }
 
   async setDealerValue(dealerCode: any, findName?: string) {
@@ -5260,13 +5262,13 @@ export class PostSanctionPage implements OnInit {
    */
   async fetchDetailsFromRC() {
     try {
-      this.globFunc.globalLodingPresent('Please Wait..');
+      this.loadingService.globalLodingPresent('Please Wait..');
       this.postsanction.get('obv').reset();
       this.postsanction.get('kmDriven').reset();
       await this.orpApi
         .getRCDetails(this.postsanction.get('rcNo').value)
         .then((data: any) => {
-          this.globFunc.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           console.log('getRCDetails', data);
           if (data) {
             if (!data.blacklisted) {

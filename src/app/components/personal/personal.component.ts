@@ -26,6 +26,7 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
 import { ProofComponent } from '../proof/proof.component';
 import { environment } from 'src/environments/environment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-personal',
@@ -266,7 +267,8 @@ export class PersonalComponent implements OnInit {
     public master: RestService,
     public sqlSupport: SquliteSupportProviderService,
     public globFunc: GlobalService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -1133,7 +1135,7 @@ export class PersonalComponent implements OnInit {
       if (saveStatus == 'sourcingSaved') {
         this.personalsave(value);
       } else {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Must Save Sourcing Details!');
       }
     } else {
@@ -1141,14 +1143,14 @@ export class PersonalComponent implements OnInit {
       if (saveStatus == 'entitySaved') {
         this.personalsave(value);
       } else {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'Must Save Entity Details!');
       }
     }
   }
 
   personalsave(value) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let saveStatus = localStorage.getItem('Sourcing');
     this.globalData.setAdhaarNum(this.aadharNum);
     this.globalData.setPanNum(this.panNumber);
@@ -1165,7 +1167,7 @@ export class PersonalComponent implements OnInit {
     let currentYear = this.todayDate.getFullYear();
     let calculatedYear = currentYear - +currentDob[0];
     if (calculatedYear < 21) {
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert(
         'Alert!',
         'The Customer Age should not be less than 21 years'
@@ -1189,7 +1191,7 @@ export class PersonalComponent implements OnInit {
               .then((data) => {
                 this.saveStatus.emit('personalTick');
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Guarantor Details Updated Successfully'
@@ -1201,7 +1203,7 @@ export class PersonalComponent implements OnInit {
                 );
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1269,7 +1271,7 @@ export class PersonalComponent implements OnInit {
                 this.saveStatus.emit('personalTick');
                 // this.globalData.setEditSaveStatus("personalSaved");
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 localStorage.setItem('leadId', this.coAppGuaId);
                 this.alertService.showAlert(
                   'Alert!',
@@ -1283,7 +1285,7 @@ export class PersonalComponent implements OnInit {
                 this.sqliteProvider.updateCoAppFlag(this.refId, this.id);
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1303,7 +1305,7 @@ export class PersonalComponent implements OnInit {
               .then((data) => {
                 this.saveStatus.emit('personalTick');
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert(
                   'Alert!',
                   'Co-Applicant Details Updated Successfully'
@@ -1315,7 +1317,7 @@ export class PersonalComponent implements OnInit {
                 );
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1382,7 +1384,7 @@ export class PersonalComponent implements OnInit {
                 this.saveStatus.emit('personalTick');
                 // this.globalData.setEditSaveStatus("personalSaved");
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 localStorage.setItem('leadId', this.coAppGuaId);
                 this.alertService.showAlert(
                   'Alert!',
@@ -1396,7 +1398,7 @@ export class PersonalComponent implements OnInit {
                 this.sqliteProvider.updateCoAppFlag(this.refId, this.id);
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1429,7 +1431,7 @@ export class PersonalComponent implements OnInit {
                     }
                   });
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 if (this.customerType == '2' && this.userType == 'A') {
                   this.alertService.showAlert(
                     'Alert!',
@@ -1453,7 +1455,7 @@ export class PersonalComponent implements OnInit {
                 }
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1514,7 +1516,7 @@ export class PersonalComponent implements OnInit {
                 this.saveStatus.emit('personalTick');
                 // this.globalData.setEditSaveStatus("personalSaved");
                 localStorage.setItem('Personal', 'personalSaved');
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 localStorage.setItem('leadId', this.coAppGuaId);
                 if (this.customerType == '2' && this.userType == 'A') {
                   this.alertService.showAlert(
@@ -1540,7 +1542,7 @@ export class PersonalComponent implements OnInit {
                 this.sqliteProvider.updatePassedLMSData('1', this.coAppGuaId);
               })
               .catch((Error) => {
-                this.globalData.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 console.log(Error);
                 this.alertService.showAlert('Alert!', 'Failed!');
               });
@@ -1575,7 +1577,7 @@ export class PersonalComponent implements OnInit {
           );
         }
       } else {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert(
           'Alert!',
           'Must Capture the Profile Image!'
@@ -1584,7 +1586,7 @@ export class PersonalComponent implements OnInit {
     }
 
     // } else {
-    //   this.globalData.globalLodingDismiss();
+    //   this.loadingService.globalLodingDismiss();
     //   this.alertService.showAlert("Alert!", "Must Save Sourcing Details!");
     // }
   }
@@ -1853,7 +1855,7 @@ export class PersonalComponent implements OnInit {
   }
 
   postData() {
-    this.globFunc.globalLodingPresent('loading...');
+    this.loadingService.globalLodingPresent('loading...');
     let body = {
       NSDL: {
         Request: {
@@ -1867,7 +1869,7 @@ export class PersonalComponent implements OnInit {
     };
     this.master.restApiCallAngular('validatePan', body).then(
       (data) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         if (
           (<any>data).NSDL.Response.details.StatusCode == '1' &&
           (<any>data).NSDL.Response.details.Panstatus == 'E'
@@ -1886,7 +1888,7 @@ export class PersonalComponent implements OnInit {
         }
       },
       (err) => {
-        this.globFunc.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );
@@ -1905,7 +1907,7 @@ export class PersonalComponent implements OnInit {
       if (this.otpCount > 3) {
         this.alertService.showAlert('Alert!', 'Exceed the limit!');
       } else {
-        this.globFunc.globalLodingPresent('loading...');
+        this.loadingService.globalLodingPresent('loading...');
         this.OTPNUM = Math.floor(Math.random() * 900000) + 100000;
         // console.log(this.OTPNUM);
         let headers = new Headers();
@@ -1929,7 +1931,7 @@ export class PersonalComponent implements OnInit {
         //   .subscribe(data => {
         this.master.restApiCallAngular('Smsotp', body).then(
           (data) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             // console.log("data: " + JSON.stringify(data));
             if (this.urlType) {
               // console.log(this.verifiedMobNum);
@@ -1959,7 +1961,7 @@ export class PersonalComponent implements OnInit {
             }
           },
           (err) => {
-            this.globFunc.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', 'No Response from Server!');
           }
         );
@@ -2955,7 +2957,7 @@ export class PersonalComponent implements OnInit {
    */
   async fetchUPIDetails() {
     try {
-      this.globalData.globalLodingPresent('Please Wait...');
+      this.loadingService.globalLodingPresent('Please Wait...');
       let request = {
         upiId: this.applicantDetails.controls.upiNo.value,
         mobile: environment.uatlive ? '9999999999' : '8888888888',
@@ -2969,7 +2971,7 @@ export class PersonalComponent implements OnInit {
         .restApiCallAngular('upiValidation', request)
         .then((result) => {
           if (result != undefined && result != null && result != '') {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             if (
               (<any>result).errorCode === '0' &&
               (<any>result).verifyFlag == 'Y'
@@ -2980,11 +2982,11 @@ export class PersonalComponent implements OnInit {
               );
               this.applicantDetails.controls.nameupi.updateValueAndValidity();
             } else {
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert!', (<any>result).errorDesc);
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
           }
         });
     } catch (error) {

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, NavController, NavParams } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { SqliteService } from 'src/providers/sqlite.service';
 
@@ -29,7 +30,8 @@ export class VehicleValuationPage {
     public formBuilder: FormBuilder,
     public navParams: NavParams,
     public router: Router,
-    public alertService: CustomAlertControlService // public globalData: DataPassingProvider
+    public alertService: CustomAlertControlService, // public globalData: DataPassingProvider
+    public loadingService: CustomLoadingControlService
   ) {
     this.formDetails();
     this.getVehicleValutionFormValues();
@@ -89,7 +91,7 @@ export class VehicleValuationPage {
 
   vehicleValuationSave(formValue) {
     console.log(formValue);
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     console.log(formValue);
     if (
       this.videoFile === '' ||
@@ -97,7 +99,7 @@ export class VehicleValuationPage {
       this.videoFile === null
     ) {
       this.alertService.showAlert('Alert!', 'Please Add Inspection Video');
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } else {
       let obvValue = '98';
       this.sqliteProvider
@@ -113,13 +115,13 @@ export class VehicleValuationPage {
           console.log(data);
           if (this.vId === '' || this.vId === undefined || this.vId === null) {
             this.vId = data.insertId;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Vehicle Valuation Values Added Successfully.'
             );
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Vehicle Valuation Values Updated Successfully.'
@@ -128,7 +130,7 @@ export class VehicleValuationPage {
         })
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         });
     }
   }

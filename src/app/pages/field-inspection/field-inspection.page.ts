@@ -11,6 +11,7 @@ import { PicproofPage } from '../picproof/picproof.page';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Geolocation } from '@capacitor/geolocation';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-field-inspection',
@@ -58,7 +59,8 @@ export class FieldInspectionPage implements OnInit {
     public master: RestService,
     // public viewCtrl: ViewController,
     public sqliteSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService // public base64: Base64
+    public alertService: CustomAlertControlService, // public base64: Base64
+    public loadingService: CustomLoadingControlService
   ) {
     // this.getresType();
     this.formgroup();
@@ -101,17 +103,17 @@ export class FieldInspectionPage implements OnInit {
 
   async getCoordinates() {
     try {
-      this.globalData.globalLodingPresent('Fetching Location');
+      this.loadingService.globalLodingPresent('Fetching Location');
       const coordinates = await Geolocation.getCurrentPosition();
       console.log('coordinates', coordinates);
       this.presLat = coordinates.coords.latitude;
       this.presLong = coordinates.coords.longitude;
       this.fieldInspectionDetails.get('latitude').setValue(this.presLat);
       this.fieldInspectionDetails.get('longitude').setValue(this.presLong);
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } catch (error) {
       console.log('Get Location:', error.message);
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
       this.alertService.showAlert('Alert', error.message);
     }
   }
@@ -254,11 +256,11 @@ export class FieldInspectionPage implements OnInit {
   }
 
   fieldInspectionDetailsSave(formValue) {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     console.log(formValue);
     if (this.proofImgs.length === 0) {
       this.alertService.showAlert('Alert!', 'Please Add Background Image');
-      this.globalData.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } else {
       this.sqliteProvider
         .insertFieldInspectionDetails(
@@ -277,14 +279,14 @@ export class FieldInspectionPage implements OnInit {
             this.fieldId === null
           ) {
             this.fieldId = data.insertId;
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Field Investigation Values Added Successfully.'
             );
             this.fieldSbt = false;
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert(
               'Alert',
               'Field Investigation Values Updated Successfully.'
@@ -294,7 +296,7 @@ export class FieldInspectionPage implements OnInit {
         })
         .catch((err) => {
           console.log(err);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         });
     }
   }
@@ -390,7 +392,7 @@ export class FieldInspectionPage implements OnInit {
   }
 
   submitFieldIns() {
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     this.sqliteProvider.getFieldInspectionDetails(this.refId, this.id).then(
       async (imgdata) => {
         console.log('imgs', imgdata);
@@ -415,7 +417,7 @@ export class FieldInspectionPage implements OnInit {
       },
       (err) => {
         console.log(err);
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
       }
     );
   }
@@ -463,7 +465,7 @@ export class FieldInspectionPage implements OnInit {
               this.uploadFieldImages(data[0].appNo);
             } else if (fieldRes.ErrorCode === '001') {
               this.fieldSbt = false;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert(
                 'Alert',
                 fieldRes.ErrorDesc
@@ -472,7 +474,7 @@ export class FieldInspectionPage implements OnInit {
               );
             } else {
               this.fieldSbt = false;
-              this.globalData.globalLodingDismiss();
+              this.loadingService.globalLodingDismiss();
               this.alertService.showAlert('Alert', fieldRes.ErrorDesc);
             }
           })
@@ -498,7 +500,7 @@ export class FieldInspectionPage implements OnInit {
       .then((res) => {
         let sanctionRes = <any>res;
         if (sanctionRes.errorCode == '00') {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert(
             'Alert',
             'Field Investigation Submitted Successfully'
@@ -514,12 +516,12 @@ export class FieldInspectionPage implements OnInit {
               console.log(err);
             });
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert', sanctionRes.errorDesc);
         }
       })
       .catch((err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         console.log(err);
       });
   }
@@ -538,7 +540,7 @@ export class FieldInspectionPage implements OnInit {
   }
 
   fiSubmit() {
-    this.global.globalLodingPresent('Please wait');
+    this.loadingService.globalLodingPresent('Please wait');
     let body = {
       userId: this.applicantDetails[0].createdUser,
       PropNo: this.applicantDetails[0].applicationNumber,
@@ -552,7 +554,7 @@ export class FieldInspectionPage implements OnInit {
         (res) => {
           let fieldInvesRes = <any>res;
           if (fieldInvesRes.ErrorCode === '000') {
-            this.global.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.sqliteSupport.updateManualApprovalForSubmit(
               this.applicantDetails[0].applicationNumber
             );
@@ -583,18 +585,18 @@ export class FieldInspectionPage implements OnInit {
                 });
             }
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', fieldInvesRes.ErrorDesc);
           }
         },
         (err) => {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (err) {
             this.alertService.showAlert('Alert', err.message);
           } else {
             this.alertService.showAlert('Alert', 'No Response from Server!');
           }
-          this.global.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
         }
       )
       .catch((err) => err);

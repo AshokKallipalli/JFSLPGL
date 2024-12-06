@@ -15,6 +15,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { OtherImgsPage } from '../other-imgs/other-imgs.page';
 import { ProofModalPage } from '../proof-modal/proof-modal.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-other-docs',
@@ -74,9 +75,9 @@ export class OtherDocsPage implements OnInit {
     public network: Network,
     // public camera: Camera,
     public master: RestService,
-    public alertService: CustomAlertControlService // public base64: Base64, // public file: File,
-  ) // public crop: Crop
-  {
+    public alertService: CustomAlertControlService, // public base64: Base64, // public file: File, // public crop: Crop
+    public loadingService: CustomLoadingControlService
+  ) {
     this.applicationNumber = this.navParams.get('application');
     this.userType = this.globalData.getborrowerType();
     this.refId = this.globalData.getrefId();
@@ -243,7 +244,7 @@ export class OtherDocsPage implements OnInit {
           'Please Check your Data Connection!'
         );
       } else {
-        this.globalData.globalLodingPresent('Please wait...');
+        this.loadingService.globalLodingPresent('Please wait...');
         this.refId = this.globalData.getrefId();
         this.id = this.globalData.getId();
         let ids = { refId: this.refId, id: this.id };
@@ -254,7 +255,7 @@ export class OtherDocsPage implements OnInit {
             // this.converttobase(ilen, this.docDetails[0]);
           },
           (err) => {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             alert('No Response from Server!');
           }
         );
@@ -296,20 +297,20 @@ export class OtherDocsPage implements OnInit {
   //           this.sqliteProvider.updateSubmitedOtherDocs(submitStatus, this.refId, this.id).then(data => {
   //             this.submitedData = data;
   //             this.getNonSubmitDocDetails();
-  //             this.globalData.globalLodingDismiss();
+  //             this.loadingService.globalLodingDismiss();
   //             this.alertService.showAlert("Alert!", "Given other documents submited successfully.");
   //           })
   //         } else {
-  //           this.globalData.globalLodingDismiss();
+  //           this.loadingService.globalLodingDismiss();
   //           this.alertService.showAlert("Alert!", "Failed!");
   //         }
   //       }).catch(err => {
-  //         this.globalData.globalLodingDismiss();
+  //         this.loadingService.globalLodingDismiss();
   //         console.log("Other catch: " + JSON.stringify(err));
   //       })
   //     }
   //   }, (err) => {
-  //     this.globalData.globalLodingDismiss();
+  //     this.loadingService.globalLodingDismiss();
   //     console.log("Other: " + JSON.stringify(err));
   //   });
   // }
@@ -359,7 +360,7 @@ export class OtherDocsPage implements OnInit {
     this.globFunc.takeImage('document').then((data: any) => {
       let imageName = data.path;
       this.globalData.convertToWebPBase64(imageName).then((cnvtImg) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         // let imagePath = `data:image/jpeg;base64,${cnvtImg.path}`
         let imagePath = `data:image/*;charset=utf-8;base64,${cnvtImg.path}`;
         localStorage.setItem('BS', data.size);

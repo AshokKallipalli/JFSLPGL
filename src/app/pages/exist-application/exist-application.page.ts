@@ -17,6 +17,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { environment } from 'src/environments/environment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
+import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 
 @Component({
   selector: 'app-exist-application',
@@ -68,7 +69,8 @@ export class ExistApplicationPage {
     public platform: Platform,
     public master: RestService,
     public sqlSupport: SquliteSupportProviderService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {
     this.getproducts();
     this.appStatusURL = environment.apiURL + 'AppStatus';
@@ -627,7 +629,7 @@ export class ExistApplicationPage {
 
   appstatus(item) {
     // this.status = item.applicationStatus;
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body = {
       propNo: item.applicationNumber,
     };
@@ -646,15 +648,15 @@ export class ExistApplicationPage {
             item.statId
           );
           // this.navCtrl.setRoot(this.navCtrl.getActive().component);
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.showStatusAlert();
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', (<any>res).errorDesc);
         }
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );
@@ -887,7 +889,7 @@ export class ExistApplicationPage {
     // this.sqlSupport.updateForPostSanction(item.applicationNumber, 1).then(data => {
 
     // })
-    this.globalData.globalLodingPresent('Please wait...');
+    this.loadingService.globalLodingPresent('Please wait...');
     let body = {
       propNo: item.applicationNumber,
     };
@@ -895,7 +897,7 @@ export class ExistApplicationPage {
       (res) => {
         // console.log((<any>res));
         if ((<any>res).statusCode == '000') {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           if (
             (<any>res).statusDescription.toLowerCase() ==
             'Approved'.toLowerCase()
@@ -910,16 +912,16 @@ export class ExistApplicationPage {
                 this.loadAllApplicantDetails();
               });
           } else {
-            this.globalData.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert!', (<any>res).statusDescription);
           }
         } else {
-          this.globalData.globalLodingDismiss();
+          this.loadingService.globalLodingDismiss();
           this.alertService.showAlert('Alert!', (<any>res).statusDescription);
         }
       },
       (err) => {
-        this.globalData.globalLodingDismiss();
+        this.loadingService.globalLodingDismiss();
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );

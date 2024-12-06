@@ -16,6 +16,7 @@ import { SqliteService } from './sqlite.service';
 
 import * as moment from 'moment';
 import { CustomAlertControlService } from './custom-alert-control.service';
+import { CustomLoadingControlService } from './custom-loading-control.service';
 
 @Injectable({
   providedIn: 'root',
@@ -39,14 +40,15 @@ export class RestService {
     public httpAngular: HttpClient,
     public network: Network,
     public sqliteService: SqliteService,
-    public alertService: CustomAlertControlService
+    public alertService: CustomAlertControlService,
+    public loadingService: CustomLoadingControlService
   ) {}
 
   //need to do httpInerseptor
   restApiCallAngular(method, data, isKarza?): any {
     if (this.network.type == 'none' || this.network.type == 'unknown') {
       this.alertService.showAlert('Alert', 'Enable Internet connection!.');
-      this.global.globalLodingDismiss();
+      this.loadingService.globalLodingDismiss();
     } else {
       let link;
       if (isKarza == 'Y') {
@@ -110,7 +112,7 @@ export class RestService {
               (error) => {
                 reject(error);
                 console.log(error, 'error');
-                this.global.globalLodingDismiss();
+                this.loadingService.globalLodingDismiss();
                 this.alertService.showAlert('Alert', error);
                 this.sqliteService.addAuditTrail(
                   curDateTime,
@@ -121,7 +123,7 @@ export class RestService {
               }
             );
           } else {
-            this.global.globalLodingDismiss();
+            this.loadingService.globalLodingDismiss();
             this.alertService.showAlert('Alert', 'Certificates pinning error!');
           }
         });
