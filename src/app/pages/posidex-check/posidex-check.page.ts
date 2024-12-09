@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AlertController,
   ModalController,
   NavController,
   NavParams,
@@ -70,7 +69,6 @@ export class PosidexCheckPage {
     public sqliteProvider: SqliteService,
     public modalCtrl: ModalController,
     public popoverCtrl: PopoverController,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public sqliteSupport: SquliteSupportProviderService,
     public router: Router,

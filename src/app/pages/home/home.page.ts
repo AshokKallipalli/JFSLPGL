@@ -2,12 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import {
-  AlertController,
-  ModalController,
-  NavParams,
-  Platform,
-} from '@ionic/angular';
+import { ModalController, NavParams, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
@@ -77,7 +72,6 @@ export class HomePage {
     public sqlSupport: SquliteSupportProviderService,
     public modalCtrl: ModalController,
     public network: Network,
-    public alertCtrl: AlertController,
     public globFunc: GlobalService,
     public navParams: ActivatedRoute,
     public router: Router,
@@ -173,110 +167,65 @@ export class HomePage {
 
   opennewapp(event) {
     console.log(event);
-    // let alert = this.alertCtrl.create({
-    //   title: 'Alert!',
-    //   message: 'Do you want to continue with ID proof values?',
-    //   buttons: [
-    //     {
-    //       text: 'No',
-    //       role: 'cancel',
-    //       handler: () => {
-    //         this.custType();
-    //       }
-    //     },
-    //     {
-    //       text: 'Yes',
-    //       handler: () => {
     this.newshow = true;
-    //       }
-    //     }
-    //   ]
-    // });
-    // alert.present();
   }
 
   async custType() {
-    let alert = await this.alertCtrl.create({
-      // title: 'Alert!',
-      message: 'Please Select Customer Type!!!',
-      buttons: [
-        {
-          text: 'Individual',
-          role: 'cancel',
-          handler: () => {
-            this.globalData.setCustomerType('1');
-            let leadId =
-              Math.floor(Math.random() * 900000000000) + 100000000000;
-            this.globalData.setCustType('N');
-            this.router.navigate(['/NewapplicationPage'], {
-              queryParams: {
-                leadStatus: this.leadStatus,
-                leadId: leadId,
-                userType: this.globalData.getborrowerType(),
-              },
-              replaceUrl: true,
-              skipLocationChange: true,
-            });
-          },
-        },
-        {
-          text: 'Non-Individual',
-          handler: () => {
-            this.globalData.setCustomerType('2');
-            let leadId =
-              Math.floor(Math.random() * 900000000000) + 100000000000;
-            this.globalData.setCustType('N');
-            this.router.navigate(['/NewapplicationPage'], {
-              queryParams: {
-                leadStatus: this.leadStatus,
-                leadId: leadId,
-                userType: this.globalData.getborrowerType(),
-              },
-              replaceUrl: true,
-              skipLocationChange: true,
-            });
-          },
-        },
-      ],
-    });
-    alert.present();
+    this.alertService
+      .customerConfirmationAlert('', 'Please Select Customer Type!!!')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          this.globalData.setCustomerType('2');
+          let leadId = Math.floor(Math.random() * 900000000000) + 100000000000;
+          this.globalData.setCustType('N');
+          this.router.navigate(['/NewapplicationPage'], {
+            queryParams: {
+              leadStatus: this.leadStatus,
+              leadId: leadId,
+              userType: this.globalData.getborrowerType(),
+            },
+            replaceUrl: true,
+            skipLocationChange: true,
+          });
+        } else {
+          this.globalData.setCustomerType('1');
+          let leadId = Math.floor(Math.random() * 900000000000) + 100000000000;
+          this.globalData.setCustType('N');
+          this.router.navigate(['/NewapplicationPage'], {
+            queryParams: {
+              leadStatus: this.leadStatus,
+              leadId: leadId,
+              userType: this.globalData.getborrowerType(),
+            },
+            replaceUrl: true,
+            skipLocationChange: true,
+          });
+        }
+      });
   }
 
   async existing() {
-    let alert = await this.alertCtrl.create({
-      // title: 'Alert!',
-      message: 'Please Select Customer Type!!!',
-      buttons: [
-        {
-          text: 'Individual',
-          role: 'cancel',
-          handler: () => {
-            this.globalData.setCustomerType('1');
-            this.idProofForm.controls['custType'].setValue('1');
-            this.custTypeChng('1');
-            this.leadId =
-              Math.floor(Math.random() * 900000000000) + 100000000000;
-            this.globalData.setCustType('E');
-            this.globalData.setborrowerType(this.userType);
-            this.existShow = true;
-          },
-        },
-        {
-          text: 'Non-Individual',
-          handler: () => {
-            this.globalData.setCustomerType('2');
-            this.idProofForm.controls['custType'].setValue('2');
-            this.custTypeChng('2');
-            this.leadId =
-              Math.floor(Math.random() * 900000000000) + 100000000000;
-            this.globalData.setCustType('E');
-            this.globalData.setborrowerType(this.userType);
-            this.existShow = true;
-          },
-        },
-      ],
-    });
-    alert.present();
+    this.alertService
+      .customerConfirmationAlert('', 'Please Select Customer Type!!!')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          this.globalData.setCustomerType('2');
+          this.idProofForm.controls['custType'].setValue('2');
+          this.custTypeChng('2');
+          this.leadId = Math.floor(Math.random() * 900000000000) + 100000000000;
+          this.globalData.setCustType('E');
+          this.globalData.setborrowerType(this.userType);
+          this.existShow = true;
+        } else {
+          this.globalData.setCustomerType('1');
+          this.idProofForm.controls['custType'].setValue('1');
+          this.custTypeChng('1');
+          this.leadId = Math.floor(Math.random() * 900000000000) + 100000000000;
+          this.globalData.setCustType('E');
+          this.globalData.setborrowerType(this.userType);
+          this.existShow = true;
+        }
+      });
   }
 
   cifData(value) {
@@ -991,41 +940,32 @@ export class HomePage {
           }
         },
         async (error) => {
-          const alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }
@@ -1132,41 +1072,32 @@ export class HomePage {
           }
         },
         async (error) => {
-          let alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }
@@ -1412,44 +1343,32 @@ export class HomePage {
           }
         },
         async (err) => {
-          let alert = await this.alertCtrl.create({
-            // title: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
-
-          // this.globFunc.globalLodingDismiss();
-          // this.alertService.showAlert("Alert!", error.statusText);
+          this.alertService
+            .confirmationAlert(
+              '',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }

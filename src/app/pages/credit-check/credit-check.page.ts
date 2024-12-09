@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
@@ -41,7 +40,6 @@ export class CreditCheckPage implements OnInit {
   };
 
   constructor(
-    public alertCtrl: AlertController,
     public sqliteProvider: SqliteService,
     public sqlsupport: SquliteSupportProviderService,
     public router: Router,
@@ -145,22 +143,6 @@ export class CreditCheckPage implements OnInit {
     // this.loadCoappDetails();
   }
 
-  async showScore() {
-    const alert = await this.alertCtrl.create({
-      header: 'CIBIL REQUIRED SCORE',
-      cssClass: 'alertHeader',
-      message: `<img src="../../../assets/imgs/credit1.jpg"><br> <center><strong>750</strong></center>`,
-      buttons: [
-        {
-          text: 'OK',
-          handler: () => {
-            console.log('working');
-          },
-        },
-      ],
-    });
-    alert.present();
-  }
   getAppStatus() {
     this.sqliteProvider.getSubmitDetails(this.refId, this.id).then((data) => {
       // this.appCibilCheckStat = data[0].cibilCheckStat;

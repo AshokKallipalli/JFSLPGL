@@ -38,7 +38,6 @@ export class LeadComponent {
     public sqliteProvider: SqliteService,
     public globalData: DataPassingProviderService,
     private activateRoute: ActivatedRoute,
-    public alertCtrl: AlertController,
     public master: RestService,
     public alertService: CustomAlertControlService
   ) {
@@ -83,27 +82,6 @@ export class LeadComponent {
       if (this.leadData) {
         // console.log(this.leadData);
         this.saveStatus.emit('leadTick');
-        // let alert = this.alertCtrl.create({
-        //   title: 'Alert!',
-        //   message: 'Proceed to psoidex?',
-        //   buttons: [
-        //     {
-        //       text: 'No',
-        //       role: 'cancel',
-        //       handler: () => {
-        //         this.globalData.globalLodingDismiss();
-        //         // this.navCtrl.push(JsfhomePage);
-        //       }
-        //     },
-        //     {
-        //       text: 'Yes',
-        //       handler: () => {
-        //         this.checkPosidex();
-        //       }
-        //     }
-        //   ]
-        // });
-        // alert.present();
         this.navCtrl.navigate(['/ExistingPage'], {
           queryParams: { _leadStatus: this.leadStatus },
           skipLocationChange: true,

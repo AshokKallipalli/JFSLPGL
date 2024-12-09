@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import { AlertController, ModalController, NavParams } from '@ionic/angular';
+import { ModalController, NavParams } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
@@ -61,7 +61,6 @@ export class KarzaDetailsPage implements OnInit {
     public globalData: DataPassingProviderService,
     public network: Network,
     public sqlite: SqliteService,
-    public alertCtrl: AlertController,
     public alertService: CustomAlertControlService
   ) {
     this.idType = this.navParams.get('idType');
@@ -322,41 +321,32 @@ export class KarzaDetailsPage implements OnInit {
             }
           },
           async (error) => {
-            let alert = await this.alertCtrl.create({
-              header: 'Alert!',
-              message:
-                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-              buttons: [
-                {
-                  text: 'No',
-                  role: 'cancel',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.navCtrl.navigate(['/JsfhomePage'], {
-                      skipLocationChange: true,
-                      replaceUrl: true,
-                    });
-                  },
-                },
-                {
-                  text: 'Yes',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.globalData.setCustType('N');
-                    this.navCtrl.navigate(['/NewapplicationPage'], {
-                      queryParams: {
-                        leadStatus: this.leadStatus,
-                        leadId: this.leadId,
-                        userType: this.globalData.getborrowerType(),
-                      },
-                      skipLocationChange: true,
-                      replaceUrl: true,
-                    });
-                  },
-                },
-              ],
-            });
-            alert.present();
+            this.alertService
+              .confirmationAlert(
+                'Alert!',
+                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+              )
+              .then(async (data) => {
+                if (data === 'Yes') {
+                  this.globalData.globalLodingDismiss();
+                  this.globalData.setCustType('N');
+                  this.navCtrl.navigate(['/NewapplicationPage'], {
+                    queryParams: {
+                      leadStatus: this.leadStatus,
+                      leadId: this.leadId,
+                      userType: this.globalData.getborrowerType(),
+                    },
+                    skipLocationChange: true,
+                    replaceUrl: true,
+                  });
+                } else {
+                  this.globalData.globalLodingDismiss();
+                  this.navCtrl.navigate(['/JsfhomePage'], {
+                    skipLocationChange: true,
+                    replaceUrl: true,
+                  });
+                }
+              });
           }
         )
         .catch((err) => {
@@ -493,41 +483,32 @@ export class KarzaDetailsPage implements OnInit {
             }
           },
           async (error) => {
-            let alert = await this.alertCtrl.create({
-              header: 'Alert!',
-              message:
-                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-              buttons: [
-                {
-                  text: 'No',
-                  role: 'cancel',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.navCtrl.navigate(['/JsfhomePage'], {
-                      skipLocationChange: true,
-                      replaceUrl: true,
-                    });
-                  },
-                },
-                {
-                  text: 'Yes',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.globalData.setCustType('N');
-                    this.navCtrl.navigate(['/NewapplicationPage'], {
-                      queryParams: {
-                        leadStatus: this.leadStatus,
-                        leadId: this.leadId,
-                        userType: this.globalData.getborrowerType(),
-                      },
-                      skipLocationChange: true,
-                      replaceUrl: true,
-                    });
-                  },
-                },
-              ],
-            });
-            alert.present();
+            this.alertService
+              .confirmationAlert(
+                'Alert!',
+                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+              )
+              .then(async (data) => {
+                if (data === 'Yes') {
+                  this.globalData.globalLodingDismiss();
+                  this.globalData.setCustType('N');
+                  this.navCtrl.navigate(['/NewapplicationPage'], {
+                    queryParams: {
+                      leadStatus: this.leadStatus,
+                      leadId: this.leadId,
+                      userType: this.globalData.getborrowerType(),
+                    },
+                    skipLocationChange: true,
+                    replaceUrl: true,
+                  });
+                } else {
+                  this.globalData.globalLodingDismiss();
+                  this.navCtrl.navigate(['/JsfhomePage'], {
+                    skipLocationChange: true,
+                    replaceUrl: true,
+                  });
+                }
+              });
           }
         )
         .catch((err) => {

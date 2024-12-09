@@ -1,12 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  AlertController,
-  NavController,
-  NavParams,
-  Platform,
-} from '@ionic/angular';
+import { NavController, NavParams, Platform } from '@ionic/angular';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { NomineedetailsComponent } from '../nomineedetails/nomineedetails.component';
@@ -48,7 +43,6 @@ export class CasadetailsComponent {
     public globalData: DataPassingProviderService,
     // public global: DataPassingProvider,
     // public events: Events,
-    public alertCtrl: AlertController,
     public platform: Platform,
     public alertService: CustomAlertControlService
   ) {
@@ -177,21 +171,18 @@ export class CasadetailsComponent {
         .getNomineeDetails(this.refId, this.id)
         .then(async (nom) => {
           if (nom.length > 0) {
-            let alert = await this.alertCtrl.create({
-              header: 'Alert!',
-              message: 'It will delete your given Nominee Details?',
-              buttons: [
-                {
-                  text: 'Ok',
-                  handler: () => {
-                    this.sqlSupport.removeNomineeDetails(this.refId, this.id);
-                    this.showGuaran = false;
-                    this.accDetails.get('guaAvail').setValue('N');
-                  },
-                },
-              ],
-            });
-            alert.present();
+            this.alertService
+              .confirmationVersionAlert(
+                'Alert!',
+                'It will delete your given Nominee Details?'
+              )
+              .then(async (data) => {
+                if (data) {
+                  this.sqlSupport.removeNomineeDetails(this.refId, this.id);
+                  this.showGuaran = false;
+                  this.accDetails.get('guaAvail').setValue('N');
+                }
+              });
           } else {
             this.showGuaran = false;
             this.accDetails.get('guaAvail').setValue('N');
@@ -225,29 +216,16 @@ export class CasadetailsComponent {
             .getNomineeDetails(this.refId, this.id)
             .then(async (nom) => {
               if (nom.length > 0) {
-                let alert = await this.alertCtrl.create({
-                  header: 'Alert!',
-                  message: 'Do you want to delete given Nominee Details?',
-                  buttons: [
-                    {
-                      text: 'No',
-                      role: 'cancel',
-                      handler: () => {
-                        console.log('NO clicked');
-                      },
-                    },
-                    {
-                      text: 'Yes',
-                      handler: () => {
-                        this.sqlSupport.removeNomineeDetails(
-                          this.refId,
-                          this.id
-                        );
-                      },
-                    },
-                  ],
-                });
-                alert.present();
+                this.alertService
+                  .confirmationAlert(
+                    'Alert!',
+                    'Do you want to delete given Nominee Details?'
+                  )
+                  .then(async (data) => {
+                    if (data === 'Yes') {
+                      this.sqlSupport.removeNomineeDetails(this.refId, this.id);
+                    }
+                  });
               }
             });
         }

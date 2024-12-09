@@ -10,7 +10,6 @@ import { ActivatedRoute } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import {
-  AlertController,
   LoadingController,
   ModalController,
   NavController,
@@ -256,7 +255,6 @@ export class PersonalComponent implements OnInit {
     public modalCtrl: ModalController,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public http: HTTP,
     public activateRoute: ActivatedRoute,

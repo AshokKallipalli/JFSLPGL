@@ -122,4 +122,108 @@ export class CustomAlertControlService {
       alert.present();
     });
   }
+
+  async showVideoAlert(videoFile) {
+    let alert = await this.alertCtrl.create({
+      header: 'INSPECTION VIDEO',
+      cssClass: 'videoAlert',
+      message: `<video class="videoLayout" controls preload="metadata" width=240 height=350><source src=${videoFile}#t=0.5 type='video/mp4'></video> `,
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            console.log('working');
+          },
+        },
+      ],
+    });
+    alert.present();
+  }
+
+  async showScore() {
+    const alert = await this.alertCtrl.create({
+      header: 'CIBIL REQUIRED SCORE',
+      cssClass: 'alertHeader',
+      message: `<img src="../../../assets/imgs/credit1.jpg"><br> <center><strong>750</strong></center>`,
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            console.log('working');
+          },
+        },
+      ],
+    });
+    alert.present();
+  }
+
+  async showStatusAlert(status) {
+    const alert = await this.alertCtrl.create({
+      cssClass: 'status',
+      header: 'Application Status',
+      message: status,
+      buttons: ['OK'],
+    });
+    alert.present();
+  }
+
+  customerConfirmationAlert(title, message, page?): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      let alert = await this.alertCtrl.create({
+        header: title,
+        message,
+        buttons: [
+          {
+            text: 'Individual',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: () => {
+              resolve('No');
+            },
+          },
+          {
+            text: 'Non-Individual',
+            role: 'ok',
+            handler: () => {
+              resolve('Yes');
+            },
+          },
+        ],
+      });
+      alert.present();
+    });
+  }
+
+  async presentPrompt(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      let alert = await this.alertCtrl.create({
+        header: 'OTP',
+        message: 'Please Enter your OTP.',
+        backdropDismiss: false,
+        inputs: [
+          {
+            name: 'otpNumber',
+            placeholder: 'OTP',
+            type: 'tel',
+          },
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            handler: (data) => {
+              console.log('Cancel clicked');
+            },
+          },
+          {
+            text: 'Verify',
+            handler: (data) => {
+              resolve('Yes');
+            },
+          },
+        ],
+      });
+      alert.present();
+    });
+  }
 }

@@ -4,7 +4,6 @@ import { Network } from '@awesome-cordova-plugins/network/ngx';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { StatusBar } from '@capacitor/status-bar';
 import {
-  AlertController,
   IonRouterOutlet,
   MenuController,
   NavController,
@@ -29,7 +28,6 @@ export class AppComponent {
   myDate = new Date();
   userGroupsName = [];
   usersGroupsName: string;
-  alertCtrl = new AlertController();
   fname: string;
   pages: Array<{ title: string; component: any; icon: any }>;
   @ViewChildren(IonRouterOutlet) routerOutlet: QueryList<IonRouterOutlet>;
@@ -304,60 +302,46 @@ export class AppComponent {
             this.router.url == '/secondKycPage'
           ) {
             return new Promise(async (resolve, reject) => {
-              let alert = await this.alertCtrl.create({
-                header: 'Alert!',
-                subHeader: 'Data will be lost?',
-                buttons: [
-                  {
-                    text: 'No',
-                    role: 'cancel',
-                    handler: () => {},
-                  },
-                  {
-                    text: 'Yes',
-                    handler: () => {
-                      this.sqliteSuportProvider.removeEkycData(
-                        this.globalData.getLeadId()
-                      );
-                      this.sqliteSuportProvider.removeKarzaData(
-                        this.globalData.getLeadId()
-                      );
-                      this.router.navigate(['/ExistApplicationsPage'], {
-                        skipLocationChange: true,
-                        replaceUrl: true,
-                      });
-                    },
-                  },
-                ],
-              });
-              alert.present();
+              this.alertService
+                .confirmationAlert('Alert!', 'Data will be lost?')
+                .then(async (data) => {
+                  if (data === 'Yes') {
+                    this.sqliteSuportProvider.removeEkycData(
+                      this.globalData.getLeadId()
+                    );
+                    this.sqliteSuportProvider.removeKarzaData(
+                      this.globalData.getLeadId()
+                    );
+                    this.router.navigate(['/ExistApplicationsPage'], {
+                      skipLocationChange: true,
+                      replaceUrl: true,
+                    });
+                  }
+                });
             });
           } else if (
             this.router.url.includes('/ScoreCardPage') ||
             this.router.url == '/ScoreCardPage'
           ) {
             return new Promise(async (resolve, reject) => {
-              let alert = await this.alertCtrl.create({
-                header: 'Alert!',
-                subHeader: 'Complete the Process! Otherwise Data will be lost!',
-                buttons: [
-                  {
-                    text: 'OK',
-                    handler: () => {
-                      let refId = this.globFunc.getScoreCardChecked();
-                      this.sqliteProvider.updateScoreCardinPostsanctionWhileQuit(
-                        'N',
-                        refId
-                      );
-                      this.router.navigate(['/ExistApplicationsPage'], {
-                        skipLocationChange: true,
-                        replaceUrl: true,
-                      });
-                    },
-                  },
-                ],
-              });
-              alert.present();
+              this.alertService
+                .confirmationVersionAlert(
+                  'Alert!',
+                  'Complete the Process! Otherwise Data will be lost!'
+                )
+                .then(async (data) => {
+                  if (data) {
+                    let refId = this.globFunc.getScoreCardChecked();
+                    this.sqliteProvider.updateScoreCardinPostsanctionWhileQuit(
+                      'N',
+                      refId
+                    );
+                    this.router.navigate(['/ExistApplicationsPage'], {
+                      skipLocationChange: true,
+                      replaceUrl: true,
+                    });
+                  }
+                });
             });
           } else if (
             this.router.url.includes('/PostSanctionPage') ||

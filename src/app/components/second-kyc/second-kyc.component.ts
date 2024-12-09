@@ -6,12 +6,7 @@ import { GlobalService } from 'src/providers/global.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import { JfshomePage } from '../../pages/jfshome/jfshome.page';
-import {
-  AlertController,
-  NavController,
-  NavParams,
-  ModalController,
-} from '@ionic/angular';
+import { NavController, NavParams, ModalController } from '@ionic/angular';
 import { RestService } from 'src/providers/rest.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -54,7 +49,6 @@ export class SecondKycComponent {
 
   constructor(
     private navParams: NavParams,
-    private alertCtrl: AlertController,
     private navCtrl: Router,
     public formBuilder: FormBuilder,
     public globalData: DataPassingProviderService,
@@ -129,29 +123,18 @@ export class SecondKycComponent {
   }
 
   async closeModal() {
-    let alert = await this.alertCtrl.create({
-      header: 'Alert!',
-      message: 'Data will be lost?',
-      buttons: [
-        {
-          text: 'No',
-          role: 'cancel',
-          handler: () => {},
-        },
-        {
-          text: 'Yes',
-          handler: () => {
-            this.sqliteProvider.removeEkycData(this.leadId);
-            this.sqliteProvider.removeKarzaData(this.leadId);
-            this.navCtrl.navigate(['/JsfhomePage'], {
-              skipLocationChange: true,
-              replaceUrl: true,
-            });
-          },
-        },
-      ],
-    });
-    alert.present();
+    this.alertService
+      .confirmationAlert('Alert!', 'Data will be lost?')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          this.sqliteProvider.removeEkycData(this.leadId);
+          this.sqliteProvider.removeKarzaData(this.leadId);
+          this.navCtrl.navigate(['/JsfhomePage'], {
+            skipLocationChange: true,
+            replaceUrl: true,
+          });
+        }
+      });
   }
 
   posidexCheck(value) {
@@ -523,33 +506,19 @@ export class SecondKycComponent {
           }
         },
         async (err) => {
-          const alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  // this.navCtrl.push(JsfhomePage);
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
-                },
-              },
-            ],
-          });
-          alert.present();
-
-          // this.globalData.globalLodingDismiss();
-          // this.alertService.showAlert("Alert!", error.statusText);
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+              } else {
+                this.globalData.globalLodingDismiss();
+              }
+            });
         }
       );
     }
@@ -1067,30 +1036,19 @@ export class SecondKycComponent {
             }
           },
           async (error) => {
-            const alert = await this.alertCtrl.create({
-              header: 'Alert!',
-              message:
-                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-              buttons: [
-                {
-                  text: 'No',
-                  role: 'cancel',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    // this.navCtrl.push(JsfhomePage);
-                  },
-                },
-                {
-                  text: 'Yes',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.globalData.setCustType('N');
-                    // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
-                  },
-                },
-              ],
-            });
-            alert.present();
+            this.alertService
+              .confirmationAlert(
+                'Alert!',
+                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+              )
+              .then(async (data) => {
+                if (data === 'Yes') {
+                  this.globalData.globalLodingDismiss();
+                  this.globalData.setCustType('N');
+                } else {
+                  this.globalData.globalLodingDismiss();
+                }
+              });
           }
         )
         .catch((err) => {
@@ -1211,30 +1169,19 @@ export class SecondKycComponent {
             }
           },
           async (error) => {
-            let alert = await this.alertCtrl.create({
-              header: 'Alert!',
-              message:
-                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-              buttons: [
-                {
-                  text: 'No',
-                  role: 'cancel',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    // this.navCtrl.push(JsfhomePage);
-                  },
-                },
-                {
-                  text: 'Yes',
-                  handler: () => {
-                    this.globalData.globalLodingDismiss();
-                    this.globalData.setCustType('N');
-                    // this.navCtrl.push(NewapplicationPage, { leadStatus: this.leadStatus, leadId: leadId, userType: this.globalData.getborrowerType() });
-                  },
-                },
-              ],
-            });
-            alert.present();
+            this.alertService
+              .confirmationAlert(
+                'Alert!',
+                'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+              )
+              .then(async (data) => {
+                if (data === 'Yes') {
+                  this.globalData.globalLodingDismiss();
+                  this.globalData.setCustType('N');
+                } else {
+                  this.globalData.globalLodingDismiss();
+                }
+              });
           }
         )
         .catch((err) => {

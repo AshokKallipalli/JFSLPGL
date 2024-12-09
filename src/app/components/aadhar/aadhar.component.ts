@@ -2,12 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 // import { SQLitePorter } from '@awesome-cordova-plugins/sqlite-porter/ngx';
-import {
-  AlertController,
-  ModalController,
-  NavController,
-  NavParams,
-} from '@ionic/angular';
+import { ModalController, NavController, NavParams } from '@ionic/angular';
 import { FingerprintPage } from 'src/app/pages/fingerprint/fingerprint.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
@@ -32,7 +27,6 @@ export class AadharComponent {
     public modalCtrl: ModalController,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public globalFun: GlobalService,
     public alertService: CustomAlertControlService

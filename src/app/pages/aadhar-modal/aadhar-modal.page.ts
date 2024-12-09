@@ -1,5 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AlertController, IonSlides, ModalController, NavController, NavParams, Platform } from '@ionic/angular';
+import {
+  IonSlides,
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from '@ionic/angular';
 import { SqliteService } from 'src/providers/sqlite.service';
 
 @Component({
@@ -8,7 +14,6 @@ import { SqliteService } from 'src/providers/sqlite.service';
   styleUrls: ['./aadhar-modal.page.scss'],
 })
 export class AadharModalPage {
-
   @ViewChild('Slides') slides: IonSlides;
   addAadharImgDocs = [];
   docAadharImg: boolean = false;
@@ -30,15 +35,15 @@ export class AadharModalPage {
   //   // targetHeight: 500
   // }
 
-
-  constructor(public navCtrl: NavController,
+  constructor(
+    public navCtrl: NavController,
     public navParams: NavParams,
-    // public viewCtrl: ViewController, 
+    // public viewCtrl: ViewController,
     // public camera: Camera,
-    public alertCtrl: AlertController,
     public sqliteProvider: SqliteService,
     public platform: Platform,
-    public modalCtrl: ModalController) {
+    public modalCtrl: ModalController
+  ) {
     this.aadhardocinfo = this.navParams.get('aadharImgVal');
     this.refId = this.navParams.get('arefId');
     this.id = this.navParams.get('aid');
@@ -47,7 +52,7 @@ export class AadharModalPage {
   }
   initializeBackButtonCustomHandler(): void {
     // this.unregisterBackButtonAction = this.platform.registerBackButtonAction(function (event) {
-      //  console.log('Prevent Back Button Page Change');
+    //  console.log('Prevent Back Button Page Change');
     // }, 101); // Priority 101 will override back button handling (we set in app.component.ts) as it is bigger then priority 100 configured in app.component.ts file */
   }
   ionViewWillLeave() {
@@ -60,16 +65,6 @@ export class AadharModalPage {
     // console.log('ionViewDidLoad ProofModalPage');
     this.initializeBackButtonCustomHandler();
   }
-
-  async showAlert(tittle, subtitle) {
-    let alert = await this.alertCtrl.create({
-      header: tittle,
-      subHeader: subtitle,
-      buttons: ['OK']
-    });
-    alert.present();
-  }
-
   closeAadharModal() {
     this.modalCtrl.dismiss();
   }
@@ -85,5 +80,4 @@ export class AadharModalPage {
   openAadharGallery() {
     console.log('openAadharGallery');
   }
-
 }

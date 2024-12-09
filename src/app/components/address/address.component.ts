@@ -145,7 +145,6 @@ export class AddressComponent implements OnInit {
     // public events: Events,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public activateRoute: ActivatedRoute,
     public globalData: DataPassingProviderService,
     // public viewCtrl: ViewController,

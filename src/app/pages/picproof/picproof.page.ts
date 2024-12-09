@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
   ActionSheetController,
-  AlertController,
   IonSlides,
   LoadingController,
   ModalController,
@@ -47,21 +46,12 @@ export class PicproofPage {
   signpic: boolean = false;
   fseImage: boolean = false;
 
-  async showAlert(tittle, subtitle) {
-    let alert = await this.alertCtrl.create({
-      header: tittle,
-      subHeader: subtitle,
-      buttons: ['OK'],
-    });
-    alert.present();
-  }
   @ViewChild('fileref') fileRef: ElementRef;
   loading: any;
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     // public camera: Camera,
-    public alertCtrl: AlertController,
     // public viewCtrl: ViewController,
     public sqliteProvider: SqliteService,
     public platform: Platform,
@@ -272,7 +262,10 @@ export class PicproofPage {
   takeProofImg() {
     if (this.signpic) {
       if (this.addProofDocs.length >= 1) {
-        this.showAlert('Document', 'Document Maximum Limit Reached.');
+        this.alertService.showAlert(
+          'Document',
+          'Document Maximum Limit Reached.'
+        );
       } else {
         this.capureImg();
       }
@@ -284,7 +277,10 @@ export class PicproofPage {
           (this.fromFieldInvestigation && this.addProofDocs.length > 2) ||
           this.addProofDocs.length >= 2
         ) {
-          this.showAlert('Document', 'Document Maximum Limit Reached.');
+          this.alertService.showAlert(
+            'Document',
+            'Document Maximum Limit Reached.'
+          );
         } else {
           this.capureImg();
         }
@@ -294,7 +290,10 @@ export class PicproofPage {
 
   openProofGallery() {
     if (this.addProofDocs.length >= 2) {
-      this.showAlert('Document', 'Document Maximum Limit Reached.');
+      this.alertService.showAlert(
+        'Document',
+        'Document Maximum Limit Reached.'
+      );
     } else {
       // const goptions: CameraOptions = {
       //   quality: 50,
@@ -317,53 +316,40 @@ export class PicproofPage {
           // console.log(this.addProofDocs);
         },
         (err) => {
-          this.showAlert('Document Image', 'Document Not Uploaded');
+          this.alertService.showAlert(
+            'Document Image',
+            'Document Not Uploaded'
+          );
         }
       );
     }
   }
 
   async proofImgRemove(img) {
-    let alertq = await this.alertCtrl.create({
-      header: 'Delete?',
-      subHeader: 'Do you want to delete?',
-      buttons: [
-        {
-          text: 'NO',
-          role: 'cancel',
-          handler: () => {
-            console.log('cancelled');
-          },
-        },
-        {
-          text: 'yes',
-          handler: () => {
-            // console.log("u r click yes");
-            //  alert(user.refId);
-            if (this.slides && this.slides.isEnd) {
-              if (img.id != null || img.id != undefined) {
-                //let slideend = this.slides.isEnd();
-                if (this.proofpic) {
-                  this.sqliteProvider
-                    .removepromoterImgDetails(img.id)
-                    .then(() => {
-                      // console.log(data);
-                      //this.getPanImg();
-                      this.removeimgbylocal(img);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }
-              } else {
-                this.removeimgbylocal(img);
+    this.alertService
+      .confirmationAlert('Delete?', 'Do you want to delete?')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          if (this.slides && this.slides.isEnd) {
+            if (img.id != null || img.id != undefined) {
+              if (this.proofpic) {
+                this.sqliteProvider
+                  .removepromoterImgDetails(img.id)
+                  .then(() => {
+                    this.removeimgbylocal(img);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
               }
-            } else [console.log('Slides not initialized or accessible.')];
-          },
-        },
-      ],
-    });
-    alertq.present();
+            } else {
+              this.removeimgbylocal(img);
+            }
+          } else {
+            console.log('Slides not initialized or accessible.');
+          }
+        }
+      });
   }
 
   removeimgbylocal(img) {
@@ -395,14 +381,17 @@ export class PicproofPage {
       this.fileRef.nativeElement.click();
     } catch (err) {
       console.log(err);
-      this.showAlert('Alert!', JSON.stringify(err));
+      this.alertService.showAlert('Alert!', JSON.stringify(err));
     }
   }
 
   async onFileSelect(event) {
     try {
       if (this.fromFieldInvestigation && this.addProofDocs.length >= 2) {
-        this.showAlert('Document', 'Document Maximum Limit Reached.');
+        this.alertService.showAlert(
+          'Document',
+          'Document Maximum Limit Reached.'
+        );
       } else {
         return new Promise(async (resolve, reject) => {
           if (event.target.files && event.target.files[0]) {
@@ -488,8 +477,11 @@ export class PicproofPage {
                 resolve(true);
               }
             } else {
-              this.globalFun.globalLodingDismiss();
-              this.showAlert('Alert', 'This Type Of File Is Not Supported');
+              this.globalData.globalLodingDismiss();
+              this.alertService.showAlert(
+                'Alert',
+                'This Type Of File Is Not Supported'
+              );
             }
           }
         });

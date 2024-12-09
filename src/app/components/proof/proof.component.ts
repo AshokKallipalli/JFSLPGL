@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import { AlertController, ModalController, NavParams } from '@ionic/angular';
+import { ModalController, NavParams } from '@ionic/angular';
 import { ModalPage } from 'src/app/pages/modal/modal.page';
 import { PicproofPage } from 'src/app/pages/picproof/picproof.page';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
@@ -108,7 +108,6 @@ export class ProofComponent implements OnInit {
     public modalCtrl: ModalController,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public network: Network,
     public master: RestService,

@@ -78,7 +78,6 @@ export class ProofVerificationPage {
     public sqlSupport: SquliteSupportProviderService,
     public modalCtrl: ModalController,
     public network: Network,
-    public alertCtrl: AlertController,
     public globFunc: GlobalService,
     public navParams: ActivatedRoute,
     public router: Router,
@@ -818,41 +817,32 @@ export class ProofVerificationPage {
           }
         },
         async (error) => {
-          const alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }
@@ -954,41 +944,32 @@ export class ProofVerificationPage {
           }
         },
         async (error) => {
-          let alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }
@@ -1234,41 +1215,32 @@ export class ProofVerificationPage {
           }
         },
         async (err) => {
-          let alert = await this.alertCtrl.create({
-            // title: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globFunc.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          alert.present();
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }

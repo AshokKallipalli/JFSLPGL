@@ -9,7 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import {
-  AlertController,
   IonSlides,
   LoadingController,
   ModalController,
@@ -150,7 +149,6 @@ export class SubmitPage {
     public globalData: DataPassingProviderService,
     public sqliteProvider: SqliteService,
     public globalFunc: GlobalService,
-    public alertCtrl: AlertController,
     // public base64: Base64,
     public master: RestService,
     public sqlSupport: SquliteSupportProviderService,
@@ -3401,29 +3399,20 @@ export class SubmitPage {
               this.appCibilScore,
               this.appStatId
             );
-            let alert = await this.alertCtrl.create({
-              header: 'Alert',
-              message: 'Application Submitted Successfully!',
-              buttons: [
-                {
-                  text: 'OK',
-                  role: 'cancel',
-                  handler: () => {
-                    // console.log('submitted');
-                    // this.loading.dismiss();
-                    // this.globalFunc.globalLodingDismiss();
-                    this.navCtrl.navigate(['/ExistApplicationsPage'], {
-                      skipLocationChange: true,
-                      replaceUrl: true,
-                    });
-                  },
-                },
-              ],
-            });
-            alert.present();
-            // this.loading.dismiss();
-            // this.globalFunc.globalLodingDismiss();
-            this.globalFunc.globalLodingDismiss();
+            this.alertService
+              .confirmationVersionAlert(
+                'Alert!',
+                'Application Submitted Successfully!'
+              )
+              .then(async (data) => {
+                if (data) {
+                  this.navCtrl.navigate(['/ExistApplicationsPage'], {
+                    skipLocationChange: true,
+                    replaceUrl: true,
+                  });
+                }
+              });
+            this.globalData.globalLodingDismiss();
           } else {
             this.documentCheck = false;
             this.globalFunc.globalLodingDismiss();

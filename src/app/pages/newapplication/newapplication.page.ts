@@ -9,7 +9,6 @@ import {
   NavController,
   NavParams,
   ModalController,
-  AlertController,
   Platform,
   MenuController,
 } from '@ionic/angular';
@@ -102,7 +101,6 @@ export class NewapplicationPage {
     public device: Device,
     // public camera: Camera,  public crop: Crop,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public globFunc: GlobalService,
     public activatedRoute: ActivatedRoute, // public file: File,
@@ -350,15 +348,6 @@ export class NewapplicationPage {
       replaceUrl: true,
     });
     // this.navCtrl.push(PreviewPage);
-  }
-
-  async showAlert(tittle, subtitle) {
-    let alert = await this.alertCtrl.create({
-      header: tittle,
-      subHeader: subtitle,
-      buttons: ['OK'],
-    });
-    alert.present();
   }
 
   captureImg(value) {

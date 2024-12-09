@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import {
-  AlertController,
   IonSlides,
   ModalController,
   NavController,
@@ -38,7 +37,6 @@ export class ProofModalPage {
     // public viewCtrl: ViewController,
     // public camera: Camera,
     public modalCtrl: ModalController,
-    public alertCtrl: AlertController,
     public sqliteProvider: SqliteService,
     public globalData: DataPassingProviderService,
     public globalFun: GlobalService,
@@ -143,37 +141,24 @@ export class ProofModalPage {
   }
 
   async proofImgRemove(docImg) {
-    let alertq = await this.alertCtrl.create({
-      header: 'Delete?',
-      subHeader: 'Do you want to delete?',
-      buttons: [
-        {
-          text: 'NO',
-          role: 'cancel',
-          handler: () => {
-            console.log('cancelled');
-          },
-        },
-        {
-          text: 'yes',
-          handler: () => {
-            let slideend = this.slides.isEnd();
-            this.sqliteProvider
-              .removeOtherDocsImg(docImg.docsImgId)
-              .then((data) => {
-                this.getDocsImg();
-                console.log('slideend  is', slideend);
-                if (slideend) {
-                  this.slides.slideTo(0);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          },
-        },
-      ],
-    });
-    alertq.present();
+    this.alertService
+      .confirmationAlert('Delete?', 'Do you want to delete?')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          let slideend = this.slides.isEnd();
+          this.sqliteProvider
+            .removeOtherDocsImg(docImg.docsImgId)
+            .then((data) => {
+              this.getDocsImg();
+              console.log('slideend  is', slideend);
+              if (slideend) {
+                this.slides.slideTo(0);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      });
   }
 }

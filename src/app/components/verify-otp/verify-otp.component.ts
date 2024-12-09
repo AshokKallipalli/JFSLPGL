@@ -3,7 +3,6 @@ import { Route, Router } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import {
-  AlertController,
   LoadingController,
   MenuController,
   ModalController,
@@ -113,7 +112,6 @@ export class VerifyOtpComponent {
     public network: Network,
     public http: HTTP,
     public loadCtrl: LoadingController,
-    public alertCtrl: AlertController,
     public toastCtrl: ToastController,
     public master: RestService,
     // public base64: Base64,

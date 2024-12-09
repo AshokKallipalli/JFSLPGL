@@ -1,11 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  AlertController,
-  IonItemSliding,
-  NavController,
-  NavParams,
-} from '@ionic/angular';
+import { IonItemSliding, NavController, NavParams } from '@ionic/angular';
 import { tr } from 'date-fns/locale';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
@@ -32,7 +27,6 @@ export class ViewDetailsPage {
     public navParams: NavParams,
     public sqliteProvider: SqliteService,
     public globalData: DataPassingProviderService,
-    public alertCtrl: AlertController,
     public globFunc: GlobalService,
     public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -235,34 +229,22 @@ export class ViewDetailsPage {
             'Deletion not allowed once CIBIL had been checked!'
           );
         } else {
-          let alertq = await this.alertCtrl.create({
-            header: 'Delete?',
-            subHeader: 'Do you want to delete?',
-            buttons: [
-              {
-                text: 'NO',
-                role: 'cancel',
-                handler: () => {
-                  console.log('cancelled');
-                  this.loadguDetails();
-                },
-              },
-              {
-                text: 'yes',
-                handler: () => {
-                  this.sqliteProvider
-                    .removeGuaDetails(gurantor.refId, gurantor.id)
-                    .then((data) => {
-                      this.loadguDetails();
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                },
-              },
-            ],
-          });
-          alertq.present();
+          this.alertService
+            .confirmationAlert('Delete?', 'Do you want to delete?')
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.sqliteProvider
+                  .removeGuaDetails(gurantor.refId, gurantor.id)
+                  .then((data) => {
+                    this.loadguDetails();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else {
+                this.loadguDetails();
+              }
+            });
         }
       });
   }
@@ -277,34 +259,22 @@ export class ViewDetailsPage {
             'Deletion not allowed once CIBIL had been checked!'
           );
         } else {
-          let alertq = await this.alertCtrl.create({
-            header: 'Delete?',
-            subHeader: 'Do you want to delete?',
-            buttons: [
-              {
-                text: 'NO',
-                role: 'cancel',
-                handler: () => {
-                  console.log('cancelled');
-                  this.loadCoappDetails();
-                },
-              },
-              {
-                text: 'yes',
-                handler: () => {
-                  this.sqliteProvider
-                    .removeGuaDetails(gurantor.refId, gurantor.id)
-                    .then((data) => {
-                      this.loadCoappDetails();
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                },
-              },
-            ],
-          });
-          alertq.present();
+          this.alertService
+            .confirmationAlert('Delete?', 'Do you want to delete?')
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.sqliteProvider
+                  .removeGuaDetails(gurantor.refId, gurantor.id)
+                  .then((data) => {
+                    this.loadCoappDetails();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else {
+                this.loadCoappDetails();
+              }
+            });
         }
       });
   }

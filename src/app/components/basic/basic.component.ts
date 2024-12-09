@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Device } from '@awesome-cordova-plugins/device/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import {
-  AlertController,
   LoadingController,
   ModalController,
   NavParams,
@@ -152,7 +151,6 @@ export class BasicComponent implements OnInit {
     public modalCtrl: ModalController,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public device: Device,
     public loadCtrl: LoadingController,

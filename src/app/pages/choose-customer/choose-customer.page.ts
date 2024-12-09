@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import { AlertController, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 // import { GlobalfunctionsProvider } from 'src-VL_latest-old-ionic3version/src/providers/globalfunctions/globalfunctions';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { RestService } from 'src/providers/rest.service';
@@ -71,7 +71,6 @@ export class ChooseCustomerPage implements OnInit {
     public network: Network,
     public modalCtrl: ModalController,
     // public viewCtrl: ViewController,
-    public alertCtrl: AlertController,
     public sqliteSupport: SquliteSupportProviderService,
     public alertService: CustomAlertControlService
   ) {
@@ -863,52 +862,32 @@ export class ChooseCustomerPage implements OnInit {
           }
         },
         async (error) => {
-          const alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-                  // let navigationExtras: NavigationExtras = {
-                  //   queryParams: {
-                  //     "customerData": JSON.stringify({
-                  //       leadStatus: this.leadStatus,
-                  //       leadId: leadId,
-                  //       userType: this.globalData.getborrowerType()
-                  //     })
-                  //   }
-                  // };
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          await alert.present();
-          // this.globalData.globalLodingDismiss();
-          // this.alertService.showAlert("Alert!", error.statusText);
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data == 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }
@@ -1012,44 +991,32 @@ export class ChooseCustomerPage implements OnInit {
           }
         },
         async (error) => {
-          const alert = await this.alertCtrl.create({
-            header: 'Alert!',
-            message:
-              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?',
-            buttons: [
-              {
-                text: 'No',
-                role: 'cancel',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  this.router.navigate(['/JsfhomePage'], {
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-              {
-                text: 'Yes',
-                handler: () => {
-                  this.globalData.globalLodingDismiss();
-                  this.globalData.setCustType('N');
-
-                  this.router.navigate(['/NewapplicationPage'], {
-                    queryParams: {
-                      leadStatus: this.leadStatus,
-                      leadId: leadId,
-                      userType: this.globalData.getborrowerType(),
-                    },
-                    replaceUrl: true,
-                    skipLocationChange: true,
-                  });
-                },
-              },
-            ],
-          });
-          await alert.present();
-          // this.globalData.globalLodingDismiss();
-          // this.alertService.showAlert("Alert!", error.statusText);
+          this.alertService
+            .confirmationAlert(
+              'Alert!',
+              'KYC Verification is failed. Would you like to proceed with Offline Application Processing?'
+            )
+            .then(async (data) => {
+              if (data == 'Yes') {
+                this.globalData.globalLodingDismiss();
+                this.globalData.setCustType('N');
+                this.router.navigate(['/NewapplicationPage'], {
+                  queryParams: {
+                    leadStatus: this.leadStatus,
+                    leadId: leadId,
+                    userType: this.globalData.getborrowerType(),
+                  },
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              } else {
+                this.globalData.globalLodingDismiss();
+                this.router.navigate(['/JsfhomePage'], {
+                  replaceUrl: true,
+                  skipLocationChange: true,
+                });
+              }
+            });
         }
       );
     }

@@ -2,12 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
-import {
-  AlertController,
-  ModalController,
-  NavController,
-  NavParams,
-} from '@ionic/angular';
+import { ModalController, NavController, NavParams } from '@ionic/angular';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { GlobalService } from 'src/providers/global.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -96,7 +91,6 @@ export class EntityComponent {
     public modalCtrl: ModalController,
     public formBuilder: FormBuilder,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public globFunc: GlobalService,
     public activateRoute: ActivatedRoute,

@@ -190,15 +190,6 @@ export class FingerprintPage implements OnInit {
     });
   }
 
-  //  async showAlert(tittle, subtitle) {
-  //     const alert = await this.alertCtrl.create({
-  //       header: tittle,
-  //       subHeader: subtitle,
-  //       buttons: ['OK']
-  //     });
-  //     await alert.present();
-  //   }
-
   async showfp() {
     // this.sigshow = false;
     const actionSheet = await this.actionSheetCtrl.create({
@@ -514,31 +505,19 @@ export class FingerprintPage implements OnInit {
   }
 
   async accessdata() {
-    const alertq = await this.alertCtrl.create({
-      header: 'Data Access',
-      message: 'Would you like to use Aadhaar Data in Lead Process?',
-      buttons: [
-        {
-          text: 'NO',
-          role: 'cancel',
-          handler: () => {
-            console.log('cancelled');
-          },
-        },
-        {
-          text: 'yes',
-          handler: () => {
-            console.log('u r click yes');
-            //  alert(user.refId);
-            this.router.navigate(['/aadhaarpreview'], {
-              replaceUrl: true,
-              skipLocationChange: true,
-            });
-          },
-        },
-      ],
-    });
-    await alertq.present();
+    this.alertService
+      .confirmationAlert(
+        'Data Access',
+        'Would you like to use Aadhaar Data in Lead Process?'
+      )
+      .then(async (data) => {
+        if (data === 'Yes') {
+          this.router.navigate(['/aadhaarpreview'], {
+            replaceUrl: true,
+            skipLocationChange: true,
+          });
+        }
+      });
   }
 
   fingerPrintScan() {

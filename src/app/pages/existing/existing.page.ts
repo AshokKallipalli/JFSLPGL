@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import {
-  AlertController,
   IonItemSliding,
   LoadingController,
   ModalController,
@@ -69,7 +68,6 @@ export class ExistingPage {
     public modalCtrl: ModalController,
     public sqliteProvider: SqliteService,
     public globalData: DataPassingProviderService,
-    public alertCtrl: AlertController,
     public loadCtrl: LoadingController,
     public globFunc: GlobalService,
     public http: HTTP,
@@ -428,38 +426,24 @@ export class ExistingPage {
             'Deletion not allowed once CIBIL had been checked!'
           );
         } else {
-          let alertq = await this.alertCtrl.create({
-            header: 'Delete?',
-            subHeader: 'Do you want to delete?',
-            buttons: [
-              {
-                text: 'NO',
-                role: 'cancel',
-                handler: () => {
-                  console.log('cancelled');
-                  // this.loadAllDetails();
-                  this.loadAllApplicantDetails();
-                },
-              },
-              {
-                text: 'yes',
-                handler: () => {
-                  // console.log("u r click yes");
-                  this.sqliteProvider
-                    .removeApplicantDetails(item.refId, item.id)
-                    .then((data) => {
-                      console.log(data);
-                      // this.loadAllDetails();
-                      this.loadAllApplicantDetails();
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                },
-              },
-            ],
-          });
-          alertq.present();
+          this.alertService
+            .confirmationAlert('Delete?', 'Do you want to delete?')
+            .then(async (data) => {
+              if (data === 'Yes') {
+                this.sqliteProvider
+                  .removeApplicantDetails(item.refId, item.id)
+                  .then((data) => {
+                    console.log(data);
+                    // this.loadAllDetails();
+                    this.loadAllApplicantDetails();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              } else {
+                this.loadAllApplicantDetails();
+              }
+            });
         }
       });
   }

@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { HTTP } from '@awesome-cordova-plugins/http/ngx';
 import { Network } from '@awesome-cordova-plugins/network/ngx';
 import {
-  AlertController,
   IonItemSliding,
   LoadingController,
   ModalController,
@@ -60,7 +59,6 @@ export class ExistApplicationPage {
     public modalCtrl: ModalController,
     public sqliteProvider: SqliteService,
     public globalData: DataPassingProviderService,
-    public alertCtrl: AlertController,
     public loadCtrl: LoadingController,
     public globFunc: GlobalService,
     public http: HTTP,
@@ -561,38 +559,24 @@ export class ExistApplicationPage {
   }
 
   async removeApplicant(item) {
-    let alertq = await this.alertCtrl.create({
-      header: 'Delete?',
-      subHeader: 'Do you want to delete?',
-      buttons: [
-        {
-          text: 'NO',
-          role: 'cancel',
-          handler: () => {
-            console.log('cancelled');
-            // this.loadAllDetails();
-            this.loadAllApplicantDetails();
-          },
-        },
-        {
-          text: 'yes',
-          handler: () => {
-            // console.log("u r click yes");
-            this.sqliteProvider
-              .removeApplicantDetails(item.refId, item.id)
-              .then((data) => {
-                console.log(data);
-                // this.loadAllDetails();
-                this.loadAllApplicantDetails();
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          },
-        },
-      ],
-    });
-    alertq.present();
+    this.alertService
+      .confirmationAlert('Delete?', 'Do you want to delete?')
+      .then(async (data) => {
+        if (data === 'Yes') {
+          this.sqliteProvider
+            .removeApplicantDetails(item.refId, item.id)
+            .then((data) => {
+              console.log(data);
+              // this.loadAllDetails();
+              this.loadAllApplicantDetails();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        } else {
+          this.loadAllApplicantDetails();
+        }
+      });
   }
 
   loadAllApplicantDetails() {
@@ -647,7 +631,7 @@ export class ExistApplicationPage {
           );
           // this.navCtrl.setRoot(this.navCtrl.getActive().component);
           this.globalData.globalLodingDismiss();
-          this.showStatusAlert();
+          this.alertService.showStatusAlert(this.status);
         } else {
           this.globalData.globalLodingDismiss();
           this.alertService.showAlert('Alert!', (<any>res).errorDesc);
@@ -658,16 +642,6 @@ export class ExistApplicationPage {
         this.alertService.showAlert('Alert!', 'No Response from Server!');
       }
     );
-  }
-
-  async showStatusAlert() {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'status',
-      header: 'Application Status',
-      message: this.status,
-      buttons: ['OK'],
-    });
-    alert.present();
   }
 
   serachClick() {

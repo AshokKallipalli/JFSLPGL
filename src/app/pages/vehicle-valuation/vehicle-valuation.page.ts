@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AlertController, NavController, NavParams } from '@ionic/angular';
+import { NavController, NavParams } from '@ionic/angular';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
 import { SqliteService } from 'src/providers/sqlite.service';
@@ -24,7 +24,6 @@ export class VehicleValuationPage {
     public navCtrl: NavController,
     // public media: MediaCapture,
     public sqliteProvider: SqliteService,
-    public alertCtrl: AlertController,
     public globalData: DataPassingProviderService,
     public formBuilder: FormBuilder,
     public navParams: NavParams,
@@ -149,24 +148,7 @@ export class VehicleValuationPage {
       //   this.videoFile = data[0].fullPath;
       // })
     } else {
-      this.showAlert();
+      this.alertService.showVideoAlert(this.videoFile);
     }
-  }
-
-  async showAlert() {
-    let alert = await this.alertCtrl.create({
-      header: 'INSPECTION VIDEO',
-      cssClass: 'videoAlert',
-      message: `<video class="videoLayout" controls preload="metadata" width=240 height=350><source src=${this.videoFile}#t=0.5 type='video/mp4'></video> `,
-      buttons: [
-        {
-          text: 'OK',
-          handler: () => {
-            console.log('working');
-          },
-        },
-      ],
-    });
-    alert.present();
   }
 }
