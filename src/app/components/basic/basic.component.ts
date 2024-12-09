@@ -19,6 +19,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 
 @Component({
   selector: 'app-basic',
@@ -163,7 +164,8 @@ export class BasicComponent implements OnInit {
     private activateRoute: ActivatedRoute,
     public sqlSupport: SquliteSupportProviderService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -426,7 +428,7 @@ export class BasicComponent implements OnInit {
                     'Loan Facilities Added Successfully'
                   );
                   this.formActivater.disableForm = true;
-                  this.globFunc.setapplicationDataChangeDetector(
+                  this.as.setapplicationDataChangeDetector(
                     'saved',
                     this.pagename
                   );
@@ -464,7 +466,7 @@ export class BasicComponent implements OnInit {
                   'Alert!',
                   'Loan Facilities Updated Successfully'
                 );
-                this.globFunc.setapplicationDataChangeDetector(
+                this.as.setapplicationDataChangeDetector(
                   'saved',
                   this.pagename
                 );

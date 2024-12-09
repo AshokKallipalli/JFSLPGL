@@ -57,8 +57,8 @@ export class DataPassingProviderService {
     public toastCtrl: ToastController, // public master: RestService,
     public loadingService: CustomLoadingControlService
   ) {
-    //     // this.urlEndPoint = this.global.getLocalUrlEndpoint().url; // Local URL
-    //     // this.urlEndPointStat = this.global.getLocalUrlEndpoint().local; // Local URL
+    //     // this.urlEndPoint = this.global.localUrlEndpoint.url; // Local URL
+    //     // this.urlEndPointStat = this.global.localUrlEndpoint.local; // Local URL
     this.urlEndPoint = environment.apiURL; // UAT URL
     // this.karzaEndPoint = 'Y';
     this.urlEndPointStat = environment.local; // UAT URL

@@ -9,6 +9,7 @@ import { SqliteService } from 'src/providers/sqlite.service';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 
 @Component({
   selector: 'app-address',
@@ -153,7 +154,8 @@ export class AddressComponent implements OnInit {
     public sqlSupport: SquliteSupportProviderService,
     public globFunc: GlobalService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -890,20 +892,14 @@ export class AddressComponent implements OnInit {
                 'Applicant Present Address Details Added Successfully'
               );
               this.formActivater.disableForm1 = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename1
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename1);
             } else {
               this.alertService.showAlert(
                 'Alert!',
                 'Co-Applicant Present Address Details Added Successfully'
               );
               this.formActivater.disableForm1 = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename1
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename1);
             }
           } else {
             this.loadingService.globalLodingDismiss();
@@ -913,20 +909,14 @@ export class AddressComponent implements OnInit {
                 'Applicant Present Address Details Updated Successfully'
               );
               this.formActivater.disableForm1 = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename1
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename1);
             } else {
               this.alertService.showAlert(
                 'Alert!',
                 'Co-Applicant Present Address Details Updated Successfully'
               );
               this.formActivater.disableForm1 = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename1
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename1);
             }
           }
           // this.globalData.setEditSaveStatus("presentAddSaved");
@@ -1279,20 +1269,14 @@ export class AddressComponent implements OnInit {
                 'Applicant Permanent Address Details Added Successfully'
               );
               this.formActivater.disableForm = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename);
             } else {
               this.alertService.showAlert(
                 'Alert!',
                 'Co-Applicant Permanent Address Details Added Successfully'
               );
               this.formActivater.disableForm = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename);
             }
           } else {
             this.loadingService.globalLodingDismiss();
@@ -1302,20 +1286,14 @@ export class AddressComponent implements OnInit {
                 'Applicant Permanent Address Details Updated Successfully'
               );
               this.formActivater.disableForm = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename);
             } else {
               this.alertService.showAlert(
                 'Alert!',
                 'Co-Applicant Permanent Address Details Updated Successfully'
               );
               this.formActivater.disableForm = true;
-              this.globFunc.setapplicationDataChangeDetector(
-                'saved',
-                this.pagename
-              );
+              this.as.setapplicationDataChangeDetector('saved', this.pagename);
             }
           }
           // this.globalData.setEditSaveStatus("PermanentAddSaved");

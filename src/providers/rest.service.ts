@@ -17,6 +17,7 @@ import { SqliteService } from './sqlite.service';
 import * as moment from 'moment';
 import { CustomAlertControlService } from './custom-alert-control.service';
 import { CustomLoadingControlService } from './custom-loading-control.service';
+import { ApplicationStateService } from './application-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,8 @@ export class RestService {
     public network: Network,
     public sqliteService: SqliteService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {}
 
   //need to do httpInerseptor
@@ -57,12 +59,12 @@ export class RestService {
         link = this.apiURL + `lendperfect/LOSMobileRestServices/${method}`;
       }
       this.http.setDataSerializer('json');
-      let token = this.global.genToken();
+      let token = this.as.token;
       let headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         token: this.global.encMyReq(token),
-        deviceId: this.global.encMyReq(this.global.getDeviceId()),
+        deviceId: this.global.encMyReq(this.as.deviceId),
       };
       let encryptData = this.global.encryptMyReq(data);
       let curDateTime = moment(this.dateTime).format('YYYY-MM-DD HH:mm:ss');

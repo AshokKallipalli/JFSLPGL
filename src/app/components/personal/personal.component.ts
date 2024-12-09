@@ -27,6 +27,7 @@ import { ProofComponent } from '../proof/proof.component';
 import { environment } from 'src/environments/environment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 
 @Component({
   selector: 'app-personal',
@@ -268,7 +269,8 @@ export class PersonalComponent implements OnInit {
     public sqlSupport: SquliteSupportProviderService,
     public globFunc: GlobalService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -1197,7 +1199,7 @@ export class PersonalComponent implements OnInit {
                   'Guarantor Details Updated Successfully'
                 );
                 this.formActivater.disableForm = true;
-                this.globFunc.setapplicationDataChangeDetector(
+                this.as.setapplicationDataChangeDetector(
                   'saved',
                   this.pagename
                 );
@@ -1278,7 +1280,7 @@ export class PersonalComponent implements OnInit {
                   'Guarantor Details Added Successfully'
                 );
                 this.formActivater.disableForm = true;
-                this.globFunc.setapplicationDataChangeDetector(
+                this.as.setapplicationDataChangeDetector(
                   'saved',
                   this.pagename
                 );
@@ -1311,7 +1313,7 @@ export class PersonalComponent implements OnInit {
                   'Co-Applicant Details Updated Successfully'
                 );
                 this.formActivater.disableForm = true;
-                this.globFunc.setapplicationDataChangeDetector(
+                this.as.setapplicationDataChangeDetector(
                   'saved',
                   this.pagename
                 );
@@ -1391,7 +1393,7 @@ export class PersonalComponent implements OnInit {
                   'Co-Applicant Details Added Successfully'
                 );
                 this.formActivater.disableForm = true;
-                this.globFunc.setapplicationDataChangeDetector(
+                this.as.setapplicationDataChangeDetector(
                   'saved',
                   this.pagename
                 );
@@ -1438,7 +1440,7 @@ export class PersonalComponent implements OnInit {
                     'Promoter Details Updated Successfully'
                   );
                   this.formActivater.disableForm = true;
-                  this.globFunc.setapplicationDataChangeDetector(
+                  this.as.setapplicationDataChangeDetector(
                     'saved',
                     this.pagename
                   );
@@ -1448,7 +1450,7 @@ export class PersonalComponent implements OnInit {
                     'Applicant Details Updated Successfully'
                   );
                   this.formActivater.disableForm = true;
-                  this.globFunc.setapplicationDataChangeDetector(
+                  this.as.setapplicationDataChangeDetector(
                     'saved',
                     this.pagename
                   );
@@ -1524,7 +1526,7 @@ export class PersonalComponent implements OnInit {
                     'Promoter Details Added Successfully'
                   );
                   this.formActivater.disableForm = true;
-                  this.globFunc.setapplicationDataChangeDetector(
+                  this.as.setapplicationDataChangeDetector(
                     'saved',
                     this.pagename
                   );
@@ -1534,7 +1536,7 @@ export class PersonalComponent implements OnInit {
                     'Applicant Details Added Successfully'
                   );
                   this.formActivater.disableForm = true;
-                  this.globFunc.setapplicationDataChangeDetector(
+                  this.as.setapplicationDataChangeDetector(
                     'saved',
                     this.pagename
                   );

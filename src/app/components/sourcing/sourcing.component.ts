@@ -11,6 +11,7 @@ import {
   NavParams,
   Platform,
 } from '@ionic/angular';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
 import { DataPassingProviderService } from 'src/providers/data-passing-provider.service';
@@ -99,7 +100,8 @@ export class SourcingComponent implements OnInit {
     private globFunc: GlobalService,
     public sqlSupport: SquliteSupportProviderService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.activateRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -222,10 +224,7 @@ export class SourcingComponent implements OnInit {
           this.sourceid = data.insertId;
           this.saveStatus.emit('sourcingTick');
           this.formActivater.disableForm = true;
-          this.globFunc.setapplicationDataChangeDetector(
-            'saved',
-            this.pagename
-          );
+          this.as.setapplicationDataChangeDetector('saved', this.pagename);
           // this.globalData.setEditSaveStatus("sourcingSaved");
           localStorage.setItem('Sourcing', 'sourcingSaved');
         });

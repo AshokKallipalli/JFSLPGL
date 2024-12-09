@@ -31,6 +31,7 @@ import { ShowImagePage } from '../show-image/show-image.page';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 
 @Component({
   selector: 'app-newapplication',
@@ -111,7 +112,8 @@ export class NewapplicationPage {
     public platform: Platform,
     public menuCtrl: MenuController,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.activatedRoute.queryParamMap.subscribe((data: any) => {
       this.naveParamsValue = data.params;
@@ -270,7 +272,7 @@ export class NewapplicationPage {
         // checkForDataChangesInForms(this, 'backbutton')
       }
     );
-    this.globFunc.resetapplicationDataChangeDetector();
+    this.as.resetapplicationDataChangeDetector();
     this.globFunc.publishPageNavigation({
       title: 'Lead Details',
       component: NewapplicationPage,

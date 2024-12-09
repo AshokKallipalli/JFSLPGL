@@ -18,6 +18,7 @@ import { SquliteSupportProviderService } from 'src/providers/squlite-support-pro
 import { environment } from 'src/environments/environment';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 
 @Component({
   selector: 'app-exist-application',
@@ -70,7 +71,8 @@ export class ExistApplicationPage {
     public master: RestService,
     public sqlSupport: SquliteSupportProviderService,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.getproducts();
     this.appStatusURL = environment.apiURL + 'AppStatus';
@@ -507,7 +509,7 @@ export class ExistApplicationPage {
           creditCheckData.length &&
           creditCheckData[0].creditEligibility == 'eligible'
         ) {
-          this.globFunc.setScoreCardChecked(item.refId);
+          this.as.scoreCardChecked(item.refId);
           this.navCtrl.navigate(['/ScoreCardPage'], {
             queryParams: {
               userType: this.userType,

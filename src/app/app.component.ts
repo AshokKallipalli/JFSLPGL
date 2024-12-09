@@ -19,6 +19,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { SquliteSupportProviderService } from 'src/providers/squlite-support-provider.service';
 import { CustomAlertControlService } from 'src/providers/custom-alert-control.service';
 import { CustomLoadingControlService } from 'src/providers/custom-loading-control.service';
+import { ApplicationStateService } from 'src/providers/application-state.service';
 declare var cordova: any;
 declare var window: any;
 @Component({
@@ -46,7 +47,8 @@ export class AppComponent {
     public platform: Platform,
     public menuCtrl: MenuController,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
     this.pages = [
       {
@@ -346,7 +348,7 @@ export class AppComponent {
                   {
                     text: 'OK',
                     handler: () => {
-                      let refId = this.globFunc.getScoreCardChecked();
+                      let refId = this.as.scoreCardChecked;
                       this.sqliteProvider.updateScoreCardinPostsanctionWhileQuit(
                         'N',
                         refId

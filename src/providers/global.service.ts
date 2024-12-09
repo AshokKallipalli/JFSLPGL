@@ -22,39 +22,22 @@ declare var google: any;
 import { Plugins } from '@capacitor/core';
 import { CustomAlertControlService } from './custom-alert-control.service';
 import { CustomLoadingControlService } from './custom-loading-control.service';
+import { ApplicationStateService } from './application-state.service';
 const { WebPConvertor } = Plugins;
 
 @Injectable({
   providedIn: 'root',
 })
 export class GlobalService {
-  sys_token: string;
-  _img: any;
-  _stateMaster: any;
-  _cityMaster: any;
-  _productList: any;
-  _Gender: any;
-  _IncomeType: any;
-  _Employment: any;
-  _InterestType: any;
-  _Title: any;
-  _RelationShip: any;
-  _appStatus: any;
-  _selectedCities: any;
-  _branch: any;
-  _docList: any;
   _wifi?: any;
   _battery?: any;
   _gps?: any;
-  _borrower: any;
-  applicationDataChangeDetector = [];
   _alertCtrl: any;
 
   uploadStatus = new Subject();
   reRunScoreCard = new Subject();
 
   _sk = 'sysarc@1234INFO@';
-  _refId: any;
   subscription: Subscription;
   gpsStatus: any = new BehaviorSubject<any>(undefined);
   battery: any = new BehaviorSubject<any>(undefined);
@@ -69,10 +52,9 @@ export class GlobalService {
     private diagnostic: Diagnostic,
     public modalCtrl: ModalController,
     public alertService: CustomAlertControlService,
-    public loadingService: CustomLoadingControlService
+    public loadingService: CustomLoadingControlService,
+    public as: ApplicationStateService
   ) {
-    this.getSystemDate();
-    this.getTimestamp();
     setInterval(() => this.statusbarValuesForPages(), 3000);
     // window.addEventListener("batterystatus", this.onBatteryStatus, false);
   }
@@ -80,34 +62,6 @@ export class GlobalService {
   // onBatteryStatus(status) {
   //   console.log("Level: " + status.level + " isPlugged: " + status.isPlugged);
   // }
-  getOtherimg() {
-    return this._img;
-  }
-
-  setOtherimg(value) {
-    // console.log("other img value ==>" + value);
-    this._img = value;
-  }
-  getTimestamp() {
-    let date = new Date();
-    let n = date.toDateString();
-    let time = date.toLocaleTimeString();
-    let timestamp = n + ' ' + time;
-    //console.log("timestamp"+timestamp);
-    return timestamp;
-  }
-  getSystemDate() {
-    let sysDate = new Date();
-    //console.log("sysDate"+sysDate);
-    return sysDate;
-  }
-
-  getDeviceId() {
-    return this.device.uuid;
-  }
-  getAndroidV() {
-    return this.device.version;
-  }
 
   async getPackageName() {
     return await (
@@ -117,98 +71,6 @@ export class GlobalService {
 
   /* Nidheesh Source */
 
-  getFullStateMaster() {
-    return this._stateMaster;
-  }
-
-  setFullCityMaster(value) {
-    this._cityMaster = value;
-  }
-  getFullCityMaster() {
-    return this._cityMaster;
-  }
-
-  setFullStateMaster(value) {
-    this._stateMaster = value;
-  }
-  getFullProductList() {
-    return this._productList;
-  }
-
-  setFullProductList(value) {
-    this._productList = value;
-  }
-
-  getGenderList() {
-    return this._Gender;
-  }
-
-  setGenderList(value) {
-    this._Gender = value;
-  }
-
-  getIncomeTypeList() {
-    return this._IncomeType;
-  }
-
-  setIncomeTypeList(value) {
-    this._IncomeType = value;
-  }
-  getEmployementList() {
-    return this._Employment;
-  }
-
-  setEmployementList(value) {
-    this._Employment = value;
-  }
-  getTitleList() {
-    return this._Title;
-  }
-
-  setTitleList(value) {
-    this._Title = value;
-  }
-  setDocumentList(val) {
-    this._docList = val;
-  }
-  getDocumentList() {
-    return this._docList;
-  }
-  getRelationShipList() {
-    return this._RelationShip;
-  }
-
-  setRelationShipList(value) {
-    this._RelationShip = value;
-  }
-  getInterestRateType() {
-    return this._InterestType;
-  }
-
-  setInterestRateType(value) {
-    this._InterestType = value;
-  }
-
-  setApplicationSubStatus(val) {
-    this._appStatus = val;
-  }
-  getApplicationSubStatus() {
-    return this._appStatus;
-  }
-
-  setScoreCardChecked(val) {
-    this._refId = val;
-  }
-  getScoreCardChecked() {
-    return this._refId;
-  }
-
-  setBranchCode(val) {
-    this._branch = val;
-  }
-  getBranchCode() {
-    return this._branch;
-  }
   getGlobalConstants = function (value) {
     let constantValue;
     if (value == 'DocCode') {
@@ -217,31 +79,6 @@ export class GlobalService {
 
     return constantValue;
   };
-  filterStateItems(searchTerm) {
-    return this._stateMaster.filter((item) => {
-      return (
-        item.sgmStateName.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1
-      );
-    });
-  }
-  filterCityItems(search) {
-    return this._selectedCities.filter((item) => {
-      return item.sgmCityName.toLowerCase().indexOf(search.toLowerCase()) > -1;
-    });
-  }
-  filterDocItems(search) {
-    return this._docList.filter((item) => {
-      return (
-        item.doc_description.toLowerCase().indexOf(search.toLowerCase()) > -1
-      );
-    });
-  }
-  setSelectedCities(val) {
-    this._selectedCities = val;
-  }
-  getSelectedCities() {
-    return this._selectedCities;
-  }
 
   reverseGeocode(lat: number, lng: number): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -434,22 +271,6 @@ export class GlobalService {
     this._batteryStatus();
   }
 
-  getLocalUrlEndpoint() {
-    let localUrl = {
-      url: 'http://192.168.0.91:9081/laps/rest/LOSMobileRestServices/',
-      local: true,
-    };
-    return localUrl;
-  }
-
-  getMasterSubmitUrlEndpoint() {
-    let masSub = {
-      url: 'http://192.168.0.91:9081/laps/rest/LOSMobileRestServices/',
-      local: true,
-    };
-    return masSub;
-  }
-
   _pusblishHardwareBackButtonClicked = new Subject<string>();
   _publishPageNavigation = new Subject<string>();
   _JanaEmployee = new Subject<string>();
@@ -479,30 +300,6 @@ export class GlobalService {
   ekycDismiss(data) {
     this.eKycDismissed.next(data);
   }
-  getapplicationDataChangeDetector() {
-    return this.applicationDataChangeDetector;
-  }
-
-  setapplicationDataChangeDetector(formActivatorStatus, pagename) {
-    let page: any;
-    let pageIndex: number;
-    page = this.applicationDataChangeDetector.find((f, index) => {
-      return f.pageName === pagename;
-    });
-    pageIndex = this.applicationDataChangeDetector.indexOf(page);
-    // alert(`page= ${JSON.stringify(page)} === pageindex ${pageIndex}`);
-    if (pageIndex == -1) {
-      this.applicationDataChangeDetector.push({
-        pageName: pagename,
-        changeDetected: formActivatorStatus,
-      });
-      //  alert(`this.applicationDataChangeDetector= ${JSON.stringify(this.applicationDataChangeDetector)}`);
-    } else {
-      this.applicationDataChangeDetector[pageIndex].pageName = pagename;
-      this.applicationDataChangeDetector[pageIndex].changeDetected =
-        formActivatorStatus;
-    }
-  }
 
   // _GpsStatus() {
   //   this.diagnostic.isGpsLocationAvailable().then((isAvailable) => {
@@ -530,11 +327,6 @@ export class GlobalService {
   //   // console.log(`inside statusbarValues`);
   //   // this.events.publish('statusBar', this._battery, this._wifi, this._gps);
   // }
-
-  resetapplicationDataChangeDetector() {
-    this.applicationDataChangeDetector = [];
-    // alert(`reseting array length => ${this.applicationDataChangeDetector.length}`);
-  }
 
   encMyReq(val) {
     if (val != '' && val != null && val != undefined) {
@@ -596,13 +388,6 @@ export class GlobalService {
     }
   }
 
-  genToken() {
-    let timestamp = new Date().getTime();
-    let RanNum = Math.floor(Math.random() * 90000000) + 10000000;
-    this.sys_token = timestamp.toString() + '_' + RanNum.toString();
-    return this.sys_token;
-  }
-
   basicEnc(val) {
     if (val != '' && val != null && val != undefined) {
       return 'MV_+' + window.btoa(val);
@@ -616,10 +401,6 @@ export class GlobalService {
     } else {
       return val;
     }
-  }
-
-  getToken() {
-    return this.sys_token;
   }
 
   uploadImgFailed(value) {
@@ -768,7 +549,7 @@ export class GlobalService {
         const imageData = url;
         const filePath = `WebPImage/Doc${time}.jpg`;
         const directory =
-          +this.getAndroidV() > 10 ? Directory.Documents : Directory.External;
+          +this.as.androidV > 10 ? Directory.Documents : Directory.External;
         await Filesystem.writeFile({
           path: filePath,
           data: imageData,
@@ -792,7 +573,7 @@ export class GlobalService {
       return new Promise(async (resolve, reject) => {
         const filePath = path;
         const directory =
-          +this.getAndroidV() > 10 ? Directory.Documents : Directory.External;
+          +this.as.androidV > 10 ? Directory.Documents : Directory.External;
         const image = await Filesystem.readFile({
           path: filePath,
           directory: directory,
@@ -841,7 +622,7 @@ export class GlobalService {
       let webpResult;
       let folderImage = data;
       const path =
-        +this.getAndroidV() > 10
+        +this.as.androidV > 10
           ? `/storage/emulated/0/Documents/${data}`
           : `/storage/emulated/0/Android/data/com.jfs.vlwebp/files/${data}`;
       if (WebPConvertor) {
